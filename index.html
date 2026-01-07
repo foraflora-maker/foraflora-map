@@ -318,6 +318,50 @@ select:focus, input[type="text"]:focus {
   margin-bottom: 8px;
 }
 
+.popup-address {
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: #888;
+  line-height: 1.6;
+}
+
+.popup-phone {
+  margin-bottom: 10px;
+}
+
+.popup-phone a {
+  color: #1a1a1a;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.popup-phone a:hover {
+  color: #667eea;
+}
+
+.dealer-address {
+  font-size: 12px;
+  color: #888;
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.dealer-phone {
+  font-size: 13px;
+  margin-top: 6px;
+}
+
+.dealer-phone a {
+  color: #1a1a1a;
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.dealer-phone a:hover {
+  color: #667eea;
+}
+
 @media (max-width: 768px) {
   .filter-panel {
     width: 100%;
@@ -386,7 +430,7 @@ select:focus, input[type="text"]:focus {
     
     <div class="filter-section">
       <label class="filter-label">Ara</label>
-      <input type="text" id="searchInput" placeholder="Bayi adı veya şehir...">
+      <input type="text" id="searchInput" placeholder="Bayi adı, şehir, adres veya telefon...">
     </div>
     
     <div class="filter-section">
@@ -540,6 +584,8 @@ function loadDealers(data) {
         <div class="popup-title">${d.name}</div>
         <div class="popup-info">
           <div class="popup-city">${d.city}</div>
+          ${d.address ? `<div class="popup-address">${d.address}</div>` : ''}
+          ${d.phone ? `<div class="popup-phone"><a href="tel:${d.phone}">${d.phone}</a></div>` : ''}
           <div>
             <span class="dealer-type-tag" style="background: ${TYPE_COLORS[d.type]}; color: white;">
               ${TYPE_LABELS[d.type]}
@@ -574,7 +620,9 @@ function applyFilters() {
     const typeMatch = currentFilter.type === "all" || o.data.type === currentFilter.type;
     const searchMatch = !currentFilter.search || 
       o.data.name.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
-      o.data.city.toLowerCase().includes(currentFilter.search.toLowerCase());
+      o.data.city.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
+      (o.data.address && o.data.address.toLowerCase().includes(currentFilter.search.toLowerCase())) ||
+      (o.data.phone && o.data.phone.includes(currentFilter.search));
     
     return cityMatch && typeMatch && searchMatch;
   });
@@ -592,6 +640,8 @@ function applyFilters() {
           ${TYPE_LABELS[o.data.type]}
         </span>
       </div>
+      ${o.data.address ? `<div class="dealer-address">${o.data.address}</div>` : ''}
+      ${o.data.phone ? `<div class="dealer-phone"><a href="tel:${o.data.phone}">${o.data.phone}</a></div>` : ''}
     `;
     item.onclick = () => {
       map.setView(o.marker.getLatLng(), 14);
