@@ -129,14 +129,29 @@ fetch("dealers.json")
       })
     }).bindPopup(`<strong>${d.name}</strong><br>${d.city}`);
 
+    // TÜM MARKER'LARI BAŞTA GÖSTER
+allMarkers.forEach(o => {
+  clusters[o.data.type].addLayer(o.marker);
+
+  const div = document.createElement("div");
+  div.className = "dealer";
+  div.innerHTML = `<strong>${o.data.name}</strong><br><small>${o.data.city}</small>`;
+  div.onclick = () => {
+    map.setView(o.marker.getLatLng(), 14);
+    o.marker.openPopup();
+  };
+  list.appendChild(div);
+});
+
+counter.innerText = `Türkiye: ${allMarkers.length}`;
+
+
     allMarkers.push({marker,data:d});
   });
 
   [...cities].sort().forEach(c=>{
     citySelect.innerHTML += `<option value="${c}">${c}</option>`;
   });
-
-  applyFilter("");
 });
 
 function applyFilter(city){
