@@ -564,55 +564,88 @@ function loadDealers(data) {
   data.dealers.forEach(d => {
     cities.add(d.city);
 
-    // KUŞ LOGOLU ÖZELLEŞTİRİLMİŞ PIN
+    // ELEGANT MODERN PIN TASARIMI
     const customSVGIcon = L.divIcon({
       className: "",
-      iconSize: [40, 50],
-      iconAnchor: [20, 50],
-      popupAnchor: [0, -50],
+      iconSize: [44, 54],
+      iconAnchor: [22, 54],
+      popupAnchor: [0, -54],
       html: `
-        <svg width="40" height="50" viewBox="0 0 40 50" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));">
-          <!-- Pin Gövdesi -->
-          <path d="M20 2C13 2 7 8 7 15c0 10 13 27 13 27s13-17 13-27c0-7-6-13-13-13z" 
-                fill="${TYPE_COLORS[d.type]}" 
+        <svg width="44" height="54" viewBox="0 0 44 54" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <!-- Gradient tanımları -->
+            <linearGradient id="grad-${d.type}" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" style="stop-color:${TYPE_COLORS[d.type]};stop-opacity:1" />
+              <stop offset="100%" style="stop-color:${TYPE_COLORS[d.type]};stop-opacity:0.85" />
+            </linearGradient>
+            
+            <!-- Gölge filtresi -->
+            <filter id="shadow-${d.type}" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+              <feOffset dx="0" dy="2" result="offsetblur"/>
+              <feComponentTransfer>
+                <feFuncA type="linear" slope="0.3"/>
+              </feComponentTransfer>
+              <feMerge>
+                <feMergeNode/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <!-- Pin gövdesi - Yumuşak damlacık formu -->
+          <path d="M22 4 C14 4 8 10 8 18 C8 28 22 48 22 48 C22 48 36 28 36 18 C36 10 30 4 22 4 Z" 
+                fill="url(#grad-${d.type})" 
+                filter="url(#shadow-${d.type})"
                 stroke="white" 
-                stroke-width="2"/>
+                stroke-width="1.5"
+                opacity="0.95"/>
           
-          <!-- Beyaz İç Daire (Logo Alanı) -->
-          <circle cx="20" cy="15" r="8" fill="white"/>
+          <!-- İç halka - Beyaz -->
+          <circle cx="22" cy="18" r="10" 
+                  fill="white" 
+                  opacity="0.98"
+                  stroke="${TYPE_COLORS[d.type]}" 
+                  stroke-width="0.5"/>
           
-          <!-- Kuş Logo SVG - Buraya kendi kuş logonuzun SVG kodunu ekleyin -->
-          <g transform="translate(20, 15) scale(0.4)">
-            <!-- Basit Kuş İkonu (Kendi logo SVG'nizi buraya yapıştırın) -->
-            <path d="M-8,-5 Q-10,-8 -5,-10 Q0,-12 5,-10 Q10,-8 8,-5 L5,0 Q3,3 0,5 Q-3,3 -5,0 Z" 
-                  fill="${TYPE_COLORS[d.type]}"/>
-            <!-- Kanat -->
-            <path d="M-8,-5 Q-12,-3 -10,2" 
+          <!-- Minimal kuş silüeti -->
+          <g transform="translate(22, 18)">
+            <!-- Kuş gövdesi -->
+            <ellipse cx="0" cy="0" rx="4" ry="5" fill="${TYPE_COLORS[d.type]}" opacity="0.9"/>
+            
+            <!-- Sol kanat -->
+            <path d="M-2,-2 Q-6,-4 -7,-1" 
                   fill="none" 
                   stroke="${TYPE_COLORS[d.type]}" 
-                  stroke-width="1.5"/>
-            <path d="M8,-5 Q12,-3 10,2" 
+                  stroke-width="1.5" 
+                  stroke-linecap="round"
+                  opacity="0.9"/>
+            
+            <!-- Sağ kanat -->
+            <path d="M2,-2 Q6,-4 7,-1" 
                   fill="none" 
                   stroke="${TYPE_COLORS[d.type]}" 
-                  stroke-width="1.5"/>
+                  stroke-width="1.5" 
+                  stroke-linecap="round"
+                  opacity="0.9"/>
+            
+            <!-- Baş -->
+            <circle cx="0" cy="-3" r="2" fill="${TYPE_COLORS[d.type]}" opacity="0.9"/>
+            
+            <!-- Gaga -->
+            <path d="M0,-3 L1,-4" 
+                  stroke="${TYPE_COLORS[d.type]}" 
+                  stroke-width="1" 
+                  stroke-linecap="round"
+                  opacity="0.9"/>
+            
             <!-- Göz -->
-            <circle cx="-2" cy="-3" r="1" fill="white"/>
-            <circle cx="2" cy="-3" r="1" fill="white"/>
+            <circle cx="0.5" cy="-3.5" r="0.5" fill="white"/>
           </g>
+          
+          <!-- Alt nokta vurgusu -->
+          <circle cx="22" cy="48" r="2" fill="${TYPE_COLORS[d.type]}" opacity="0.2"/>
         </svg>
-        
-        <!-- ALTERNATIF: Kuş logosu dosya ise (logo.svg veya bird-icon.png) -->
-        <!-- <div style="position: relative; width: 40px; height: 50px;">
-          <svg width="40" height="50" viewBox="0 0 40 50" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));">
-            <path d="M20 2C13 2 7 8 7 15c0 10 13 27 13 27s13-17 13-27c0-7-6-13-13-13z" 
-                  fill="${TYPE_COLORS[d.type]}" 
-                  stroke="white" 
-                  stroke-width="2"/>
-            <circle cx="20" cy="15" r="8" fill="white"/>
-          </svg>
-          <img src="bird-icon.svg" 
-               style="position: absolute; top: 7px; left: 12px; width: 16px; height: 16px;"/>
-        </div> -->
       `
     });
 
