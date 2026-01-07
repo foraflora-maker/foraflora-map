@@ -5,91 +5,117 @@
       "city": "İstanbul",
       "lat": 41.0082,
       "lng": 28.9784,
-      "type": "uzman"
+      "type": "uzman",
+      "address": "Cumhuriyet Cad. No:123 Şişli",
+      "phone": "0212 123 45 67"
     },
     {
       "name": "Çiçek Dünyası",
       "city": "İstanbul",
       "lat": 41.0150,
       "lng": 29.0100,
-      "type": "bayi"
+      "type": "bayi",
+      "address": "Bağdat Cad. No:456 Kadıköy",
+      "phone": "0216 234 56 78"
     },
     {
       "name": "Yeşil Bahçe Satış",
       "city": "İstanbul",
       "lat": 41.0500,
       "lng": 28.9800,
-      "type": "satis"
+      "type": "satis",
+      "address": "İstiklal Cad. No:789 Beyoğlu",
+      "phone": "0212 345 67 89"
     },
     {
       "name": "Kadıköy Flora",
       "city": "İstanbul",
       "lat": 40.9904,
       "lng": 29.0244,
-      "type": "bayi"
+      "type": "bayi",
+      "address": "Rıhtım Cad. No:34 Kadıköy",
+      "phone": "0216 345 67 89"
     },
     {
       "name": "Beşiktaş Çiçekçilik",
       "city": "İstanbul",
       "lat": 41.0426,
       "lng": 29.0040,
-      "type": "satis"
+      "type": "satis",
+      "address": "Barbaros Bulvarı No:67 Beşiktaş",
+      "phone": "0212 456 78 90"
     },
     {
       "name": "Ankara Flora Center",
       "city": "Ankara",
       "lat": 39.9334,
       "lng": 32.8597,
-      "type": "uzman"
+      "type": "uzman",
+      "address": "Atatürk Bulvarı No:234 Kızılay",
+      "phone": "0312 123 45 67"
     },
     {
       "name": "Başkent Çiçekçilik",
       "city": "Ankara",
       "lat": 39.9200,
       "lng": 32.8540,
-      "type": "bayi"
+      "type": "bayi",
+      "address": "Tunalı Hilmi Cad. No:89 Çankaya",
+      "phone": "0312 234 56 78"
     },
     {
       "name": "Kızılay Çiçek Evi",
       "city": "Ankara",
       "lat": 39.9208,
       "lng": 32.8541,
-      "type": "satis"
+      "type": "satis",
+      "address": "GMK Bulvarı No:45 Maltepe",
+      "phone": "0312 345 67 89"
     },
     {
       "name": "Çankaya Flora",
       "city": "Ankara",
       "lat": 39.9180,
       "lng": 32.8610,
-      "type": "bayi"
+      "type": "bayi",
+      "address": "Çankaya Cad. No:156 Çankaya",
+      "phone": "0312 456 78 90"
     },
     {
       "name": "İzmir Çiçek Bahçesi",
       "city": "İzmir",
       "lat": 38.4192,
       "lng": 27.1287,
-      "type": "uzman"
+      "type": "uzman",
+      "address": "Konak Meydanı No:12 Konak",
+      "phone": "0232 123 45 67"
     },
     {
       "name": "Kordon Çiçekçilik",
       "city": "İzmir",
       "lat": 38.4237,
       "lng": 27.1428,
-      "type": "bayi"
+      "type": "bayi",
+      "address": "Kordon Boyu No:78 Alsancak",
+      "phone": "0232 234 56 78"
     },
     {
       "name": "Alsancak Flora",
       "city": "İzmir",
       "lat": 38.4382,
       "lng": 27.1454,
-      "type": "satis"
+      "type": "satis",
+      "address": "Kıbrıs Şehitleri Cad. No:56 Alsancak",
+      "phone": "0232 345 67 89"
     },
     {
       "name": "Karşıyaka Bayi",
       "city": "İzmir",
       "lat": 38.4597,
       "lng": 27.1106,
-      "type": "bayi"
+      "type": "bayi",
+      "address": "Karşıyaka Çarşısı No:23 Karşıyaka",
+      "phone": "0232 456 78 90"
     },
     {
       "name": "Bursa Yeşil Uzman",
