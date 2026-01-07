@@ -564,19 +564,62 @@ function loadDealers(data) {
   data.dealers.forEach(d => {
     cities.add(d.city);
 
+    // KUŞ LOGOLU ÖZELLEŞTİRİLMİŞ PIN
+    const customSVGIcon = L.divIcon({
+      className: "",
+      iconSize: [40, 50],
+      iconAnchor: [20, 50],
+      popupAnchor: [0, -50],
+      html: `
+        <svg width="40" height="50" viewBox="0 0 40 50" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));">
+          <!-- Pin Gövdesi -->
+          <path d="M20 2C13 2 7 8 7 15c0 10 13 27 13 27s13-17 13-27c0-7-6-13-13-13z" 
+                fill="${TYPE_COLORS[d.type]}" 
+                stroke="white" 
+                stroke-width="2"/>
+          
+          <!-- Beyaz İç Daire (Logo Alanı) -->
+          <circle cx="20" cy="15" r="8" fill="white"/>
+          
+          <!-- Kuş Logo SVG - Buraya kendi kuş logonuzun SVG kodunu ekleyin -->
+          <g transform="translate(20, 15) scale(0.4)">
+            <!-- Basit Kuş İkonu (Kendi logo SVG'nizi buraya yapıştırın) -->
+            <path d="M-8,-5 Q-10,-8 -5,-10 Q0,-12 5,-10 Q10,-8 8,-5 L5,0 Q3,3 0,5 Q-3,3 -5,0 Z" 
+                  fill="${TYPE_COLORS[d.type]}"/>
+            <!-- Kanat -->
+            <path d="M-8,-5 Q-12,-3 -10,2" 
+                  fill="none" 
+                  stroke="${TYPE_COLORS[d.type]}" 
+                  stroke-width="1.5"/>
+            <path d="M8,-5 Q12,-3 10,2" 
+                  fill="none" 
+                  stroke="${TYPE_COLORS[d.type]}" 
+                  stroke-width="1.5"/>
+            <!-- Göz -->
+            <circle cx="-2" cy="-3" r="1" fill="white"/>
+            <circle cx="2" cy="-3" r="1" fill="white"/>
+          </g>
+        </svg>
+        
+        <!-- ALTERNATIF: Kuş logosu dosya ise (logo.svg veya bird-icon.png) -->
+        <!-- <div style="position: relative; width: 40px; height: 50px;">
+          <svg width="40" height="50" viewBox="0 0 40 50" style="filter: drop-shadow(0 3px 6px rgba(0,0,0,0.4));">
+            <path d="M20 2C13 2 7 8 7 15c0 10 13 27 13 27s13-17 13-27c0-7-6-13-13-13z" 
+                  fill="${TYPE_COLORS[d.type]}" 
+                  stroke="white" 
+                  stroke-width="2"/>
+            <circle cx="20" cy="15" r="8" fill="white"/>
+          </svg>
+          <img src="bird-icon.svg" 
+               style="position: absolute; top: 7px; left: 12px; width: 16px; height: 16px;"/>
+        </div> -->
+      `
+    });
+
     const marker = L.marker([d.lat, d.lng], {
       dealerType: d.type,
       dealerData: d,
-      icon: L.divIcon({
-        className: "",
-        iconSize: [30, 38],
-        iconAnchor: [15, 38],
-        popupAnchor: [0, -38],
-        html: `<svg width="30" height="38" viewBox="0 0 24 32" fill="${TYPE_COLORS[d.type]}" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
-          <path d="M12 0C7.6 0 4 3.6 4 8c0 6 8 16 8 16s8-10 8-16c0-4.4-3.6-8-8-8z"/>
-          <circle cx="12" cy="8" r="3" fill="white"/>
-        </svg>`
-      })
+      icon: customSVGIcon  // Buradan icon seçeneğini değiştirebilirsiniz
     });
 
     const popupContent = `
