@@ -1,19 +1,137 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <title>Foraflora Bayiler</title>
-  <meta name="robots" content="noindex,nofollow">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 40px;
-    }
-  </style>
+<meta charset="UTF-8" />
+<title>Foraflora Bayiler</title>
+<meta name="robots" content="noindex,nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link
+  rel="stylesheet"
+  href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+/>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+}
+#container {
+  display: flex;
+  height: 100vh;
+}
+#sidebar {
+  width: 320px;
+  overflow-y: auto;
+  border-right: 1px solid #eee;
+  padding: 12px;
+}
+#map {
+  flex: 1;
+}
+.layer-toggle {
+  margin-bottom: 10px;
+}
+.dealer {
+  cursor: pointer;
+  padding: 6px 4px;
+  border-bottom: 1px solid #f0f0f0;
+}
+.dealer:hover {
+  background: #f7f7f7;
+}
+.dealer small {
+  color: #666;
+}
+</style>
 </head>
+
 <body>
-  <h1>Foraflora Bayi Haritası</h1>
-  <p>GitHub Pages test yayını.</p>
+<div id="container">
+  <div id="sidebar">
+    <h3>Bayiler</h3>
+    <div id="layerToggles"></div>
+    <div id="dealerList"></div>
+  </div>
+  <div id="map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+const map = L.map("map").setView([39.0, 35.0], 6);
+
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "&copy; OpenStreetMap"
+}).addTo(map);
+
+fetch("dealers.json")
+  .then(r => r.json())
+  .then(data => {
+    const layers = {};
+    const dealerList = document.getElementById("dealerList");
+    const toggles = document.getElementById("layerToggles");
+
+    // Katmanları hazırla
+    for (const key in data.layers) {
+      layers[key] = L.layerGroup();
+      if (data.layers[key].visible) {
+        layers[key].addTo(map);
+      }
+
+      // Toggle
+      const div = document.createElement("div");
+      div.className = "layer-toggle";
+      div.innerHTML = `
+        <label>
+          <input type="checkbox" ${data.layers[key].visible ? "checked" : ""}>
+          ${data.layers[key].label}
+        </label>
+      `;
+      div.querySelector("input").addEventListener("change", e => {
+        if (e.target.checked) {
+          layers[key].addTo(map);
+        } else {
+          map.removeLayer(layers[key]);
+        }
+      });
+      toggles.appendChild(div);
+    }
+
+    // Marker + liste
+    data.dealers.forEach(d => {
+      const color = data.layers[d.type].color;
+
+      const icon = L.divIcon({
+        html: `
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="${color}">
+            <path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7zm0 9.5c-1.4 0-2.5-1.1-2.5-2.5S10.6 6.5 12 6.5s2.5 1.1 2.5 2.5S13.4 11.5 12 11.5z"/>
+          </svg>
+        `,
+        className: "",
+        iconSize: [26, 26],
+        iconAnchor: [13, 26]
+      });
+
+      const marker = L.marker([d.lat, d.lng], { icon })
+        .bindPopup(`<strong>${d.name}</strong><br>${d.address}<br>
+          <a target="_blank"
+             href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}">
+             Yol tarifi al
+          </a>`);
+
+      marker.addTo(layers[d.type]);
+
+      const div = document.createElement("div");
+      div.className = "dealer";
+      div.innerHTML = `<strong>${d.name}</strong><br><small>${d.city}</small>`;
+      div.onclick = () => {
+        map.setView([d.lat, d.lng], 14);
+        marker.openPopup();
+      };
+      dealerList.appendChild(div);
+    });
+  });
+</script>
 </body>
 </html>
