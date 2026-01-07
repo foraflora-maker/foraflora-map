@@ -1,61 +1,59 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8">
 <title>Foraflora Bayiler</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
 
 <style>
 body { margin:0; font-family:Arial,sans-serif; }
-#container { display:flex; height:100vh; }
+#app { display:flex; height:100vh; }
 #sidebar {
-  width:320px; padding:12px;
+  width:320px;
+  padding:12px;
+  overflow:auto;
   border-right:1px solid #eee;
-  overflow-y:auto;
 }
 #map { flex:1; }
+h3 { margin-top:0; }
+select { width:100%; padding:6px; margin-bottom:8px; }
 .counter {
-  background:#f5f5f5;
+  background:#f3f3f3;
   padding:8px;
-  margin:10px 0;
   border-radius:6px;
+  margin-bottom:8px;
   font-weight:bold;
 }
-select {
-  width:100%;
-  padding:6px;
-  margin-bottom:8px;
-}
-.layer-toggle { margin-bottom:6px; }
+.layer { margin-bottom:6px; }
 .dealer {
+  padding:6px;
+  border-bottom:1px solid #eee;
   cursor:pointer;
-  padding:6px 4px;
-  border-bottom:1px solid #f0f0f0;
 }
-.dealer:hover { background:#f7f7f7; }
+.dealer:hover { background:#f8f8f8; }
 .dealer small { color:#666; }
 </style>
 </head>
 
 <body>
-<div id="container">
+<div id="app">
   <div id="sidebar">
     <h3>Bayiler</h3>
 
-    <!-- ŞEHİR DROPDOWN -->
     <select id="cityFilter">
       <option value="">Tüm Türkiye</option>
     </select>
 
-    <div id="counter" class="counter">Türkiye: 0</div>
-    <div id="layerToggles"></div>
-    <div id="dealerList"></div>
+    <div id="counter" class="counter"></div>
+    <div id="layers"></div>
+    <div id="list"></div>
   </div>
+
   <div id="map"></div>
 </div>
 
@@ -63,121 +61,95 @@ select {
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
 <script>
-const map = L.map("map", { zoomSnap: 0.5 }).setView([39,35], 6);
+const map = L.map("map").setView([39,35],6);
 
 L.tileLayer(
   "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
   { attribution:"© OpenStreetMap © CARTO" }
 ).addTo(map);
 
-fetch("dealers.json")
-.then(r=>r.json())
-.then(data=>{
-  const clusters = {};
-  const dealerList = document.getElementById("dealerList");
-  const toggles = document.getElementById("layerToggles");
-  const counter = document.getElementById("counter");
-  const citySelect = document.getElementById("cityFilter");
+fetch("dealers.json").then(r=>r.json()).then(data=>{
+  const clusters={}, markers=[];
+  const citySelect=document.getElementById("cityFilter");
+  const counter=document.getElementById("counter");
+  const list=document.getElementById("list");
+  const layersDiv=document.getElementById("layers");
 
-  // Şehir listesi
-  const cities = [...new Set(data.dealers.map(d=>d.city))].sort();
-  cities.forEach(c=>{
-    const opt=document.createElement("option");
-    opt.value=c;
-    opt.textContent=c;
-    citySelect.appendChild(opt);
+  // Şehir dropdown
+  [...new Set(data.dealers.map(d=>d.city))].sort().forEach(c=>{
+    citySelect.innerHTML+=`<option value="${c}">${c}</option>`;
   });
 
   // Katmanlar
-  for(const key in data.layers){
-    clusters[key] = L.markerClusterGroup({
-      showCoverageOnHover:false
-    });
-    if(data.layers[key].visible){
-      map.addLayer(clusters[key]);
-    }
+  for(const k in data.layers){
+    clusters[k]=L.markerClusterGroup();
+    if(data.layers[k].visible) map.addLayer(clusters[k]);
 
-    const div=document.createElement("div");
-    div.className="layer-toggle";
-    div.innerHTML=`
-      <label>
-        <input type="checkbox" ${data.layers[key].visible?"checked":""}>
-        ${data.layers[key].label}
-      </label>
-    `;
-    div.querySelector("input").onchange=e=>{
-      if(e.target.checked) map.addLayer(clusters[key]);
-      else map.removeLayer(clusters[key]);
-    };
-    toggles.appendChild(div);
+    layersDiv.innerHTML+=`
+      <div class="layer">
+        <label>
+          <input type="checkbox" checked data-layer="${k}">
+          ${data.layers[k].label}
+        </label>
+      </div>`;
   }
 
-  // Marker referansları
-  const markers = [];
+  layersDiv.querySelectorAll("input").forEach(cb=>{
+    cb.onchange=e=>{
+      const k=e.target.dataset.layer;
+      e.target.checked ? map.addLayer(clusters[k]) : map.removeLayer(clusters[k]);
+    };
+  });
 
+  // Markerlar
   data.dealers.forEach(d=>{
-    const color=data.layers[d.type].color;
     const icon=L.divIcon({
-      html:`<svg width="28" height="28" viewBox="0 0 24 24" fill="${color}">
-        <path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"/>
+      html:`<svg width="28" height="28" viewBox="0 0 24 24" fill="${data.layers[d.type].color}">
+        <path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/>
       </svg>`,
       className:"",
       iconSize:[28,28],
       iconAnchor:[14,28]
     });
 
-    const marker=L.marker([d.lat,d.lng],{icon})
+    const m=L.marker([d.lat,d.lng],{icon})
       .bindPopup(`
         <strong>${d.name}</strong><br>
         ${d.address}<br>
         <a target="_blank"
-           href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}">
-           Yol tarifi al
-        </a>
+        href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}">
+        Yol tarifi al</a>
       `);
 
-    clusters[d.type].addLayer(marker);
-    markers.push({ marker, data:d });
+    clusters[d.type].addLayer(m);
+    markers.push({m,d});
 
     const div=document.createElement("div");
     div.className="dealer";
     div.innerHTML=`<strong>${d.name}</strong><br><small>${d.city}</small>`;
-    div.onclick=()=>{
-      map.setView([d.lat,d.lng],14);
-      marker.openPopup();
-    };
-    dealerList.appendChild(div);
+    div.onclick=()=>{ map.setView([d.lat,d.lng],14); m.openPopup(); };
+    list.appendChild(div);
   });
 
-  function applyCityFilter(){
-    const city = citySelect.value;
+  function applyFilter(){
+    const city=citySelect.value;
     let count=0;
-
     markers.forEach(o=>{
-      const visible = !city || o.data.city===city;
-      if(visible){
-        clusters[o.data.type].addLayer(o.marker);
-        count++;
-      } else {
-        clusters[o.data.type].removeLayer(o.marker);
-      }
+      const show=!city || o.d.city===city;
+      show ? clusters[o.d.type].addLayer(o.m) : clusters[o.d.type].removeLayer(o.m);
+      if(show) count++;
     });
 
+    counter.innerText = city ? `${city}: ${count}` : `Türkiye: ${count}`;
+
     if(city){
-      counter.innerText = `${city}: ${count}`;
-      const cityMarkers = markers.filter(o=>o.data.city===city);
-      if(cityMarkers.length){
-        const group = L.featureGroup(cityMarkers.map(o=>o.marker));
-        map.fitBounds(group.getBounds().pad(0.3));
-      }
-    } else {
-      counter.innerText = `Türkiye: ${count}`;
-      map.setView([39,35],6);
-    }
+      const g=L.featureGroup(markers.filter(o=>o.d.city===city).map(o=>o.m));
+      if(g.getLayers().length) map.fitBounds(g.getBounds().pad(0.3));
+    } else map.setView([39,35],6);
   }
 
-  citySelect.onchange = applyCityFilter;
-  applyCityFilter();
+  citySelect.onchange=applyFilter;
+  applyFilter();
 });
 </script>
 </body>
