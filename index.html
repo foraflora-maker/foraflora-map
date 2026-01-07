@@ -13,112 +13,211 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f8f9fa;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: #fafafa;
+  color: #1a1a1a;
 }
 
 header {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 20px 30px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  background: #ffffff;
+  padding: 20px 40px;
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
-header h1 {
+.logo-container {
+  width: 180px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+}
+
+.logo-container img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.header-content {
+  flex: 1;
+}
+
+.header-title {
   font-size: 24px;
   font-weight: 600;
-  margin-bottom: 8px;
+  color: #1a1a1a;
+  letter-spacing: -0.5px;
 }
 
-header p {
+.header-subtitle {
+  font-size: 13px;
+  color: #666;
+  margin-top: 4px;
+}
+
+.filter-toggle {
+  position: fixed;
+  top: 120px;
+  right: 20px;
+  z-index: 1001;
+  background: #ffffff;
+  border: 1px solid #e5e5e5;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
   font-size: 14px;
-  opacity: 0.9;
+  font-weight: 500;
+  color: #1a1a1a;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.3s;
 }
 
-#controls {
-  background: white;
-  padding: 20px 30px;
+.filter-toggle:hover {
+  background: #f5f5f5;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.filter-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 380px;
+  height: 100vh;
+  background: #ffffff;
+  box-shadow: -2px 0 12px rgba(0,0,0,0.1);
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  z-index: 1002;
+  overflow-y: auto;
+}
+
+.filter-panel.open {
+  transform: translateX(0);
+}
+
+.filter-header {
+  padding: 24px 28px;
+  border-bottom: 1px solid #e5e5e5;
   display: flex;
-  gap: 20px;
+  justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  position: sticky;
+  top: 0;
+  background: #ffffff;
+  z-index: 10;
 }
 
-.control-group {
+.filter-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #666;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
   display: flex;
-  flex-direction: column;
-  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
 }
 
-.control-group label {
+.close-btn:hover {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.filter-content {
+  padding: 28px;
+}
+
+.filter-section {
+  margin-bottom: 28px;
+}
+
+.filter-label {
   font-size: 12px;
   font-weight: 600;
   color: #666;
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.8px;
+  margin-bottom: 12px;
+  display: block;
 }
 
-select, input {
-  padding: 10px 14px;
-  border: 2px solid #e0e0e0;
+select, input[type="text"] {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #e5e5e5;
   border-radius: 8px;
   font-size: 14px;
-  min-width: 200px;
-  transition: all 0.3s;
-  background: white;
+  color: #1a1a1a;
+  background: #fafafa;
+  transition: all 0.2s;
+  font-family: inherit;
 }
 
-select:focus, input:focus {
+select:focus, input[type="text"]:focus {
   outline: none;
-  border-color: #667eea;
-  box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+  border-color: #1a1a1a;
+  background: #ffffff;
 }
 
-.filter-buttons {
+.type-filters {
   display: flex;
+  flex-direction: column;
   gap: 10px;
-  margin-left: auto;
 }
 
-.filter-btn {
-  padding: 10px 20px;
-  border: 2px solid #e0e0e0;
+.type-filter-btn {
+  padding: 14px 18px;
+  border: 1px solid #e5e5e5;
   border-radius: 8px;
-  background: white;
+  background: #fafafa;
   cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  transition: all 0.3s;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a1a;
+  transition: all 0.2s;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
-.filter-btn.active {
-  background: #667eea;
-  color: white;
-  border-color: #667eea;
+.type-filter-btn:hover {
+  background: #f0f0f0;
+  border-color: #d0d0d0;
 }
 
-.filter-btn:hover:not(.active) {
-  background: #f5f5f5;
-  border-color: #667eea;
+.type-filter-btn.active {
+  background: #1a1a1a;
+  color: #ffffff;
+  border-color: #1a1a1a;
 }
 
-.type-indicator {
-  width: 12px;
-  height: 12px;
+.color-dot {
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
-  display: inline-block;
+  flex-shrink: 0;
 }
 
-#stats {
-  padding: 15px 30px;
-  background: white;
+.stats-bar {
+  padding: 16px 40px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
   display: flex;
-  gap: 30px;
-  border-bottom: 1px solid #e0e0e0;
+  gap: 40px;
+  align-items: center;
 }
 
 .stat-item {
@@ -129,178 +228,112 @@ select:focus, input:focus {
 
 .stat-label {
   font-size: 11px;
-  color: #888;
+  color: #999;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  font-weight: 500;
 }
 
 .stat-value {
   font-size: 20px;
-  font-weight: 700;
-  color: #333;
+  font-weight: 600;
+  color: #1a1a1a;
 }
 
 #map {
-  height: calc(100vh - 280px);
-  min-height: 400px;
+  height: calc(100vh - 154px);
+  width: 100%;
 }
 
-#sidebar {
-  position: fixed;
-  right: 0;
-  top: 280px;
-  bottom: 0;
-  width: 350px;
-  background: white;
-  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
-  overflow-y: auto;
-  transform: translateX(100%);
-  transition: transform 0.3s;
-  z-index: 1000;
-}
-
-#sidebar.open {
-  transform: translateX(0);
-}
-
-#sidebar-header {
-  padding: 20px;
-  background: #667eea;
-  color: white;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-#sidebar-header h3 {
-  font-size: 16px;
-  font-weight: 600;
-}
-
-#closeSidebar {
-  background: none;
-  border: none;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 0;
-  width: 30px;
-  height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: background 0.2s;
-}
-
-#closeSidebar:hover {
-  background: rgba(255,255,255,0.2);
-}
-
-#dealerList {
-  padding: 10px;
+.dealer-list-section {
+  margin-top: 32px;
+  padding-top: 28px;
+  border-top: 1px solid #e5e5e5;
 }
 
 .dealer-item {
-  padding: 16px;
+  padding: 16px 0;
   border-bottom: 1px solid #f0f0f0;
   cursor: pointer;
   transition: all 0.2s;
-  border-left: 4px solid transparent;
 }
 
 .dealer-item:hover {
-  background: #f8f9ff;
-  border-left-color: #667eea;
+  padding-left: 8px;
 }
 
 .dealer-name {
   font-weight: 600;
-  color: #333;
-  margin-bottom: 6px;
-  font-size: 15px;
+  color: #1a1a1a;
+  margin-bottom: 8px;
+  font-size: 14px;
 }
 
-.dealer-meta {
+.dealer-info {
   display: flex;
-  gap: 12px;
+  gap: 16px;
   font-size: 13px;
   color: #666;
+  align-items: center;
 }
 
-.dealer-type-badge {
-  padding: 3px 10px;
-  border-radius: 12px;
+.dealer-type-tag {
+  padding: 4px 10px;
+  border-radius: 4px;
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
-#toggleSidebar {
-  position: fixed;
-  right: 20px;
-  top: 300px;
-  z-index: 999;
-  background: #667eea;
-  color: white;
-  border: none;
-  padding: 12px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(102,126,234,0.4);
-  font-weight: 600;
-  font-size: 14px;
-  transition: all 0.3s;
-}
-
-#toggleSidebar:hover {
-  background: #5568d3;
-  box-shadow: 0 6px 16px rgba(102,126,234,0.5);
-}
-
 .leaflet-popup-content-wrapper {
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+  padding: 0;
 }
 
 .leaflet-popup-content {
-  margin: 16px;
-  font-size: 14px;
+  margin: 0;
+  min-width: 200px;
+}
+
+.popup-content {
+  padding: 20px;
 }
 
 .popup-title {
   font-weight: 600;
-  font-size: 16px;
-  color: #333;
-  margin-bottom: 8px;
+  font-size: 15px;
+  color: #1a1a1a;
+  margin-bottom: 12px;
 }
 
 .popup-info {
   color: #666;
-  line-height: 1.6;
+  line-height: 1.8;
+  font-size: 13px;
+}
+
+.popup-city {
+  margin-bottom: 8px;
 }
 
 @media (max-width: 768px) {
-  #sidebar {
+  .filter-panel {
     width: 100%;
   }
   
-  #controls {
-    flex-direction: column;
-    align-items: stretch;
+  header {
+    padding: 16px 20px;
   }
   
-  .filter-buttons {
-    margin-left: 0;
-    flex-wrap: wrap;
+  .stats-bar {
+    padding: 12px 20px;
+    gap: 20px;
   }
   
-  select, input {
-    min-width: 100%;
+  .filter-toggle {
+    top: 100px;
   }
 }
 </style>
@@ -309,43 +342,16 @@ select:focus, input:focus {
 <body>
 
 <header>
-  <h1>🌸 Foraflora Bayi Haritası</h1>
-  <p>Türkiye genelindeki bayilerimizi keşfedin</p>
+  <div class="logo-container">
+    <img src="logo.svg" alt="Foraflora Logo">
+  </div>
+  <div class="header-content">
+    <div class="header-title">Bayi Haritası</div>
+    <div class="header-subtitle">Türkiye genelindeki satış noktalarımız</div>
+  </div>
 </header>
 
-<div id="controls">
-  <div class="control-group">
-    <label>Şehir Seçin</label>
-    <select id="citySelect">
-      <option value="">Tüm Şehirler</option>
-    </select>
-  </div>
-  
-  <div class="control-group">
-    <label>Bayi Ara</label>
-    <input type="text" id="searchInput" placeholder="Bayi adı yazın...">
-  </div>
-  
-  <div class="filter-buttons">
-    <button class="filter-btn active" data-type="all">
-      <span>Tümü</span>
-    </button>
-    <button class="filter-btn" data-type="uzman">
-      <span class="type-indicator" style="background:#f59e0b"></span>
-      <span>Uzman Bayi</span>
-    </button>
-    <button class="filter-btn" data-type="bayi">
-      <span class="type-indicator" style="background:#16a34a"></span>
-      <span>Bayi</span>
-    </button>
-    <button class="filter-btn" data-type="satis">
-      <span class="type-indicator" style="background:#2563eb"></span>
-      <span>Satış Noktası</span>
-    </button>
-  </div>
-</div>
-
-<div id="stats">
+<div class="stats-bar">
   <div class="stat-item">
     <span class="stat-label">Toplam Bayi</span>
     <span class="stat-value" id="totalCount">0</span>
@@ -355,21 +361,60 @@ select:focus, input:focus {
     <span class="stat-value" id="visibleCount">0</span>
   </div>
   <div class="stat-item">
-    <span class="stat-label">Seçili Şehir</span>
+    <span class="stat-label">Konum</span>
     <span class="stat-value" id="selectedCity">Türkiye</span>
   </div>
 </div>
 
 <div id="map"></div>
 
-<button id="toggleSidebar">📍 Bayi Listesi</button>
+<button class="filter-toggle" onclick="toggleFilters()">Filtrele</button>
 
-<div id="sidebar">
-  <div id="sidebar-header">
-    <h3>Bayi Listesi</h3>
-    <button id="closeSidebar">×</button>
+<div class="filter-panel" id="filterPanel">
+  <div class="filter-header">
+    <span class="filter-title">Filtreler</span>
+    <button class="close-btn" onclick="toggleFilters()">×</button>
   </div>
-  <div id="dealerList"></div>
+  
+  <div class="filter-content">
+    <div class="filter-section">
+      <label class="filter-label">Şehir</label>
+      <select id="citySelect">
+        <option value="">Tüm Şehirler</option>
+      </select>
+    </div>
+    
+    <div class="filter-section">
+      <label class="filter-label">Ara</label>
+      <input type="text" id="searchInput" placeholder="Bayi adı veya şehir...">
+    </div>
+    
+    <div class="filter-section">
+      <label class="filter-label">Bayi Tipi</label>
+      <div class="type-filters">
+        <button class="type-filter-btn active" data-type="all">
+          <span>Tümü</span>
+        </button>
+        <button class="type-filter-btn" data-type="uzman">
+          <span class="color-dot" style="background:#f59e0b"></span>
+          <span>Uzman Bayi</span>
+        </button>
+        <button class="type-filter-btn" data-type="bayi">
+          <span class="color-dot" style="background:#16a34a"></span>
+          <span>Bayi</span>
+        </button>
+        <button class="type-filter-btn" data-type="satis">
+          <span class="color-dot" style="background:#2563eb"></span>
+          <span>Satış Noktası</span>
+        </button>
+      </div>
+    </div>
+    
+    <div class="dealer-list-section">
+      <label class="filter-label">Bayi Listesi</label>
+      <div id="dealerList"></div>
+    </div>
+  </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -390,7 +435,7 @@ const TYPE_LABELS = {
 
 const map = L.map("map").setView([39, 35], 6);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© OpenStreetMap contributors",
+  attribution: "© OpenStreetMap",
   maxZoom: 18
 }).addTo(map);
 
@@ -403,7 +448,7 @@ function createClusterIcon(cluster) {
 
   const types = Object.keys(counts);
   const total = cluster.getChildCount();
-  const size = 50;
+  const size = 48;
 
   if (types.length === 1) {
     return L.divIcon({
@@ -416,8 +461,8 @@ function createClusterIcon(cluster) {
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: bold;
-        font-size: 16px;
+        font-weight: 600;
+        font-size: 15px;
         border: 3px solid white;
         box-shadow: 0 2px 8px rgba(0,0,0,0.2);">${total}</div>`,
       className: "",
@@ -441,11 +486,11 @@ function createClusterIcon(cluster) {
       display: flex;
       align-items: center;
       justify-content: center;
-      font-weight: bold;
-      font-size: 16px;
+      font-weight: 600;
+      font-size: 15px;
       border: 3px solid white;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-      <div style="background: rgba(0,0,0,0.3); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">${total}</div>
+      <div style="background: rgba(0,0,0,0.25); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">${total}</div>
     </div>`,
     className: "",
     iconSize: [size, size]
@@ -465,16 +510,9 @@ map.addLayer(markerCluster);
 const allMarkers = [];
 let currentFilter = { city: "", type: "all", search: "" };
 
-// Sample data - replace with your dealers.json
-const sampleData = {
-  dealers: [
-    { name: "Flora Merkez", city: "İstanbul", lat: 41.0082, lng: 28.9784, type: "uzman" },
-    { name: "Çiçek Dünyası", city: "Ankara", lat: 39.9334, lng: 32.8597, type: "bayi" },
-    { name: "Yeşil Bahçe", city: "İzmir", lat: 38.4192, lng: 27.1287, type: "satis" },
-    { name: "Güzel Çiçekler", city: "İstanbul", lat: 41.0150, lng: 29.0100, type: "bayi" },
-    { name: "Doğa Market", city: "Bursa", lat: 40.1826, lng: 29.0665, type: "satis" }
-  ]
-};
+function toggleFilters() {
+  document.getElementById("filterPanel").classList.toggle("open");
+}
 
 function loadDealers(data) {
   const cities = new Set();
@@ -487,10 +525,10 @@ function loadDealers(data) {
       dealerData: d,
       icon: L.divIcon({
         className: "",
-        iconSize: [32, 40],
-        iconAnchor: [16, 40],
-        popupAnchor: [0, -40],
-        html: `<svg width="32" height="40" viewBox="0 0 24 32" fill="${TYPE_COLORS[d.type]}" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+        iconSize: [30, 38],
+        iconAnchor: [15, 38],
+        popupAnchor: [0, -38],
+        html: `<svg width="30" height="38" viewBox="0 0 24 32" fill="${TYPE_COLORS[d.type]}" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
           <path d="M12 0C7.6 0 4 3.6 4 8c0 6 8 16 8 16s8-10 8-16c0-4.4-3.6-8-8-8z"/>
           <circle cx="12" cy="8" r="3" fill="white"/>
         </svg>`
@@ -498,13 +536,15 @@ function loadDealers(data) {
     });
 
     const popupContent = `
-      <div class="popup-title">${d.name}</div>
-      <div class="popup-info">
-        <div style="margin: 4px 0;">📍 ${d.city}</div>
-        <div style="margin: 4px 0;">
-          <span class="dealer-type-badge" style="background: ${TYPE_COLORS[d.type]}; color: white;">
-            ${TYPE_LABELS[d.type]}
-          </span>
+      <div class="popup-content">
+        <div class="popup-title">${d.name}</div>
+        <div class="popup-info">
+          <div class="popup-city">${d.city}</div>
+          <div>
+            <span class="dealer-type-tag" style="background: ${TYPE_COLORS[d.type]}; color: white;">
+              ${TYPE_LABELS[d.type]}
+            </span>
+          </div>
         </div>
       </div>
     `;
@@ -546,9 +586,9 @@ function applyFilters() {
     item.className = "dealer-item";
     item.innerHTML = `
       <div class="dealer-name">${o.data.name}</div>
-      <div class="dealer-meta">
-        <span>📍 ${o.data.city}</span>
-        <span class="dealer-type-badge" style="background: ${TYPE_COLORS[o.data.type]}; color: white;">
+      <div class="dealer-info">
+        <span>${o.data.city}</span>
+        <span class="dealer-type-tag" style="background: ${TYPE_COLORS[o.data.type]}; color: white;">
           ${TYPE_LABELS[o.data.type]}
         </span>
       </div>
@@ -556,6 +596,9 @@ function applyFilters() {
     item.onclick = () => {
       map.setView(o.marker.getLatLng(), 14);
       o.marker.openPopup();
+      if (window.innerWidth <= 768) {
+        toggleFilters();
+      }
     };
     dealerList.appendChild(item);
   });
@@ -579,30 +622,21 @@ document.getElementById("searchInput").oninput = (e) => {
   applyFilters();
 };
 
-document.querySelectorAll(".filter-btn").forEach(btn => {
+document.querySelectorAll(".type-filter-btn").forEach(btn => {
   btn.onclick = () => {
-    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".type-filter-btn").forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     currentFilter.type = btn.dataset.type;
     applyFilters();
   };
 });
 
-const sidebar = document.getElementById("sidebar");
-document.getElementById("toggleSidebar").onclick = () => {
-  sidebar.classList.toggle("open");
-};
-document.getElementById("closeSidebar").onclick = () => {
-  sidebar.classList.remove("open");
-};
-
-// Load data
 fetch("dealers.json")
   .then(r => r.json())
   .then(loadDealers)
-  .catch(() => {
-    console.log("Using sample data - dealers.json not found");
-    loadDealers(sampleData);
+  .catch(err => {
+    console.error("dealers.json yüklenemedi:", err);
+    alert("Bayi verileri yüklenemedi. Lütfen dealers.json dosyasının doğru konumda olduğundan emin olun.");
   });
 </script>
 
