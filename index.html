@@ -344,6 +344,36 @@ select:focus, input[type="text"]:focus {
   color: #667eea;
 }
 
+.popup-actions {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.directions-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #1a1a1a;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.directions-btn:hover {
+  background: #333;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+}
+
+.directions-btn svg {
+  flex-shrink: 0;
+}
+
 .dealer-address {
   font-size: 12px;
   color: #888;
@@ -364,6 +394,29 @@ select:focus, input[type="text"]:focus {
 
 .dealer-phone a:hover {
   color: #667eea;
+}
+
+.dealer-actions {
+  margin-top: 8px;
+}
+
+.dealer-directions-btn {
+  display: inline-block;
+  padding: 6px 12px;
+  background: #f5f5f5;
+  color: #1a1a1a;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s;
+  border: 1px solid #e5e5e5;
+}
+
+.dealer-directions-btn:hover {
+  background: #1a1a1a;
+  color: white;
+  border-color: #1a1a1a;
 }
 
 @media (max-width: 768px) {
@@ -696,6 +749,17 @@ function loadDealers(data) {
             </span>
           </div>
         </div>
+        <div class="popup-actions">
+          <a href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}" 
+             target="_blank" 
+             class="directions-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 11l3 3L22 4"></path>
+              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+            </svg>
+            Yol Tarifi Al
+          </a>
+        </div>
       </div>
     `;
 
@@ -746,6 +810,14 @@ function applyFilters() {
       </div>
       ${o.data.address ? `<div class="dealer-address">${o.data.address}</div>` : ''}
       ${o.data.phone ? `<div class="dealer-phone"><a href="tel:${o.data.phone}">${o.data.phone}</a></div>` : ''}
+      <div class="dealer-actions">
+        <a href="https://www.google.com/maps/dir/?api=1&destination=${o.data.lat},${o.data.lng}" 
+           target="_blank" 
+           class="dealer-directions-btn"
+           onclick="event.stopPropagation();">
+          Yol Tarifi
+        </a>
+      </div>
     `;
     item.onclick = () => {
       map.setView(o.marker.getLatLng(), 14);
