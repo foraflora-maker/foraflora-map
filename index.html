@@ -22,9 +22,14 @@ body { margin:0; font-family:Arial,sans-serif; }
 .counter {
   background:#f5f5f5;
   padding:8px;
-  margin-bottom:10px;
+  margin:10px 0;
   border-radius:6px;
   font-weight:bold;
+}
+select {
+  width:100%;
+  padding:6px;
+  margin-bottom:8px;
 }
 .layer-toggle { margin-bottom:6px; }
 .dealer {
@@ -41,6 +46,12 @@ body { margin:0; font-family:Arial,sans-serif; }
 <div id="container">
   <div id="sidebar">
     <h3>Bayiler</h3>
+
+    <!-- ŞEHİR DROPDOWN -->
+    <select id="cityFilter">
+      <option value="">Tüm Türkiye</option>
+    </select>
+
     <div id="counter" class="counter">Türkiye: 0</div>
     <div id="layerToggles"></div>
     <div id="dealerList"></div>
@@ -54,7 +65,6 @@ body { margin:0; font-family:Arial,sans-serif; }
 <script>
 const map = L.map("map", { zoomSnap: 0.5 }).setView([39,35], 6);
 
-// 🌿 Premium görünümlü, soft harita
 L.tileLayer(
   "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
   { attribution:"© OpenStreetMap © CARTO" }
@@ -63,49 +73,28 @@ L.tileLayer(
 fetch("dealers.json")
 .then(r=>r.json())
 .then(data=>{
-  const layers = {};
   const clusters = {};
   const dealerList = document.getElementById("dealerList");
   const toggles = document.getElementById("layerToggles");
   const counter = document.getElementById("counter");
+  const citySelect = document.getElementById("cityFilter");
 
-  // Sayaç güncelle
-  function updateCounter(){
-    const bounds = map.getBounds();
-    let count = 0;
-    data.dealers.forEach(d=>{
-      if(bounds.contains([d.lat,d.lng])) count++;
-    });
-
-    let cityCounts = {};
-    data.dealers.forEach(d=>{
-      if(bounds.contains([d.lat,d.lng])){
-        cityCounts[d.city]=(cityCounts[d.city]||0)+1;
-      }
-    });
-
-    if(map.getZoom()<7){
-      counter.innerText = `Türkiye: ${count}`;
-    } else {
-      const txt = Object.entries(cityCounts)
-        .map(([c,n])=>`${c}: ${n}`)
-        .join(" · ");
-      counter.innerText = txt || "—";
-    }
-  }
-
-  map.on("moveend zoomend", updateCounter);
+  // Şehir listesi
+  const cities = [...new Set(data.dealers.map(d=>d.city))].sort();
+  cities.forEach(c=>{
+    const opt=document.createElement("option");
+    opt.value=c;
+    opt.textContent=c;
+    citySelect.appendChild(opt);
+  });
 
   // Katmanlar
   for(const key in data.layers){
     clusters[key] = L.markerClusterGroup({
-      spiderfyOnMaxZoom:true,
       showCoverageOnHover:false
     });
-    layers[key] = clusters[key];
-
     if(data.layers[key].visible){
-      map.addLayer(layers[key]);
+      map.addLayer(clusters[key]);
     }
 
     const div=document.createElement("div");
@@ -117,18 +106,19 @@ fetch("dealers.json")
       </label>
     `;
     div.querySelector("input").onchange=e=>{
-      if(e.target.checked) map.addLayer(layers[key]);
-      else map.removeLayer(layers[key]);
+      if(e.target.checked) map.addLayer(clusters[key]);
+      else map.removeLayer(clusters[key]);
     };
     toggles.appendChild(div);
   }
 
-  // Marker + Liste
+  // Marker referansları
+  const markers = [];
+
   data.dealers.forEach(d=>{
     const color=data.layers[d.type].color;
     const icon=L.divIcon({
-      html:`
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="${color}">
+      html:`<svg width="28" height="28" viewBox="0 0 24 24" fill="${color}">
         <path d="M12 2C8.1 2 5 5.1 5 9c0 5.2 7 13 7 13s7-7.8 7-13c0-3.9-3.1-7-7-7z"/>
       </svg>`,
       className:"",
@@ -147,6 +137,7 @@ fetch("dealers.json")
       `);
 
     clusters[d.type].addLayer(marker);
+    markers.push({ marker, data:d });
 
     const div=document.createElement("div");
     div.className="dealer";
@@ -158,7 +149,35 @@ fetch("dealers.json")
     dealerList.appendChild(div);
   });
 
-  updateCounter();
+  function applyCityFilter(){
+    const city = citySelect.value;
+    let count=0;
+
+    markers.forEach(o=>{
+      const visible = !city || o.data.city===city;
+      if(visible){
+        clusters[o.data.type].addLayer(o.marker);
+        count++;
+      } else {
+        clusters[o.data.type].removeLayer(o.marker);
+      }
+    });
+
+    if(city){
+      counter.innerText = `${city}: ${count}`;
+      const cityMarkers = markers.filter(o=>o.data.city===city);
+      if(cityMarkers.length){
+        const group = L.featureGroup(cityMarkers.map(o=>o.marker));
+        map.fitBounds(group.getBounds().pad(0.3));
+      }
+    } else {
+      counter.innerText = `Türkiye: ${count}`;
+      map.setView([39,35],6);
+    }
+  }
+
+  citySelect.onchange = applyCityFilter;
+  applyCityFilter();
 });
 </script>
 </body>
