@@ -2,155 +2,174 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<title>Foraflora Bayiler</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex,nofollow">
+<title>Foraflora Bayi Haritası</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
 
 <style>
-body { margin:0; font-family:Arial,sans-serif; }
-#app { display:flex; height:100vh; }
-#sidebar {
-  width:320px;
-  padding:12px;
-  overflow:auto;
-  border-right:1px solid #eee;
-}
-#map { flex:1; }
-h3 { margin-top:0; }
-select { width:100%; padding:6px; margin-bottom:8px; }
-.counter {
-  background:#f3f3f3;
-  padding:8px;
-  border-radius:6px;
-  margin-bottom:8px;
-  font-weight:bold;
-}
-.layer { margin-bottom:6px; }
+body { margin:0; font-family:Arial, sans-serif; }
+#map { height: 70vh; }
+#panel { padding:10px; }
+#list { max-height:200px; overflow:auto; }
 .dealer {
   padding:6px;
   border-bottom:1px solid #eee;
   cursor:pointer;
 }
-.dealer:hover { background:#f8f8f8; }
-.dealer small { color:#666; }
+.dealer:hover { background:#f5f5f5; }
 </style>
 </head>
 
 <body>
-<div id="app">
-  <div id="sidebar">
-    <h3>Bayiler</h3>
 
-    <select id="cityFilter">
-      <option value="">Tüm Türkiye</option>
-    </select>
-
-    <div id="counter" class="counter"></div>
-    <div id="layers"></div>
-    <div id="list"></div>
-  </div>
-
-  <div id="map"></div>
+<div id="panel">
+  <select id="citySelect">
+    <option value="">Türkiye (Tümü)</option>
+  </select>
+  <span id="counter"></span>
 </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<div id="map"></div>
+<div id="list"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
 
 <script>
-const map = L.map("map").setView([39,35],6);
+const TYPE_COLORS = {
+  uzman: "#f59e0b",
+  bayi: "#16a34a",
+  satis: "#2563eb"
+};
 
-L.tileLayer(
-  "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-  { attribution:"© OpenStreetMap © CARTO" }
-).addTo(map);
+const map = L.map("map").setView([39, 35], 6);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+  attribution: "© OpenStreetMap"
+}).addTo(map);
 
-fetch("dealers.json").then(r=>r.json()).then(data=>{
-  const clusters={}, markers=[];
-  const citySelect=document.getElementById("cityFilter");
-  const counter=document.getElementById("counter");
-  const list=document.getElementById("list");
-  const layersDiv=document.getElementById("layers");
-
-  // Şehir dropdown
-  [...new Set(data.dealers.map(d=>d.city))].sort().forEach(c=>{
-    citySelect.innerHTML+=`<option value="${c}">${c}</option>`;
+function createClusterIcon(cluster) {
+  const counts = {};
+  cluster.getAllChildMarkers().forEach(m => {
+    const t = m.options.dealerType;
+    counts[t] = (counts[t] || 0) + 1;
   });
 
-  // Katmanlar
-  for(const k in data.layers){
-    clusters[k]=L.markerClusterGroup();
-    if(data.layers[k].visible) map.addLayer(clusters[k]);
+  const types = Object.keys(counts);
+  const size = 44;
 
-    layersDiv.innerHTML+=`
-      <div class="layer">
-        <label>
-          <input type="checkbox" checked data-layer="${k}">
-          ${data.layers[k].label}
-        </label>
-      </div>`;
+  if (types.length === 1) {
+    return L.divIcon({
+      html:`<div style="
+        background:${TYPE_COLORS[types[0]]};
+        width:${size}px;height:${size}px;
+        border-radius:50%;
+        color:#fff;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        font-weight:bold;">${cluster.getChildCount()}</div>`,
+      className:"",
+      iconSize:[size,size]
+    });
   }
 
-  layersDiv.querySelectorAll("input").forEach(cb=>{
-    cb.onchange=e=>{
-      const k=e.target.dataset.layer;
-      e.target.checked ? map.addLayer(clusters[k]) : map.removeLayer(clusters[k]);
-    };
+  const gradient = types.map((t,i)=>{
+    const a = Math.round(i*(100/types.length));
+    const b = Math.round((i+1)*(100/types.length));
+    return `${TYPE_COLORS[t]} ${a}% ${b}%`;
+  }).join(",");
+
+  return L.divIcon({
+    html:`<div style="
+      background:conic-gradient(${gradient});
+      width:${size}px;height:${size}px;
+      border-radius:50%;
+      color:#fff;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:bold;">${cluster.getChildCount()}</div>`,
+    className:"",
+    iconSize:[size,size]
+  });
+}
+
+const clusters = {
+  uzman: L.markerClusterGroup({ iconCreateFunction:createClusterIcon }),
+  bayi:  L.markerClusterGroup({ iconCreateFunction:createClusterIcon }),
+  satis: L.markerClusterGroup({ iconCreateFunction:createClusterIcon })
+};
+
+Object.values(clusters).forEach(c => map.addLayer(c));
+
+const allMarkers = [];
+const list = document.getElementById("list");
+const citySelect = document.getElementById("citySelect");
+const counter = document.getElementById("counter");
+
+fetch("dealers.json")
+.then(r=>r.json())
+.then(data=>{
+  const cities = new Set();
+
+  data.dealers.forEach(d=>{
+    cities.add(d.city);
+
+    const marker = L.marker([d.lat,d.lng],{
+      dealerType:d.type,
+      icon:L.divIcon({
+        className:"",
+        iconSize:[26,26],
+        iconAnchor:[13,26],
+        html:`<svg width="26" height="26" viewBox="0 0 24 24" fill="${TYPE_COLORS[d.type]}">
+          <path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/>
+        </svg>`
+      })
+    }).bindPopup(`<strong>${d.name}</strong><br>${d.city}`);
+
+    allMarkers.push({marker,data:d});
   });
 
-  // Markerlar
-  data.dealers.forEach(d=>{
-    const icon=L.divIcon({
-      html:`<svg width="28" height="28" viewBox="0 0 24 24" fill="${data.layers[d.type].color}">
-        <path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/>
-      </svg>`,
-      className:"",
-      iconSize:[28,28],
-      iconAnchor:[14,28]
-    });
+  [...cities].sort().forEach(c=>{
+    citySelect.innerHTML += `<option value="${c}">${c}</option>`;
+  });
 
-    const m=L.marker([d.lat,d.lng],{icon})
-      .bindPopup(`
-        <strong>${d.name}</strong><br>
-        ${d.address}<br>
-        <a target="_blank"
-        href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}">
-        Yol tarifi al</a>
-      `);
+  applyFilter("");
+});
 
-    clusters[d.type].addLayer(m);
-    markers.push({m,d});
+function applyFilter(city){
+  Object.values(clusters).forEach(c=>c.clearLayers());
+  list.innerHTML = "";
 
-    const div=document.createElement("div");
-    div.className="dealer";
-    div.innerHTML=`<strong>${d.name}</strong><br><small>${d.city}</small>`;
-    div.onclick=()=>{ map.setView([d.lat,d.lng],14); m.openPopup(); };
+  const visible = allMarkers.filter(o=>!city || o.data.city===city);
+
+  visible.forEach(o=>{
+    clusters[o.data.type].addLayer(o.marker);
+
+    const div = document.createElement("div");
+    div.className = "dealer";
+    div.innerHTML = `<strong>${o.data.name}</strong><br><small>${o.data.city}</small>`;
+    div.onclick = ()=>{
+      map.setView(o.marker.getLatLng(),14);
+      o.marker.openPopup();
+    };
     list.appendChild(div);
   });
 
-  function applyFilter(){
-    const city=citySelect.value;
-    let count=0;
-    markers.forEach(o=>{
-      const show=!city || o.d.city===city;
-      show ? clusters[o.d.type].addLayer(o.m) : clusters[o.d.type].removeLayer(o.m);
-      if(show) count++;
-    });
+  counter.innerText = city
+    ? `${city}: ${visible.length}`
+    : `Türkiye: ${visible.length}`;
 
-    counter.innerText = city ? `${city}: ${count}` : `Türkiye: ${count}`;
-
-    if(city){
-      const g=L.featureGroup(markers.filter(o=>o.d.city===city).map(o=>o.m));
-      if(g.getLayers().length) map.fitBounds(g.getBounds().pad(0.3));
-    } else map.setView([39,35],6);
+  if (visible.length){
+    const g = L.featureGroup(visible.map(o=>o.marker));
+    map.fitBounds(g.getBounds().pad(0.3));
   }
+}
 
-  citySelect.onchange=applyFilter;
-  applyFilter();
-});
+citySelect.onchange = ()=>applyFilter(citySelect.value);
 </script>
+
 </body>
 </html>
