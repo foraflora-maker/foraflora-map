@@ -1,48 +1,333 @@
 {
-  "layers": {
-    "uzman": {
-      "label": "Uzman Eczaneler",
-      "color": "#2e7d32",
-      "visible": true
-    },
-    "bayi": {
-      "label": "Bayiler",
-      "color": "#1565c0",
-      "visible": true
-    },
-    "satis": {
-      "label": "Satış Noktaları",
-      "color": "#616161",
-      "visible": false
-    }
-  },
   "dealers": [
     {
-      "id": 1,
-      "type": "uzman",
-      "name": "X Eczanesi",
+      "name": "Flora Merkez Uzman Bayi",
       "city": "İstanbul",
-      "address": "Kadıköy / İstanbul",
-      "lat": 40.9919,
-      "lng": 29.0277
+      "lat": 41.0082,
+      "lng": 28.9784,
+      "type": "uzman"
     },
     {
-      "id": 2,
-      "type": "bayi",
-      "name": "Y Kozmetik",
+      "name": "Çiçek Dünyası",
+      "city": "İstanbul",
+      "lat": 41.0150,
+      "lng": 29.0100,
+      "type": "bayi"
+    },
+    {
+      "name": "Yeşil Bahçe Satış",
+      "city": "İstanbul",
+      "lat": 41.0500,
+      "lng": 28.9800,
+      "type": "satis"
+    },
+    {
+      "name": "Ankara Flora Center",
       "city": "Ankara",
-      "address": "Çankaya / Ankara",
-      "lat": 39.9208,
-      "lng": 32.8541
+      "lat": 39.9334,
+      "lng": 32.8597,
+      "type": "uzman"
     },
     {
-      "id": 3,
-      "type": "satis",
-      "name": "Z Market",
+      "name": "Başkent Çiçekçilik",
+      "city": "Ankara",
+      "lat": 39.9200,
+      "lng": 32.8540,
+      "type": "bayi"
+    },
+    {
+      "name": "Kızılay Çiçek Evi",
+      "city": "Ankara",
+      "lat": 39.9208,
+      "lng": 32.8541,
+      "type": "satis"
+    },
+    {
+      "name": "İzmir Çiçek Bahçesi",
       "city": "İzmir",
-      "address": "Bornova / İzmir",
-      "lat": 38.4622,
-      "lng": 27.2169
+      "lat": 38.4192,
+      "lng": 27.1287,
+      "type": "uzman"
+    },
+    {
+      "name": "Kordon Çiçekçilik",
+      "city": "İzmir",
+      "lat": 38.4237,
+      "lng": 27.1428,
+      "type": "bayi"
+    },
+    {
+      "name": "Alsancak Flora",
+      "city": "İzmir",
+      "lat": 38.4382,
+      "lng": 27.1454,
+      "type": "satis"
+    },
+    {
+      "name": "Bursa Yeşil Uzman",
+      "city": "Bursa",
+      "lat": 40.1826,
+      "lng": 29.0665,
+      "type": "uzman"
+    },
+    {
+      "name": "Nilüfer Çiçek",
+      "city": "Bursa",
+      "lat": 40.2026,
+      "lng": 28.9865,
+      "type": "bayi"
+    },
+    {
+      "name": "Osmangazi Satış",
+      "city": "Bursa",
+      "lat": 40.1900,
+      "lng": 29.0600,
+      "type": "satis"
+    },
+    {
+      "name": "Antalya Flora Uzman",
+      "city": "Antalya",
+      "lat": 36.8969,
+      "lng": 30.7133,
+      "type": "uzman"
+    },
+    {
+      "name": "Kaleiçi Çiçekçilik",
+      "city": "Antalya",
+      "lat": 36.8841,
+      "lng": 30.7056,
+      "type": "bayi"
+    },
+    {
+      "name": "Lara Çiçek Evi",
+      "city": "Antalya",
+      "lat": 36.8500,
+      "lng": 30.7400,
+      "type": "satis"
+    },
+    {
+      "name": "Adana Çukurova Uzman",
+      "city": "Adana",
+      "lat": 37.0000,
+      "lng": 35.3213,
+      "type": "uzman"
+    },
+    {
+      "name": "Seyhan Çiçekçilik",
+      "city": "Adana",
+      "lat": 36.9920,
+      "lng": 35.3308,
+      "type": "bayi"
+    },
+    {
+      "name": "Gaziantep Flora",
+      "city": "Gaziantep",
+      "lat": 37.0662,
+      "lng": 37.3833,
+      "type": "uzman"
+    },
+    {
+      "name": "Şehitkamil Çiçek",
+      "city": "Gaziantep",
+      "lat": 37.0594,
+      "lng": 37.3825,
+      "type": "bayi"
+    },
+    {
+      "name": "Konya Meram Uzman",
+      "city": "Konya",
+      "lat": 37.8667,
+      "lng": 32.4833,
+      "type": "uzman"
+    },
+    {
+      "name": "Selçuklu Çiçekçilik",
+      "city": "Konya",
+      "lat": 37.8719,
+      "lng": 32.4930,
+      "type": "bayi"
+    },
+    {
+      "name": "Kayseri Flora Merkez",
+      "city": "Kayseri",
+      "lat": 38.7205,
+      "lng": 35.4826,
+      "type": "uzman"
+    },
+    {
+      "name": "Melikgazi Çiçek",
+      "city": "Kayseri",
+      "lat": 38.7333,
+      "lng": 35.4833,
+      "type": "bayi"
+    },
+    {
+      "name": "Eskişehir Odunpazarı",
+      "city": "Eskişehir",
+      "lat": 39.7767,
+      "lng": 30.5206,
+      "type": "uzman"
+    },
+    {
+      "name": "Tepebaşı Çiçekçilik",
+      "city": "Eskişehir",
+      "lat": 39.7700,
+      "lng": 30.5300,
+      "type": "bayi"
+    },
+    {
+      "name": "Diyarbakır Sur Flora",
+      "city": "Diyarbakır",
+      "lat": 37.9144,
+      "lng": 40.2306,
+      "type": "uzman"
+    },
+    {
+      "name": "Yenişehir Çiçek",
+      "city": "Diyarbakır",
+      "lat": 37.9200,
+      "lng": 40.2400,
+      "type": "bayi"
+    },
+    {
+      "name": "Samsun İlkadım",
+      "city": "Samsun",
+      "lat": 41.2867,
+      "lng": 36.3300,
+      "type": "uzman"
+    },
+    {
+      "name": "Atakum Çiçekçilik",
+      "city": "Samsun",
+      "lat": 41.3200,
+      "lng": 36.2300,
+      "type": "bayi"
+    },
+    {
+      "name": "Denizli Pamukkale",
+      "city": "Denizli",
+      "lat": 37.7742,
+      "lng": 29.0875,
+      "type": "uzman"
+    },
+    {
+      "name": "Merkezefendi Flora",
+      "city": "Denizli",
+      "lat": 37.7800,
+      "lng": 29.0900,
+      "type": "bayi"
+    },
+    {
+      "name": "Şanlıurfa Merkez",
+      "city": "Şanlıurfa",
+      "lat": 37.1591,
+      "lng": 38.7969,
+      "type": "uzman"
+    },
+    {
+      "name": "Haliliye Çiçek",
+      "city": "Şanlıurfa",
+      "lat": 37.1650,
+      "lng": 38.8000,
+      "type": "bayi"
+    },
+    {
+      "name": "Trabzon Ortahisar",
+      "city": "Trabzon",
+      "lat": 41.0015,
+      "lng": 39.7178,
+      "type": "uzman"
+    },
+    {
+      "name": "Akçaabat Çiçekçilik",
+      "city": "Trabzon",
+      "lat": 41.0200,
+      "lng": 39.5700,
+      "type": "bayi"
+    },
+    {
+      "name": "Malatya Yeşilyurt",
+      "city": "Malatya",
+      "lat": 38.3552,
+      "lng": 38.3095,
+      "type": "uzman"
+    },
+    {
+      "name": "Battalgazi Flora",
+      "city": "Malatya",
+      "lat": 38.3700,
+      "lng": 38.3200,
+      "type": "bayi"
+    },
+    {
+      "name": "Erzurum Yakutiye",
+      "city": "Erzurum",
+      "lat": 39.9000,
+      "lng": 41.2700,
+      "type": "uzman"
+    },
+    {
+      "name": "Palandöken Çiçek",
+      "city": "Erzurum",
+      "lat": 39.9100,
+      "lng": 41.2800,
+      "type": "bayi"
+    },
+    {
+      "name": "Van İpekyolu",
+      "city": "Van",
+      "lat": 38.4941,
+      "lng": 43.4000,
+      "type": "uzman"
+    },
+    {
+      "name": "Edremit Flora",
+      "city": "Van",
+      "lat": 38.5000,
+      "lng": 43.4100,
+      "type": "bayi"
+    },
+    {
+      "name": "Sakarya Adapazarı",
+      "city": "Sakarya",
+      "lat": 40.7569,
+      "lng": 30.3783,
+      "type": "bayi"
+    },
+    {
+      "name": "Serdivan Çiçekçilik",
+      "city": "Sakarya",
+      "lat": 40.7800,
+      "lng": 30.3900,
+      "type": "satis"
+    },
+    {
+      "name": "Balıkesir Merkez",
+      "city": "Balıkesir",
+      "lat": 39.6484,
+      "lng": 27.8826,
+      "type": "bayi"
+    },
+    {
+      "name": "Karşıyaka Flora",
+      "city": "Balıkesir",
+      "lat": 39.6500,
+      "lng": 27.8900,
+      "type": "satis"
+    },
+    {
+      "name": "Kahramanmaraş Dulkadiroğlu",
+      "city": "Kahramanmaraş",
+      "lat": 37.5753,
+      "lng": 36.9228,
+      "type": "bayi"
+    },
+    {
+      "name": "Onikişubat Çiçek",
+      "city": "Kahramanmaraş",
+      "lat": 37.5800,
+      "lng": 36.9300,
+      "type": "satis"
     }
   ]
 }
