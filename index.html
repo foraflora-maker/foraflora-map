@@ -20,19 +20,22 @@ body {
 
 header {
   background: #ffffff;
-  padding: 20px 40px;
+  padding: 24px 40px;
   border-bottom: 1px solid #e5e5e5;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  position: relative;
+  z-index: 900;
 }
 
 .logo-container {
-  width: 180px;
-  height: 50px;
+  width: 200px;
+  height: 60px;
   display: flex;
   align-items: center;
+  flex-shrink: 0;
 }
 
 .logo-container img {
@@ -43,26 +46,27 @@ header {
 
 .header-content {
   flex: 1;
+  min-width: 0;
 }
 
 .header-title {
-  font-size: 24px;
+  font-size: 26px;
   font-weight: 600;
   color: #1a1a1a;
   letter-spacing: -0.5px;
 }
 
 .header-subtitle {
-  font-size: 13px;
+  font-size: 14px;
   color: #666;
   margin-top: 4px;
 }
 
 .filter-toggle {
   position: fixed;
-  top: 120px;
+  top: 130px;
   right: 20px;
-  z-index: 1001;
+  z-index: 899;
   background: #ffffff;
   border: 1px solid #e5e5e5;
   padding: 12px 20px;
@@ -90,7 +94,7 @@ header {
   box-shadow: -2px 0 12px rgba(0,0,0,0.1);
   transform: translateX(100%);
   transition: transform 0.3s ease;
-  z-index: 1002;
+  z-index: 1000;
   overflow-y: auto;
 }
 
@@ -369,15 +373,37 @@ select:focus, input[type="text"]:focus {
   
   header {
     padding: 16px 20px;
+    flex-wrap: wrap;
+  }
+  
+  .logo-container {
+    width: 140px;
+    height: 45px;
+  }
+  
+  .header-content {
+    width: 100%;
+    margin-top: 8px;
+  }
+  
+  .header-title {
+    font-size: 20px;
+  }
+  
+  .header-subtitle {
+    font-size: 12px;
   }
   
   .stats-bar {
     padding: 12px 20px;
     gap: 20px;
+    overflow-x: auto;
   }
   
   .filter-toggle {
-    top: 100px;
+    top: auto;
+    bottom: 20px;
+    right: 20px;
   }
 }
 </style>
@@ -492,23 +518,38 @@ function createClusterIcon(cluster) {
 
   const types = Object.keys(counts);
   const total = cluster.getChildCount();
-  const size = 48;
+  const size = 52;
+  const uniqueId = Date.now() + Math.random();
 
   if (types.length === 1) {
     return L.divIcon({
       html: `<div style="
-        background: ${TYPE_COLORS[types[0]]};
+        position: relative;
         width: ${size}px;
-        height: ${size}px;
-        border-radius: 50%;
-        color: white;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-weight: 600;
-        font-size: 15px;
-        border: 3px solid white;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);">${total}</div>`,
+        height: ${size}px;">
+        <div style="
+          position: absolute;
+          inset: 0;
+          background: ${TYPE_COLORS[types[0]]};
+          opacity: 0.15;
+          border-radius: 50%;
+          transform: scale(1.2);
+        "></div>
+        <div style="
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(135deg, ${TYPE_COLORS[types[0]]} 0%, ${TYPE_COLORS[types[0]]}dd 100%);
+          border-radius: 50%;
+          border: 2px solid white;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: white;
+          font-weight: 600;
+          font-size: 16px;
+        ">${total}</div>
+      </div>`,
       className: "",
       iconSize: [size, size]
     });
@@ -522,19 +563,36 @@ function createClusterIcon(cluster) {
 
   return L.divIcon({
     html: `<div style="
-      background: conic-gradient(${segments});
+      position: relative;
       width: ${size}px;
-      height: ${size}px;
-      border-radius: 50%;
-      color: white;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 600;
-      font-size: 15px;
-      border: 3px solid white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
-      <div style="background: rgba(0,0,0,0.25); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">${total}</div>
+      height: ${size}px;">
+      <div style="
+        position: absolute;
+        inset: 0;
+        background: conic-gradient(${segments});
+        opacity: 0.15;
+        border-radius: 50%;
+        transform: scale(1.2);
+      "></div>
+      <div style="
+        position: absolute;
+        inset: 2px;
+        background: conic-gradient(${segments});
+        border-radius: 50%;
+        border: 2px solid white;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      "></div>
+      <div style="
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 600;
+        font-size: 16px;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+      ">${total}</div>
     </div>`,
     className: "",
     iconSize: [size, size]
@@ -564,87 +622,57 @@ function loadDealers(data) {
   data.dealers.forEach(d => {
     cities.add(d.city);
 
-    // ELEGANT MODERN PIN TASARIMI
+    // ULTRA ELEGANT MİNİMAL PIN
     const customSVGIcon = L.divIcon({
       className: "",
-      iconSize: [44, 54],
-      iconAnchor: [22, 54],
-      popupAnchor: [0, -54],
+      iconSize: [36, 44],
+      iconAnchor: [18, 44],
+      popupAnchor: [0, -44],
       html: `
-        <svg width="44" height="54" viewBox="0 0 44 54" xmlns="http://www.w3.org/2000/svg">
+        <svg width="36" height="44" viewBox="0 0 36 44" xmlns="http://www.w3.org/2000/svg">
           <defs>
-            <!-- Gradient tanımları -->
-            <linearGradient id="grad-${d.type}" x1="0%" y1="0%" x2="0%" y2="100%">
+            <linearGradient id="grad-${d.type}-${Date.now()}" x1="0%" y1="0%" x2="0%" y2="100%">
               <stop offset="0%" style="stop-color:${TYPE_COLORS[d.type]};stop-opacity:1" />
-              <stop offset="100%" style="stop-color:${TYPE_COLORS[d.type]};stop-opacity:0.85" />
+              <stop offset="100%" style="stop-color:${TYPE_COLORS[d.type]};stop-opacity:0.8" />
             </linearGradient>
             
-            <!-- Gölge filtresi -->
-            <filter id="shadow-${d.type}" x="-50%" y="-50%" width="200%" height="200%">
-              <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
-              <feOffset dx="0" dy="2" result="offsetblur"/>
-              <feComponentTransfer>
-                <feFuncA type="linear" slope="0.3"/>
-              </feComponentTransfer>
+            <filter id="glow-${d.type}-${Date.now()}" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="1.5" result="coloredBlur"/>
               <feMerge>
-                <feMergeNode/>
+                <feMergeNode in="coloredBlur"/>
                 <feMergeNode in="SourceGraphic"/>
               </feMerge>
             </filter>
           </defs>
           
-          <!-- Pin gövdesi - Yumuşak damlacık formu -->
-          <path d="M22 4 C14 4 8 10 8 18 C8 28 22 48 22 48 C22 48 36 28 36 18 C36 10 30 4 22 4 Z" 
-                fill="url(#grad-${d.type})" 
-                filter="url(#shadow-${d.type})"
-                stroke="white" 
+          <!-- Gölge -->
+          <ellipse cx="18" cy="40" rx="8" ry="2" fill="#000000" opacity="0.15"/>
+          
+          <!-- Pin gövdesi -->
+          <path d="M18 2 C12 2 7 7 7 13 C7 21 18 40 18 40 C18 40 29 21 29 13 C29 7 24 2 18 2 Z" 
+                fill="url(#grad-${d.type}-${Date.now()})"
+                stroke="rgba(255,255,255,0.9)" 
                 stroke-width="1.5"
-                opacity="0.95"/>
+                filter="url(#glow-${d.type}-${Date.now()})"/>
           
-          <!-- İç halka - Beyaz -->
-          <circle cx="22" cy="18" r="10" 
-                  fill="white" 
-                  opacity="0.98"
-                  stroke="${TYPE_COLORS[d.type]}" 
-                  stroke-width="0.5"/>
+          <!-- İç beyaz daire -->
+          <circle cx="18" cy="13" r="7" 
+                  fill="rgba(255,255,255,0.95)"/>
           
-          <!-- Minimal kuş silüeti -->
-          <g transform="translate(22, 18)">
-            <!-- Kuş gövdesi -->
-            <ellipse cx="0" cy="0" rx="4" ry="5" fill="${TYPE_COLORS[d.type]}" opacity="0.9"/>
-            
-            <!-- Sol kanat -->
-            <path d="M-2,-2 Q-6,-4 -7,-1" 
-                  fill="none" 
-                  stroke="${TYPE_COLORS[d.type]}" 
-                  stroke-width="1.5" 
-                  stroke-linecap="round"
-                  opacity="0.9"/>
-            
-            <!-- Sağ kanat -->
-            <path d="M2,-2 Q6,-4 7,-1" 
-                  fill="none" 
-                  stroke="${TYPE_COLORS[d.type]}" 
-                  stroke-width="1.5" 
-                  stroke-linecap="round"
-                  opacity="0.9"/>
-            
-            <!-- Baş -->
-            <circle cx="0" cy="-3" r="2" fill="${TYPE_COLORS[d.type]}" opacity="0.9"/>
-            
-            <!-- Gaga -->
-            <path d="M0,-3 L1,-4" 
-                  stroke="${TYPE_COLORS[d.type]}" 
-                  stroke-width="1" 
-                  stroke-linecap="round"
-                  opacity="0.9"/>
-            
-            <!-- Göz -->
-            <circle cx="0.5" cy="-3.5" r="0.5" fill="white"/>
-          </g>
+          <!-- Renkli iç halka -->
+          <circle cx="18" cy="13" r="5" 
+                  fill="${TYPE_COLORS[d.type]}"
+                  opacity="0.15"/>
           
-          <!-- Alt nokta vurgusu -->
-          <circle cx="22" cy="48" r="2" fill="${TYPE_COLORS[d.type]}" opacity="0.2"/>
+          <!-- Merkez nokta -->
+          <circle cx="18" cy="13" r="2.5" 
+                  fill="${TYPE_COLORS[d.type]}"
+                  opacity="0.9"/>
+          
+          <!-- İç parlama -->
+          <circle cx="16.5" cy="11.5" r="1" 
+                  fill="white"
+                  opacity="0.6"/>
         </svg>
       `
     });
