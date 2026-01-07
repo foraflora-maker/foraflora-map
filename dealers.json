@@ -22,6 +22,20 @@
       "type": "satis"
     },
     {
+      "name": "Kadıköy Flora",
+      "city": "İstanbul",
+      "lat": 40.9904,
+      "lng": 29.0244,
+      "type": "bayi"
+    },
+    {
+      "name": "Beşiktaş Çiçekçilik",
+      "city": "İstanbul",
+      "lat": 41.0426,
+      "lng": 29.0040,
+      "type": "satis"
+    },
+    {
       "name": "Ankara Flora Center",
       "city": "Ankara",
       "lat": 39.9334,
@@ -43,6 +57,13 @@
       "type": "satis"
     },
     {
+      "name": "Çankaya Flora",
+      "city": "Ankara",
+      "lat": 39.9180,
+      "lng": 32.8610,
+      "type": "bayi"
+    },
+    {
       "name": "İzmir Çiçek Bahçesi",
       "city": "İzmir",
       "lat": 38.4192,
@@ -62,6 +83,13 @@
       "lat": 38.4382,
       "lng": 27.1454,
       "type": "satis"
+    },
+    {
+      "name": "Karşıyaka Bayi",
+      "city": "İzmir",
+      "lat": 38.4597,
+      "lng": 27.1106,
+      "type": "bayi"
     },
     {
       "name": "Bursa Yeşil Uzman",
@@ -106,6 +134,13 @@
       "type": "satis"
     },
     {
+      "name": "Konyaaltı Flora",
+      "city": "Antalya",
+      "lat": 36.8764,
+      "lng": 30.6454,
+      "type": "bayi"
+    },
+    {
       "name": "Adana Çukurova Uzman",
       "city": "Adana",
       "lat": 37.0000,
@@ -118,6 +153,13 @@
       "lat": 36.9920,
       "lng": 35.3308,
       "type": "bayi"
+    },
+    {
+      "name": "Çukurova Satış",
+      "city": "Adana",
+      "lat": 37.0100,
+      "lng": 35.3300,
+      "type": "satis"
     },
     {
       "name": "Gaziantep Flora",
@@ -134,6 +176,13 @@
       "type": "bayi"
     },
     {
+      "name": "Şahinbey Flora",
+      "city": "Gaziantep",
+      "lat": 37.0750,
+      "lng": 37.3900,
+      "type": "satis"
+    },
+    {
       "name": "Konya Meram Uzman",
       "city": "Konya",
       "lat": 37.8667,
@@ -148,6 +197,13 @@
       "type": "bayi"
     },
     {
+      "name": "Karatay Satış",
+      "city": "Konya",
+      "lat": 37.8700,
+      "lng": 32.4950,
+      "type": "satis"
+    },
+    {
       "name": "Kayseri Flora Merkez",
       "city": "Kayseri",
       "lat": 38.7205,
@@ -160,6 +216,13 @@
       "lat": 38.7333,
       "lng": 35.4833,
       "type": "bayi"
+    },
+    {
+      "name": "Kocasinan Flora",
+      "city": "Kayseri",
+      "lat": 38.7100,
+      "lng": 35.4900,
+      "type": "satis"
     },
     {
       "name": "Eskişehir Odunpazarı",
@@ -190,6 +253,13 @@
       "type": "bayi"
     },
     {
+      "name": "Bağlar Satış",
+      "city": "Diyarbakır",
+      "lat": 37.9150,
+      "lng": 40.2350,
+      "type": "satis"
+    },
+    {
       "name": "Samsun İlkadım",
       "city": "Samsun",
       "lat": 41.2867,
@@ -202,6 +272,13 @@
       "lat": 41.3200,
       "lng": 36.2300,
       "type": "bayi"
+    },
+    {
+      "name": "Canik Flora",
+      "city": "Samsun",
+      "lat": 41.2900,
+      "lng": 36.3400,
+      "type": "satis"
     },
     {
       "name": "Denizli Pamukkale",
@@ -230,6 +307,13 @@
       "lat": 37.1650,
       "lng": 38.8000,
       "type": "bayi"
+    },
+    {
+      "name": "Eyyübiye Satış",
+      "city": "Şanlıurfa",
+      "lat": 37.1600,
+      "lng": 38.7950,
+      "type": "satis"
     },
     {
       "name": "Trabzon Ortahisar",
@@ -309,7 +393,7 @@
       "type": "bayi"
     },
     {
-      "name": "Karşıyaka Flora",
+      "name": "Karesi Flora",
       "city": "Balıkesir",
       "lat": 39.6500,
       "lng": 27.8900,
@@ -328,6 +412,34 @@
       "lat": 37.5800,
       "lng": 36.9300,
       "type": "satis"
+    },
+    {
+      "name": "Manisa Şehzadeler",
+      "city": "Manisa",
+      "lat": 38.6191,
+      "lng": 27.4289,
+      "type": "bayi"
+    },
+    {
+      "name": "Yunusemre Flora",
+      "city": "Manisa",
+      "lat": 38.6250,
+      "lng": 27.4350,
+      "type": "satis"
+    },
+    {
+      "name": "Mersin Mezitli",
+      "city": "Mersin",
+      "lat": 36.7622,
+      "lng": 34.5684,
+      "type": "uzman"
+    },
+    {
+      "name": "Yenişehir Çiçekçilik",
+      "city": "Mersin",
+      "lat": 36.8000,
+      "lng": 34.6400,
+      "type": "bayi"
     }
   ]
 }
