@@ -1,0 +1,45 @@
+{
+  "layers": {
+    "uzman_eczane": {
+      "label": "Uzman Eczaneler",
+      "color": "#2e7d32",
+      "icon": "pharmacy",
+      "visible": true
+    },
+    "bayi": {
+      "label": "Bayiler",
+      "color": "#1565c0",
+      "icon": "store",
+      "visible": true
+    },
+    "satis_noktasi": {
+      "label": "Satış Noktaları",
+      "color": "#616161",
+      "icon": "pin",
+      "visible": false
+    }
+  },
+
+  "dealers": [
+    {
+      "id": 1,
+      "type": "uzman_eczane",
+      "name": "X Eczanesi",
+      "city": "İstanbul",
+      "address": "Kadıköy / İstanbul",
+      "lat": 40.9919,
+      "lng": 29.0277,
+      "directions": true
+    },
+    {
+      "id": 2,
+      "type": "bayi",
+      "name": "Y Kozmetik",
+      "city": "Ankara",
+      "address": "Çankaya / Ankara",
+      "lat": 39.9208,
+      "lng": 32.8541,
+      "directions": true
+    }
+  ]
+}
