@@ -1,6 +1,6 @@
 {
   "layers": {
-    "uzman_eczane": {
+    "uzman": {
       "label": "Uzman Eczaneler",
       "color": "#2e7d32",
       "visible": true
@@ -10,7 +10,7 @@
       "color": "#1565c0",
       "visible": true
     },
-    "satis_noktasi": {
+    "satis": {
       "label": "Satış Noktaları",
       "color": "#616161",
       "visible": false
@@ -19,7 +19,7 @@
   "dealers": [
     {
       "id": 1,
-      "type": "uzman_eczane",
+      "type": "uzman",
       "name": "X Eczanesi",
       "city": "İstanbul",
       "address": "Kadıköy / İstanbul",
@@ -37,7 +37,7 @@
     },
     {
       "id": 3,
-      "type": "satis_noktasi",
+      "type": "satis",
       "name": "Z Market",
       "city": "İzmir",
       "address": "Bornova / İzmir",
