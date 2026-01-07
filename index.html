@@ -2,40 +2,378 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Foraflora Bayi Haritası</title>
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.css"/>
-<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster/dist/MarkerCluster.Default.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 
 <style>
-body { margin:0; font-family:Arial, sans-serif; }
-#map { height: 70vh; }
-#panel { padding:10px; }
-#list { max-height:200px; overflow:auto; }
-.dealer {
-  padding:6px;
-  border-bottom:1px solid #eee;
-  cursor:pointer;
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f8f9fa;
 }
-.dealer:hover { background:#f5f5f5; }
+
+header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px 30px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+header h1 {
+  font-size: 24px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+header p {
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+#controls {
+  background: white;
+  padding: 20px 30px;
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.control-group label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+select, input {
+  padding: 10px 14px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+  min-width: 200px;
+  transition: all 0.3s;
+  background: white;
+}
+
+select:focus, input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102,126,234,0.1);
+}
+
+.filter-buttons {
+  display: flex;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.filter-btn {
+  padding: 10px 20px;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-btn.active {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.filter-btn:hover:not(.active) {
+  background: #f5f5f5;
+  border-color: #667eea;
+}
+
+.type-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+#stats {
+  padding: 15px 30px;
+  background: white;
+  display: flex;
+  gap: 30px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #333;
+}
+
+#map {
+  height: calc(100vh - 280px);
+  min-height: 400px;
+}
+
+#sidebar {
+  position: fixed;
+  right: 0;
+  top: 280px;
+  bottom: 0;
+  width: 350px;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+  overflow-y: auto;
+  transform: translateX(100%);
+  transition: transform 0.3s;
+  z-index: 1000;
+}
+
+#sidebar.open {
+  transform: translateX(0);
+}
+
+#sidebar-header {
+  padding: 20px;
+  background: #667eea;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+#sidebar-header h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+#closeSidebar {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+#closeSidebar:hover {
+  background: rgba(255,255,255,0.2);
+}
+
+#dealerList {
+  padding: 10px;
+}
+
+.dealer-item {
+  padding: 16px;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-left: 4px solid transparent;
+}
+
+.dealer-item:hover {
+  background: #f8f9ff;
+  border-left-color: #667eea;
+}
+
+.dealer-name {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+  font-size: 15px;
+}
+
+.dealer-meta {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+  color: #666;
+}
+
+.dealer-type-badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+#toggleSidebar {
+  position: fixed;
+  right: 20px;
+  top: 300px;
+  z-index: 999;
+  background: #667eea;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(102,126,234,0.4);
+  font-weight: 600;
+  font-size: 14px;
+  transition: all 0.3s;
+}
+
+#toggleSidebar:hover {
+  background: #5568d3;
+  box-shadow: 0 6px 16px rgba(102,126,234,0.5);
+}
+
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+}
+
+.leaflet-popup-content {
+  margin: 16px;
+  font-size: 14px;
+}
+
+.popup-title {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.popup-info {
+  color: #666;
+  line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+  #sidebar {
+    width: 100%;
+  }
+  
+  #controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .filter-buttons {
+    margin-left: 0;
+    flex-wrap: wrap;
+  }
+  
+  select, input {
+    min-width: 100%;
+  }
+}
 </style>
 </head>
 
 <body>
 
-<div id="panel">
-  <select id="citySelect">
-    <option value="">Türkiye (Tümü)</option>
-  </select>
-  <span id="counter"></span>
+<header>
+  <h1>🌸 Foraflora Bayi Haritası</h1>
+  <p>Türkiye genelindeki bayilerimizi keşfedin</p>
+</header>
+
+<div id="controls">
+  <div class="control-group">
+    <label>Şehir Seçin</label>
+    <select id="citySelect">
+      <option value="">Tüm Şehirler</option>
+    </select>
+  </div>
+  
+  <div class="control-group">
+    <label>Bayi Ara</label>
+    <input type="text" id="searchInput" placeholder="Bayi adı yazın...">
+  </div>
+  
+  <div class="filter-buttons">
+    <button class="filter-btn active" data-type="all">
+      <span>Tümü</span>
+    </button>
+    <button class="filter-btn" data-type="uzman">
+      <span class="type-indicator" style="background:#f59e0b"></span>
+      <span>Uzman Bayi</span>
+    </button>
+    <button class="filter-btn" data-type="bayi">
+      <span class="type-indicator" style="background:#16a34a"></span>
+      <span>Bayi</span>
+    </button>
+    <button class="filter-btn" data-type="satis">
+      <span class="type-indicator" style="background:#2563eb"></span>
+      <span>Satış Noktası</span>
+    </button>
+  </div>
+</div>
+
+<div id="stats">
+  <div class="stat-item">
+    <span class="stat-label">Toplam Bayi</span>
+    <span class="stat-value" id="totalCount">0</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Gösterilen</span>
+    <span class="stat-value" id="visibleCount">0</span>
+  </div>
+  <div class="stat-item">
+    <span class="stat-label">Seçili Şehir</span>
+    <span class="stat-value" id="selectedCity">Türkiye</span>
+  </div>
 </div>
 
 <div id="map"></div>
-<div id="list"></div>
 
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://unpkg.com/leaflet.markercluster/dist/leaflet.markercluster.js"></script>
+<button id="toggleSidebar">📍 Bayi Listesi</button>
+
+<div id="sidebar">
+  <div id="sidebar-header">
+    <h3>Bayi Listesi</h3>
+    <button id="closeSidebar">×</button>
+  </div>
+  <div id="dealerList"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
 <script>
 const TYPE_COLORS = {
@@ -44,9 +382,16 @@ const TYPE_COLORS = {
   satis: "#2563eb"
 };
 
+const TYPE_LABELS = {
+  uzman: "Uzman Bayi",
+  bayi: "Bayi",
+  satis: "Satış Noktası"
+};
+
 const map = L.map("map").setView([39, 35], 6);
 L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© OpenStreetMap"
+  attribution: "© OpenStreetMap contributors",
+  maxZoom: 18
 }).addTo(map);
 
 function createClusterIcon(cluster) {
@@ -57,133 +402,208 @@ function createClusterIcon(cluster) {
   });
 
   const types = Object.keys(counts);
-  const size = 44;
+  const total = cluster.getChildCount();
+  const size = 50;
 
   if (types.length === 1) {
     return L.divIcon({
-      html:`<div style="
-        background:${TYPE_COLORS[types[0]]};
-        width:${size}px;height:${size}px;
-        border-radius:50%;
-        color:#fff;
-        display:flex;
-        align-items:center;
-        justify-content:center;
-        font-weight:bold;">${cluster.getChildCount()}</div>`,
-      className:"",
-      iconSize:[size,size]
+      html: `<div style="
+        background: ${TYPE_COLORS[types[0]]};
+        width: ${size}px;
+        height: ${size}px;
+        border-radius: 50%;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        font-size: 16px;
+        border: 3px solid white;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);">${total}</div>`,
+      className: "",
+      iconSize: [size, size]
     });
   }
 
-  const gradient = types.map((t,i)=>{
-    const a = Math.round(i*(100/types.length));
-    const b = Math.round((i+1)*(100/types.length));
-    return `${TYPE_COLORS[t]} ${a}% ${b}%`;
-  }).join(",");
+  const segments = types.map((t, i) => {
+    const percent = (counts[t] / total) * 100;
+    const start = i === 0 ? 0 : types.slice(0, i).reduce((sum, type) => sum + (counts[type] / total) * 100, 0);
+    return `${TYPE_COLORS[t]} ${start}% ${start + percent}%`;
+  }).join(", ");
 
   return L.divIcon({
-    html:`<div style="
-      background:conic-gradient(${gradient});
-      width:${size}px;height:${size}px;
-      border-radius:50%;
-      color:#fff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:bold;">${cluster.getChildCount()}</div>`,
-    className:"",
-    iconSize:[size,size]
+    html: `<div style="
+      background: conic-gradient(${segments});
+      width: ${size}px;
+      height: ${size}px;
+      border-radius: 50%;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 16px;
+      border: 3px solid white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
+      <div style="background: rgba(0,0,0,0.3); width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">${total}</div>
+    </div>`,
+    className: "",
+    iconSize: [size, size]
   });
 }
 
-const clusters = {
-  uzman: L.markerClusterGroup({ iconCreateFunction:createClusterIcon }),
-  bayi:  L.markerClusterGroup({ iconCreateFunction:createClusterIcon }),
-  satis: L.markerClusterGroup({ iconCreateFunction:createClusterIcon })
-};
+const markerCluster = L.markerClusterGroup({
+  iconCreateFunction: createClusterIcon,
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  zoomToBoundsOnClick: true,
+  maxClusterRadius: 60
+});
 
-Object.values(clusters).forEach(c => map.addLayer(c));
+map.addLayer(markerCluster);
 
 const allMarkers = [];
-const list = document.getElementById("list");
-const citySelect = document.getElementById("citySelect");
-const counter = document.getElementById("counter");
+let currentFilter = { city: "", type: "all", search: "" };
 
-fetch("dealers.json")
-.then(r=>r.json())
-.then(data=>{
+// Sample data - replace with your dealers.json
+const sampleData = {
+  dealers: [
+    { name: "Flora Merkez", city: "İstanbul", lat: 41.0082, lng: 28.9784, type: "uzman" },
+    { name: "Çiçek Dünyası", city: "Ankara", lat: 39.9334, lng: 32.8597, type: "bayi" },
+    { name: "Yeşil Bahçe", city: "İzmir", lat: 38.4192, lng: 27.1287, type: "satis" },
+    { name: "Güzel Çiçekler", city: "İstanbul", lat: 41.0150, lng: 29.0100, type: "bayi" },
+    { name: "Doğa Market", city: "Bursa", lat: 40.1826, lng: 29.0665, type: "satis" }
+  ]
+};
+
+function loadDealers(data) {
   const cities = new Set();
 
-  data.dealers.forEach(d=>{
+  data.dealers.forEach(d => {
     cities.add(d.city);
 
-    const marker = L.marker([d.lat,d.lng],{
-      dealerType:d.type,
-      icon:L.divIcon({
-        className:"",
-        iconSize:[26,26],
-        iconAnchor:[13,26],
-        html:`<svg width="26" height="26" viewBox="0 0 24 24" fill="${TYPE_COLORS[d.type]}">
-          <path d="M12 2C8 2 5 5 5 9c0 5 7 13 7 13s7-8 7-13c0-4-3-7-7-7z"/>
+    const marker = L.marker([d.lat, d.lng], {
+      dealerType: d.type,
+      dealerData: d,
+      icon: L.divIcon({
+        className: "",
+        iconSize: [32, 40],
+        iconAnchor: [16, 40],
+        popupAnchor: [0, -40],
+        html: `<svg width="32" height="40" viewBox="0 0 24 32" fill="${TYPE_COLORS[d.type]}" style="filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">
+          <path d="M12 0C7.6 0 4 3.6 4 8c0 6 8 16 8 16s8-10 8-16c0-4.4-3.6-8-8-8z"/>
+          <circle cx="12" cy="8" r="3" fill="white"/>
         </svg>`
       })
-    }).bindPopup(`<strong>${d.name}</strong><br>${d.city}`);
+    });
 
-    // TÜM MARKER'LARI BAŞTA GÖSTER
-allMarkers.forEach(o => {
-  clusters[o.data.type].addLayer(o.marker);
+    const popupContent = `
+      <div class="popup-title">${d.name}</div>
+      <div class="popup-info">
+        <div style="margin: 4px 0;">📍 ${d.city}</div>
+        <div style="margin: 4px 0;">
+          <span class="dealer-type-badge" style="background: ${TYPE_COLORS[d.type]}; color: white;">
+            ${TYPE_LABELS[d.type]}
+          </span>
+        </div>
+      </div>
+    `;
 
-  const div = document.createElement("div");
-  div.className = "dealer";
-  div.innerHTML = `<strong>${o.data.name}</strong><br><small>${o.data.city}</small>`;
-  div.onclick = () => {
-    map.setView(o.marker.getLatLng(), 14);
-    o.marker.openPopup();
-  };
-  list.appendChild(div);
-});
-
-counter.innerText = `Türkiye: ${allMarkers.length}`;
-
-
-    allMarkers.push({marker,data:d});
+    marker.bindPopup(popupContent);
+    allMarkers.push({ marker, data: d });
   });
 
-  [...cities].sort().forEach(c=>{
-    citySelect.innerHTML += `<option value="${c}">${c}</option>`;
+  [...cities].sort().forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c;
+    opt.textContent = c;
+    document.getElementById("citySelect").appendChild(opt);
   });
-});
 
-function applyFilter(city){
-  Object.values(clusters).forEach(c=>c.clearLayers());
-  list.innerHTML = "";
+  document.getElementById("totalCount").textContent = allMarkers.length;
+  applyFilters();
+}
 
-  const visible = allMarkers.filter(o=>!city || o.data.city===city);
+function applyFilters() {
+  markerCluster.clearLayers();
+  const dealerList = document.getElementById("dealerList");
+  dealerList.innerHTML = "";
 
-  visible.forEach(o=>{
-    clusters[o.data.type].addLayer(o.marker);
+  const visible = allMarkers.filter(o => {
+    const cityMatch = !currentFilter.city || o.data.city === currentFilter.city;
+    const typeMatch = currentFilter.type === "all" || o.data.type === currentFilter.type;
+    const searchMatch = !currentFilter.search || 
+      o.data.name.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
+      o.data.city.toLowerCase().includes(currentFilter.search.toLowerCase());
+    
+    return cityMatch && typeMatch && searchMatch;
+  });
 
-    const div = document.createElement("div");
-    div.className = "dealer";
-    div.innerHTML = `<strong>${o.data.name}</strong><br><small>${o.data.city}</small>`;
-    div.onclick = ()=>{
-      map.setView(o.marker.getLatLng(),14);
+  visible.forEach(o => {
+    markerCluster.addLayer(o.marker);
+
+    const item = document.createElement("div");
+    item.className = "dealer-item";
+    item.innerHTML = `
+      <div class="dealer-name">${o.data.name}</div>
+      <div class="dealer-meta">
+        <span>📍 ${o.data.city}</span>
+        <span class="dealer-type-badge" style="background: ${TYPE_COLORS[o.data.type]}; color: white;">
+          ${TYPE_LABELS[o.data.type]}
+        </span>
+      </div>
+    `;
+    item.onclick = () => {
+      map.setView(o.marker.getLatLng(), 14);
       o.marker.openPopup();
     };
-    list.appendChild(div);
+    dealerList.appendChild(item);
   });
 
-  counter.innerText = city
-    ? `${city}: ${visible.length}`
-    : `Türkiye: ${visible.length}`;
+  document.getElementById("visibleCount").textContent = visible.length;
+  document.getElementById("selectedCity").textContent = currentFilter.city || "Türkiye";
 
-  if (visible.length){
-    const g = L.featureGroup(visible.map(o=>o.marker));
-    map.fitBounds(g.getBounds().pad(0.3));
+  if (visible.length > 0) {
+    const group = L.featureGroup(visible.map(o => o.marker));
+    map.fitBounds(group.getBounds().pad(0.1));
   }
 }
 
-citySelect.onchange = ()=>applyFilter(citySelect.value);
+document.getElementById("citySelect").onchange = (e) => {
+  currentFilter.city = e.target.value;
+  applyFilters();
+};
+
+document.getElementById("searchInput").oninput = (e) => {
+  currentFilter.search = e.target.value;
+  applyFilters();
+};
+
+document.querySelectorAll(".filter-btn").forEach(btn => {
+  btn.onclick = () => {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    currentFilter.type = btn.dataset.type;
+    applyFilters();
+  };
+});
+
+const sidebar = document.getElementById("sidebar");
+document.getElementById("toggleSidebar").onclick = () => {
+  sidebar.classList.toggle("open");
+};
+document.getElementById("closeSidebar").onclick = () => {
+  sidebar.classList.remove("open");
+};
+
+// Load data
+fetch("dealers.json")
+  .then(r => r.json())
+  .then(loadDealers)
+  .catch(() => {
+    console.log("Using sample data - dealers.json not found");
+    loadDealers(sampleData);
+  });
 </script>
 
 </body>
