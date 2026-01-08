@@ -381,25 +381,37 @@ select:focus, input[type="text"]:focus {
 .directions-btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: #1a1a1a;
-  color: white;
-  text-decoration: none;
-  border-radius: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  transition: all 0.2s;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  background: #547B58;
+  color: #ffffff !important;
+  text-decoration: none !important;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 8px rgba(84, 123, 88, 0.25);
+  letter-spacing: 0.3px;
+  width: 100%;
+  border: none;
 }
 
 .directions-btn:hover {
-  background: #333;
-  transform: translateY(-1px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  background: #5f8b63;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(84, 123, 88, 0.35);
+  color: #ffffff !important;
+  text-decoration: none !important;
 }
 
-.directions-btn svg {
-  flex-shrink: 0;
+.directions-btn:active {
+  transform: translateY(0);
+}
+
+.directions-btn:visited {
+  color: #ffffff !important;
+  text-decoration: none !important;
 }
 
 .dealer-address {
@@ -511,14 +523,14 @@ select:focus, input[type="text"]:focus {
     <img src="logo.svg" alt="Foraflora Logo">
   </div>
   <div class="header-content">
-    <div class="header-title">Bayi Haritası</div>
-    <div class="header-subtitle">Türkiye genelindeki satış noktalarımız</div>
+    <div class="header-title">Foraflora Haritası</div>
+    <div class="header-subtitle">Foraflora'nın Türkiye genelindeki güvenli satış noktaları</div>
   </div>
 </header>
 
 <div class="stats-bar">
   <div class="stat-item">
-    <span class="stat-label">Toplam Bayi</span>
+    <span class="stat-label">Toplam</span>
     <span class="stat-value" id="totalCount">0</span>
   </div>
   <div class="stat-item">
@@ -551,11 +563,11 @@ select:focus, input[type="text"]:focus {
     
     <div class="filter-section">
       <label class="filter-label">Ara</label>
-      <input type="text" id="searchInput" placeholder="Bayi adı, şehir, adres veya telefon...">
+      <input type="text" id="searchInput" placeholder="Satış noktası adı, şehir, adres veya telefon...">
     </div>
     
     <div class="filter-section">
-      <label class="filter-label">Bayi Tipi</label>
+      <label class="filter-label">Satış Noktası Tipi</label>
       <div class="type-filters">
         <button class="type-filter-btn active" data-type="all">
           <span>Tümü</span>
@@ -576,7 +588,7 @@ select:focus, input[type="text"]:focus {
     </div>
     
     <div class="dealer-list-section">
-      <label class="filter-label">Bayi Listesi</label>
+      <label class="filter-label">Satış Noktası Listesi</label>
       <div id="dealerList"></div>
     </div>
   </div>
