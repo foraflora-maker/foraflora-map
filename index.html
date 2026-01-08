@@ -50,10 +50,10 @@ header {
 }
 
 .header-title {
-  font-size: 26px;
-  font-weight: 600;
+  font-size: 28px;
+  font-weight: 700;
   color: #1a1a1a;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.8px;
 }
 
 .header-subtitle {
@@ -145,11 +145,11 @@ header {
 }
 
 .filter-content {
-  padding: 28px;
+  padding: 32px;
 }
 
 .filter-section {
-  margin-bottom: 28px;
+  margin-bottom: 32px;
 }
 
 .filter-label {
@@ -216,10 +216,11 @@ select:focus, input[type="text"]:focus {
 }
 
 .color-dot {
-  width: 10px;
-  height: 10px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.15);
 }
 
 .stats-bar {
@@ -246,9 +247,10 @@ select:focus, input[type="text"]:focus {
 }
 
 .stat-value {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
   color: #1a1a1a;
+  letter-spacing: -0.5px;
 }
 
 #map {
@@ -276,10 +278,11 @@ select:focus, input[type="text"]:focus {
 }
 
 .dealer-name {
-  font-weight: 600;
+  font-weight: 700;
   color: #1a1a1a;
-  margin-bottom: 8px;
-  font-size: 14px;
+  margin-bottom: 10px;
+  font-size: 15px;
+  letter-spacing: -0.2px;
 }
 
 .dealer-info {
@@ -291,19 +294,21 @@ select:focus, input[type="text"]:focus {
 }
 
 .dealer-type-tag {
-  padding: 4px 10px;
-  border-radius: 4px;
-  font-size: 11px;
-  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
 }
 
 .leaflet-popup-content-wrapper {
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.08);
   padding: 0;
   overflow: hidden;
+  border: 1px solid rgba(0,0,0,0.05);
 }
 
 .leaflet-popup-content {
@@ -312,14 +317,16 @@ select:focus, input[type="text"]:focus {
 }
 
 .popup-content {
-  padding: 20px;
+  padding: 24px;
+  background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
 }
 
 .popup-title {
-  font-weight: 600;
-  font-size: 15px;
+  font-weight: 700;
+  font-size: 16px;
   color: #1a1a1a;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
+  letter-spacing: -0.3px;
 }
 
 .popup-info {
@@ -346,18 +353,20 @@ select:focus, input[type="text"]:focus {
 .popup-phone a {
   color: #1a1a1a;
   text-decoration: none;
-  font-weight: 600;
-  font-size: 14px;
+  font-weight: 700;
+  font-size: 15px;
+  letter-spacing: 0.3px;
+  transition: color 0.3s;
 }
 
 .popup-phone a:hover {
-  color: #667eea;
+  color: #547B58;
 }
 
 .popup-actions {
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #f0f0f0;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid #f5f5f5;
 }
 
 .directions-btn {
@@ -411,24 +420,26 @@ select:focus, input[type="text"]:focus {
 }
 
 .dealer-directions-btn {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   padding: 8px 16px;
-  background: linear-gradient(135deg, #f8f9fa 0%, #f0f0f0 100%);
-  color: #1a1a1a;
-  text-decoration: none;
+  background: #ffffff;
+  color: #1a1a1a !important;
+  text-decoration: none !important;
   border-radius: 8px;
   font-size: 12px;
   font-weight: 600;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1.5px solid #e0e0e0;
+  border: 1.5px solid #e8e8e8;
 }
 
 .dealer-directions-btn:hover {
-  background: linear-gradient(135deg, #547B58 0%, #5f8b63 100%);
-  color: #ffffff;
-  border-color: #547B58;
+  background: #1a1a1a;
+  color: #ffffff !important;
+  border-color: #1a1a1a;
   transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(84, 123, 88, 0.25);
+  box-shadow: 0 4px 12px rgba(26, 26, 26, 0.15);
 }
 
 @media (max-width: 768px) {
@@ -765,9 +776,10 @@ function loadDealers(data) {
           <a href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}" 
              target="_blank" 
              class="directions-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M9 11l3 3L22 4"></path>
-              <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+              <polyline points="15 3 21 3 21 9"></polyline>
+              <line x1="10" y1="14" x2="21" y2="3"></line>
             </svg>
             Yol Tarifi Al
           </a>
