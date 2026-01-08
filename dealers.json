@@ -496,66 +496,94 @@
       "phone": "0332 410 05 45"
     },
     {
-      "name": "Balıkesir Merkez",
-      "city": "Balıkesir",
-      "lat": 39.6484,
-      "lng": 27.8826,
+      "name": "Bahar Eczanesi",
+      "city": "Malatya",
+      "lat": 38.56846330754671, 
+      "lng": 37.48900808084206,
       "type": "satis",
-      "address": "Abdurrahmangazi Mahallesi Siper Sokak No: 5/A Sancaktepe",
-      "phone": "0216 311 71 21"
+      "address": "Heyiketeği Mahallesi Hacı Hulusi Efendi Caddesi No: 20/B Darende",
+      "phone": "0422 615 34 20"
     },
     {
-      "name": "Karesi Flora",
-      "city": "Balıkesir",
-      "lat": 39.6500,
-      "lng": 27.8900,
-      "type": "satis",
-      "address": "Abdurrahmangazi Mahallesi Siper Sokak No: 5/A Sancaktepe",
-      "phone": "0216 311 71 21"
-    },
-    {
-      "name": "Kahramanmaraş Dulkadiroğlu",
-      "city": "Kahramanmaraş",
-      "lat": 37.5753,
-      "lng": 36.9228,
-      "type": "satis",
-      "address": "Abdurrahmangazi Mahallesi Siper Sokak No: 5/A Sancaktepe",
-      "phone": "0216 311 71 21"
-    },
-    {
-      "name": "Onikişubat Çiçek",
-      "city": "Kahramanmaraş",
-      "lat": 37.5800,
-      "lng": 36.9300,
-      "type": "satis"
-    },
-    {
-      "name": "Manisa Şehzadeler",
-      "city": "Manisa",
-      "lat": 38.6191,
-      "lng": 27.4289,
-      "type": "bayi"
-    },
-    {
-      "name": "Yunusemre Flora",
-      "city": "Manisa",
-      "lat": 38.6250,
-      "lng": 27.4350,
-      "type": "satis"
-    },
-    {
-      "name": "Mersin Mezitli",
+      "name": "Önder Güner Eczanesi",
       "city": "Mersin",
-      "lat": 36.7622,
-      "lng": 34.5684,
-      "type": "uzman"
+      "lat": 36.927262549504135, 
+      "lng": 34.8601575185208,
+      "type": "satis",
+      "address": "Altaylar Mahallesi Turan Caddesi No: 2 Tarsus",
+      "phone": "0324 626 33 01"
     },
     {
-      "name": "Yenişehir Çiçekçilik",
-      "city": "Mersin",
-      "lat": 36.8000,
-      "lng": 34.6400,
-      "type": "bayi"
+      "name": "Demir Eczanesi",
+      "city": "Osmaniye",
+      "lat": 37.37391550707115, 
+      "lng": 36.09751840667491,
+      "type": "satis",
+      "address": "Talatpaşa Mahallesi Akabe Caddesi No: 162/A Kadirli",
+      "phone": "0328 718 12 71"
+    },
+    {
+      "name": "Keskiner Eczanesi",
+      "city": "Osmaniye",
+      "lat": 37.066028305754664, 
+      "lng": 36.257116665183936,
+      "type": "satis",
+      "address": "Hacı Osmanlı Mahallesi 4009 Sokak No: 15/C Merkez",
+      "phone": "0328 814 22 75"
+    },
+    {
+      "name": "Çağlayan Eczanesi",
+      "city": "Sakarya",
+      "lat": 40.683568437563515, 
+      "lng": 30.62369120542362,
+      "type": "satis",
+      "address": "Ömercikler Mahallesi Necati Temel Caddesi No: 4 Akyazı",
+      "phone": "0264 418 15 32"
+    },
+    {
+      "name": "Duman Eczanesi",
+      "city": "Sivas",
+      "lat": 39.74231432955863, 
+      "lng": 37.029232005400814,
+      "type": "satis",
+      "address": "Mehmet Akif Ersoy Mahallesi Şehit Fethi Akyüz Caddesi No: 3-D Merkez",
+      "phone": "0346 218 19 15"
+    },
+    {
+      "name": "Özçelik Eczanesi",
+      "city": "Şanlıurfa",
+      "lat": 37.1566954185088, 
+      "lng": 38.775563203869375,
+      "type": "satis",
+      "address": "Akabe Mahallesi SSK Caddesi No: 14A Eyyübiye",
+      "phone": "0414 314 74 06"
+    },
+    {
+      "name": "Hocaoğlu Eczanesi",
+      "city": "Şanlıurfa",
+      "lat": 37.02871108096016, 
+      "lng": 38.44068983447928,
+      "type": "satis",
+      "address": "Aligör Mahallesi Cumhuriyet Caddesi No: 21/B Suruç",
+      "phone": "0541 959 15 41"
+    },
+    {
+      "name": "Kuzey Eczanesi",
+      "city": "Trabzon",
+      "lat": 41.00609060066468, 
+      "lng": 39.70597210618518,
+      "type": "satis",
+      "address": "Kurtuluş Mahallesi Kahramanmaraş Caddesi No: 226 Merkez",
+      "phone": "0462 230 02 37"
+    },
+    {
+      "name": "Mi̇hri̇ban Eczanesi̇",
+      "city": "Trabzon",
+      "lat": 40.993830520194294, 
+      "lng": 39.672145174934926,
+      "type": "satis",
+      "address": "2 Nolu Beşi̇rli̇ Mahallesi 913. Sokak No: 8/B Ortahisar",
+      "phone": "0462 223 39 13"
     }
   ]
 }
