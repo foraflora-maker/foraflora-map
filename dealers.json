@@ -103,7 +103,7 @@
       "name": "Ceylan Eczanesi̇",
       "city": "İstanbul",
       "lat": 41.03934289004913, 
-      "lng": 8.870042228465895,
+      "lng": 28.870042228465895,
       "type": "bayi",
       "address": "Fati̇h Mahallesi Aksaray Caddesi No: 16/A Esenler",
       "phone": "0212 569 05 29"
@@ -397,114 +397,130 @@
       "phone": "0212 568 84 46"
     },
     {
-      "name": "Eyyübiye Satış",
-      "city": "Şanlıurfa",
-      "lat": 37.1600,
-      "lng": 38.7950,
+      "name": "Nergi̇s Eczanesi̇",
+      "city": "İstanbul",
+      "lat": 41.08649589337995, 
+      "lng": 28.92545495226029,
       "type": "satis",
-      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
-      "phone": "0212 568 84 46"
+      "address": "Akşemseddi̇n Mahallesi Cengi̇z Topel Caddesi No: 113/1 Eyüpsultan",
+      "phone": "0212 427 17 17"
     },
     {
-      "name": "Trabzon Ortahisar",
-      "city": "Trabzon",
-      "lat": 41.0015,
-      "lng": 39.7178,
+      "name": "Balat Eczanesi",
+      "city": "İstanbul",
+      "lat": 41.03328110174652, 
+      "lng": 28.944416467568573,
       "type": "satis",
-      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
-      "phone": "0212 568 84 46"
+      "address": "Ayvansaray Mahallesi Hacı Rıza Sokak No: 54A Fatih",
+      "phone": "0212 631 28 50"
     },
     {
-      "name": "Akçaabat Çiçekçilik",
-      "city": "Trabzon",
-      "lat": 41.0200,
-      "lng": 39.5700,
+      "name": "Hale Eczanesi̇",
+      "city": "İstanbul",
+      "lat": 41.07675395240234, 
+      "lng": 28.88248014636159,
       "type": "satis",
-      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
-      "phone": "0212 568 84 46"
+      "address": "Karadeni̇z Mahallesi General Aldoğan Caddesi No: 11/B Gaziosmanpaşa",
+      "phone": "0212 617 88 54"
     },
     {
-      "name": "Malatya Yeşilyurt",
-      "city": "Malatya",
-      "lat": 38.3552,
-      "lng": 38.3095,
+      "name": "Safa Eczanesi",
+      "city": "İstanbul",
+      "lat": 40.935820852172235, 
+      "lng": 29.151028374898228,
       "type": "satis",
-      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
-      "phone": "0212 568 84 46"
+      "address": "Zümrütevler Mahallesi Can Sokak No: 1/B Maltepe",
+      "phone": "0216 589 30 15"
     },
     {
-      "name": "Battalgazi Flora",
-      "city": "Malatya",
-      "lat": 38.3700,
-      "lng": 38.3200,
+      "name": "Saydele Eczanesi",
+      "city": "İstanbul",
+      "lat": 40.875451042178895, 
+      "lng": 29.266878552127576,
       "type": "satis",
-      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
-      "phone": "0212 568 84 46"
+      "address": "Fevziçakmak Mahallesi Anibal Sokak No:23/A Pendik",
+      "phone": "0216 397 41 86"
     },
     {
-      "name": "Erzurum Yakutiye",
-      "city": "Erzurum",
-      "lat": 39.9000,
-      "lng": 41.2700,
+      "name": "Eylül Eczanesi",
+      "city": "İstanbul",
+      "lat": 40.9886912525045, 
+      "lng": 29.23407620393717,
       "type": "satis",
-      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
-      "phone": "0212 568 84 46"
+      "address": "Abdurrahmangazi Mahallesi Siper Sokak No: 5/A Sancaktepe",
+      "phone": "0216 311 71 21"
     },
     {
-      "name": "Palandöken Çiçek",
-      "city": "Erzurum",
-      "lat": 39.9100,
-      "lng": 41.2800,
-      "type": "bayi"
+      "name": "Tuğba Eczanesi",
+      "city": "İstanbul",
+      "lat": 41.05476979211609, 
+      "lng": 28.378558602492078,
+      "type": "satis",
+      "address": "Selimpaşa Mahallesi 202. Cadde No: 17/A Silivri",
+      "phone": "0212 731 69 38"
     },
     {
-      "name": "Van İpekyolu",
-      "city": "Van",
-      "lat": 38.4941,
-      "lng": 43.4000,
-      "type": "uzman"
+      "name": "Işık Eczanesi̇",
+      "city": "İstanbul",
+      "lat": 40.98697177550257, 
+      "lng": 29.284552136297027,
+      "type": "satis",
+      "address": "Battalgazi̇ Mahallesi Paşaköy Caddesi No: 61A Sultanbeyli",
+      "phone": "0505 776 09 60"
     },
     {
-      "name": "Edremit Flora",
-      "city": "Van",
-      "lat": 38.5000,
-      "lng": 43.4100,
-      "type": "bayi"
+      "name": "Esi̇n Eczanesi̇",
+      "city": "İstanbul",
+      "lat": 40.82824513891369, 
+      "lng": 29.35807572824685,
+      "type": "satis",
+      "address": "Şi̇fa Mahallesi İnönü Caddesi 73/B Tuzla",
+      "phone": "0538 841 62 97"
     },
     {
-      "name": "Sakarya Adapazarı",
-      "city": "Sakarya",
-      "lat": 40.7569,
-      "lng": 30.3783,
-      "type": "bayi"
+      "name": "Asya Eczanesi",
+      "city": "İstanbul",
+      "lat": 41.0131587849546, 
+      "lng": 29.085408136872484,
+      "type": "satis",
+      "address": "Cumhuri̇yet Mahallesi Hekimoğlu Sokak No: 19/A Üsküdar",
+      "phone": "0216 481 79 73"
     },
     {
-      "name": "Serdivan Çiçekçilik",
-      "city": "Sakarya",
-      "lat": 40.7800,
-      "lng": 30.3900,
-      "type": "satis"
+      "name": "Güzelşehi̇r Eczanesi̇",
+      "city": "Konya",
+      "lat": 37.856671231312895, 
+      "lng": 32.54564581905648,
+      "type": "satis",
+      "address": "Akabe Mahallesi Adana Çevre Yolu Caddesi No:120/A Karatay",
+      "phone": "0332 410 05 45"
     },
     {
       "name": "Balıkesir Merkez",
       "city": "Balıkesir",
       "lat": 39.6484,
       "lng": 27.8826,
-      "type": "bayi"
+      "type": "satis",
+      "address": "Abdurrahmangazi Mahallesi Siper Sokak No: 5/A Sancaktepe",
+      "phone": "0216 311 71 21"
     },
     {
       "name": "Karesi Flora",
       "city": "Balıkesir",
       "lat": 39.6500,
       "lng": 27.8900,
-      "type": "satis"
+      "type": "satis",
+      "address": "Abdurrahmangazi Mahallesi Siper Sokak No: 5/A Sancaktepe",
+      "phone": "0216 311 71 21"
     },
     {
       "name": "Kahramanmaraş Dulkadiroğlu",
       "city": "Kahramanmaraş",
       "lat": 37.5753,
       "lng": 36.9228,
-      "type": "bayi"
+      "type": "satis",
+      "address": "Abdurrahmangazi Mahallesi Siper Sokak No: 5/A Sancaktepe",
+      "phone": "0216 311 71 21"
     },
     {
       "name": "Onikişubat Çiçek",
