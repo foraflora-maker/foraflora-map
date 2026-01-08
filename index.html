@@ -18,6 +18,15 @@ body {
   color: #1a1a1a;
 }
 
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: none;
+}
+
 header {
   background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
   padding: 28px 40px;
@@ -435,11 +444,21 @@ select:focus, input[type="text"]:focus {
 }
 
 .dealer-directions-btn:hover {
-  background: #1a1a1a;
+  background: #547B58;
   color: #ffffff !important;
-  border-color: #1a1a1a;
+  border-color: #547B58;
   transform: translateX(4px);
-  box-shadow: 0 4px 12px rgba(26, 26, 26, 0.15);
+  box-shadow: 0 4px 12px rgba(84, 123, 88, 0.25);
+  text-decoration: none !important;
+}
+
+.dealer-directions-btn:visited {
+  color: #1a1a1a !important;
+  text-decoration: none !important;
+}
+
+.dealer-directions-btn:hover:visited {
+  color: #ffffff !important;
 }
 
 @media (max-width: 768px) {
