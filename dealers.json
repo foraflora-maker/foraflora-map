@@ -76,7 +76,7 @@
       "name": "Esra Eczanesi̇",
       "city": "İstanbul",
       "lat": 41.09515668050005, 
-      "lng": 329.088002489072686,
+      "lng": 29.088002489072686,
       "type": "bayi",
       "address": "Orhan Veli̇ Kanik Caddesi No: 49/D Beykoz",
       "phone": "0216 680 19 94"
@@ -217,186 +217,238 @@
       "phone": "0272 353 31 81"
     },
     {
-      "name": "Şehitkamil Çiçek",
-      "city": "Gaziantep",
-      "lat": 37.0594,
-      "lng": 37.3825,
-      "type": "bayi"
+      "name": "Şarlak Eczanesi̇",
+      "city": "Afyonkarahisar",
+      "lat": 38.75092363147928, 
+      "lng": 30.548867512192935,
+      "type": "satis",
+      "address": "Cumhuri̇yet Mahallesi Hüseyi̇n Bayik Caddesi No: 2/3A Merkez",
+      "phone": "0272 213 13 13"
     },
     {
-      "name": "Şahinbey Flora",
-      "city": "Gaziantep",
-      "lat": 37.0750,
-      "lng": 37.3900,
-      "type": "satis"
+      "name": "Berra Eczanesi̇",
+      "city": "Ankara",
+      "lat": 39.99187933663625, 
+      "lng": 32.82431863623715,
+      "type": "satis",
+      "address": "Yayla Mahallesi 1440. Sokak No: 4/A Keçiören",
+      "phone": "0312 378 62 62"
     },
     {
-      "name": "Konya Meram Uzman",
-      "city": "Konya",
-      "lat": 37.8667,
-      "lng": 32.4833,
-      "type": "uzman"
+      "name": "Meşruti̇yet Eczanesi̇",
+      "city": "Ankara",
+      "lat": 39.91962874002779, 
+      "lng": 32.861436450975035,
+      "type": "satis",
+      "address": "Kültür Mahallesi Meşruti̇yet Caddesi No: 41/B Kızılay",
+      "phone": "0312 431 20 63"
     },
     {
-      "name": "Selçuklu Çiçekçilik",
-      "city": "Konya",
-      "lat": 37.8719,
-      "lng": 32.4930,
-      "type": "bayi"
+      "name": "Çağlasu Eczanesi",
+      "city": "Ankara",
+      "lat": 39.95518160095381, 
+      "lng": 32.57472155331426,
+      "type": "satis",
+      "address": "Pınarbaşı Mahallesi Ahimesut Bulvarı No: 282/B Sincan",
+      "phone": "0312 263 03 65"
     },
     {
-      "name": "Karatay Satış",
-      "city": "Konya",
-      "lat": 37.8700,
-      "lng": 32.4950,
-      "type": "satis"
+      "name": "Demi̇rtaş Eczanesi̇",
+      "city": "Ankara",
+      "lat": 39.950987219303286, 
+      "lng": 32.5877168509941,
+      "type": "satis",
+      "address": "Andi̇çen Mahallesi Ahi̇ Mesut Bulvari No: 206A Sincan",
+      "phone": "0312 263 27 67"
     },
     {
-      "name": "Kayseri Flora Merkez",
-      "city": "Kayseri",
-      "lat": 38.7205,
-      "lng": 35.4826,
-      "type": "uzman"
+      "name": "Senem Eczanesi",
+      "city": "Ankara",
+      "lat": 39.95757615894093, 
+      "lng": 32.58851923621585,
+      "type": "satis",
+      "address": "Maraşal Çakmak Mahallesi Yavuz Caddesi No: 69/A Sincan",
+      "phone": "0312 276 19 20"
     },
     {
-      "name": "Melikgazi Çiçek",
-      "city": "Kayseri",
-      "lat": 38.7333,
-      "lng": 35.4833,
-      "type": "bayi"
+      "name": "Sarıkaya Eczanesi̇",
+      "city": "Artvin",
+      "lat": 40.81652428730909, 
+      "lng": 41.52598362915334,
+      "type": "satis",
+      "address": "Çoruh Mahallesi Recep Tayyi̇p Erdoğan Caddesi No: 14/B Yusufeli",
+      "phone": "0466 811 27 07"
     },
     {
-      "name": "Kocasinan Flora",
-      "city": "Kayseri",
-      "lat": 38.7100,
-      "lng": 35.4900,
-      "type": "satis"
+      "name": "Can Eczanesi̇",
+      "city": "Balıkesir",
+      "lat": 39.3943467473573, 
+      "lng": 28.132068458604845,
+      "type": "satis",
+      "address": "Cami̇ Mahallesi Atatürk Caddesi No: 231-A Bigadiç",
+      "phone": "0266 614 32 10"
     },
     {
-      "name": "Eskişehir Odunpazarı",
-      "city": "Eskişehir",
-      "lat": 39.7767,
-      "lng": 30.5206,
-      "type": "uzman"
+      "name": "Yeni̇hi̇sar Eczanesi̇",
+      "city": "Balıkesir",
+      "lat": 39.653858289696004, 
+      "lng": 27.898600697396322,
+      "type": "satis",
+      "address": "Atatürk Mahallesi Hürri̇yet Sokak No: 13/A Karesi",
+      "phone": "0266 246 01 22"
     },
     {
-      "name": "Tepebaşı Çiçekçilik",
-      "city": "Eskişehir",
-      "lat": 39.7700,
-      "lng": 30.5300,
-      "type": "bayi"
+      "name": "Hülya Eczanesi",
+      "city": "Bolu",
+      "lat": 40.73299313690577, 
+      "lng": 31.625785905454308,
+      "type": "satis",
+      "address": "Köroğlu Mahallesi Yağmur Sokak No: 5/A Merkez",
+      "phone": "0374 217 64 24"
     },
     {
-      "name": "Diyarbakır Sur Flora",
-      "city": "Diyarbakır",
-      "lat": 37.9144,
-      "lng": 40.2306,
-      "type": "uzman"
+      "name": "Özer Eczanesi̇",
+      "city": "Burdur",
+      "lat": 37.47148191697118, 
+      "lng": 30.564204954532876,
+      "type": "satis",
+      "address": "Yetmi̇ş Evler Mahallesi Orhangazi̇ Caddesi No: 5/Z-9 Bucak",
+      "phone": "0248 325 70 50"
     },
     {
-      "name": "Yenişehir Çiçek",
-      "city": "Diyarbakır",
-      "lat": 37.9200,
-      "lng": 40.2400,
-      "type": "bayi"
+      "name": "Şeremet Eczanesi",
+      "city": "Bursa",
+      "lat": 40.21767503062707, 
+      "lng": 28.991887089792055,
+      "type": "satis",
+      "address": "İhsaniye Mahallesi Ziya Güney Caddesi No: 17 Nilüfer",
+      "phone": "0224 245 68 39"
     },
     {
-      "name": "Bağlar Satış",
-      "city": "Diyarbakır",
-      "lat": 37.9150,
-      "lng": 40.2350,
-      "type": "satis"
+      "name": "Can Eczanesi̇",
+      "city": "Bursa",
+      "lat": 40.20424529423661, 
+      "lng": 29.00540254431813,
+      "type": "satis",
+      "address": "Di̇kkaldirim Mahallesi Di̇kkaldirim Caddesi No: 124/B Osmangazi",
+      "phone": "0224 239 99 32"
     },
     {
-      "name": "Samsun İlkadım",
-      "city": "Samsun",
-      "lat": 41.2867,
-      "lng": 36.3300,
-      "type": "uzman"
+      "name": "Cemre Eczanesi",
+      "city": "Bursa",
+      "lat": 40.20427613243275, 
+      "lng": 29.102098482392652,
+      "type": "satis",
+      "address": "Yunusemre Mahallesi Kazımkarabekir Caddesi No: 98 Yıldırım",
+      "phone": "0224 363 04 03"
     },
     {
-      "name": "Atakum Çiçekçilik",
-      "city": "Samsun",
-      "lat": 41.3200,
-      "lng": 36.2300,
-      "type": "bayi"
+      "name": "Yıldız Avcılar Eczanesi",
+      "city": "İstanbul",
+      "lat": 40.982508056020244, 
+      "lng": 28.721303946218015,
+      "type": "satis",
+      "address": "Merkez Mahallesi Namık Kemal Caddesi No: 29/2-A Avcılar",
+      "phone": "0212 590 50 76"
     },
     {
-      "name": "Canik Flora",
-      "city": "Samsun",
-      "lat": 41.2900,
-      "lng": 36.3400,
-      "type": "satis"
+      "name": "Şi̇fanur Eczanesi̇",
+      "city": "İstanbul",
+      "lat": 41.049658830807765, 
+      "lng": 28.839015190311574,
+      "type": "satis",
+      "address": "Demi̇rkapi Mahallesi 1676 Sokak No: 7/A Bağcılar",
+      "phone": "0212 521 15 75"
     },
     {
-      "name": "Denizli Pamukkale",
-      "city": "Denizli",
-      "lat": 37.7742,
-      "lng": 29.0875,
-      "type": "uzman"
+      "name": "Şule Eczanesi",
+      "city": "İstanbul",
+      "lat": 41.004552974446746, 
+      "lng": 28.840263228916786,
+      "type": "satis",
+      "address": "Hürriyet Mahallesi Hürriyet Caddesi Söğüt Sokak No: 12 Bahçelievler",
+      "phone": "0212 503 00 26"
     },
     {
-      "name": "Merkezefendi Flora",
-      "city": "Denizli",
-      "lat": 37.7800,
-      "lng": 29.0900,
-      "type": "bayi"
+      "name": "Belgi̇n Eczanesi̇",
+      "city": "İstanbul",
+      "lat": 41.11050966255706, 
+      "lng": 28.78948812898362,
+      "type": "satis",
+      "address": "Başakşehi̇r Mahallesi Cahi̇t Zari̇foğlu Caddesi Oli̇mpa Park 1 No: 10/B Başakşehir",
+      "phone": "0212 487 68 06"
     },
     {
-      "name": "Şanlıurfa Merkez",
-      "city": "Şanlıurfa",
-      "lat": 37.1591,
-      "lng": 38.7969,
-      "type": "uzman"
+      "name": "Hilal Eczanesi",
+      "city": "İstanbul",
+      "lat": 41.04083744227498, 
+      "lng": 28.88256531303888,
+      "type": "satis",
+      "address": "Fevziçakmak Mahallesi 1111. Sokak No:2/A Esenler",
+      "phone": "0212 562 37 36"
     },
     {
-      "name": "Haliliye Çiçek",
-      "city": "Şanlıurfa",
-      "lat": 37.1650,
-      "lng": 38.8000,
-      "type": "bayi"
+      "name": "Meydan Eczanesi",
+      "city": "İstanbul",
+      "lat": 41.03872924811535, 
+      "lng": 28.88098086757186,
+      "type": "satis",
+      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
+      "phone": "0212 568 84 46"
     },
     {
       "name": "Eyyübiye Satış",
       "city": "Şanlıurfa",
       "lat": 37.1600,
       "lng": 38.7950,
-      "type": "satis"
+      "type": "satis",
+      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
+      "phone": "0212 568 84 46"
     },
     {
       "name": "Trabzon Ortahisar",
       "city": "Trabzon",
       "lat": 41.0015,
       "lng": 39.7178,
-      "type": "uzman"
+      "type": "satis",
+      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
+      "phone": "0212 568 84 46"
     },
     {
       "name": "Akçaabat Çiçekçilik",
       "city": "Trabzon",
       "lat": 41.0200,
       "lng": 39.5700,
-      "type": "bayi"
+      "type": "satis",
+      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
+      "phone": "0212 568 84 46"
     },
     {
       "name": "Malatya Yeşilyurt",
       "city": "Malatya",
       "lat": 38.3552,
       "lng": 38.3095,
-      "type": "uzman"
+      "type": "satis",
+      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
+      "phone": "0212 568 84 46"
     },
     {
       "name": "Battalgazi Flora",
       "city": "Malatya",
       "lat": 38.3700,
       "lng": 38.3200,
-      "type": "bayi"
+      "type": "satis",
+      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
+      "phone": "0212 568 84 46"
     },
     {
       "name": "Erzurum Yakutiye",
       "city": "Erzurum",
       "lat": 39.9000,
       "lng": 41.2700,
-      "type": "uzman"
+      "type": "satis",
+      "address": "Nine Hatun Mahallesi İnönü Caddesi No: 19/3 Esenler",
+      "phone": "0212 568 84 46"
     },
     {
       "name": "Palandöken Çiçek",
