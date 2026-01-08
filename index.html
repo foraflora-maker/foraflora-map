@@ -29,7 +29,7 @@ a:hover {
 
 header {
   background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
-  padding: 28px 40px;
+  padding: 20px 40px;
   border-bottom: 1px solid #e8e8e8;
   display: flex;
   align-items: center;
@@ -40,8 +40,8 @@ header {
 }
 
 .logo-container {
-  width: 300px;
-  height: 90px;
+  width: 240px;
+  height: 70px;
   display: flex;
   align-items: center;
   flex-shrink: 0;
@@ -59,21 +59,21 @@ header {
 }
 
 .header-title {
-  font-size: 28px;
+  font-size: 24px;
   font-weight: 700;
   color: #1a1a1a;
   letter-spacing: -0.8px;
 }
 
 .header-subtitle {
-  font-size: 14px;
+  font-size: 13px;
   color: #666;
-  margin-top: 4px;
+  margin-top: 2px;
 }
 
 .filter-toggle {
   position: fixed;
-  top: 130px;
+  top: 115px;
   right: 20px;
   z-index: 899;
   background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
@@ -233,7 +233,7 @@ select:focus, input[type="text"]:focus {
 }
 
 .stats-bar {
-  padding: 18px 40px;
+  padding: 14px 40px;
   background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
   border-bottom: 1px solid #f0f0f0;
   display: flex;
@@ -256,14 +256,14 @@ select:focus, input[type="text"]:focus {
 }
 
 .stat-value {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: #1a1a1a;
   letter-spacing: -0.5px;
 }
 
 #map {
-  height: calc(100vh - 154px);
+  height: calc(100vh - 134px);
   width: 100%;
 }
 
@@ -472,8 +472,8 @@ select:focus, input[type="text"]:focus {
   }
   
   .logo-container {
-    width: 140px;
-    height: 45px;
+    width: 160px;
+    height: 50px;
   }
   
   .header-content {
@@ -511,14 +511,14 @@ select:focus, input[type="text"]:focus {
     <img src="logo.svg" alt="Foraflora Logo">
   </div>
   <div class="header-content">
-    <div class="header-title">Foraflora Haritası</div>
-    <div class="header-subtitle">Foraflora'nın Türkiye genelindeki güvenli satış noktaları</div>
+    <div class="header-title">Bayi Haritası</div>
+    <div class="header-subtitle">Türkiye genelindeki satış noktalarımız</div>
   </div>
 </header>
 
 <div class="stats-bar">
   <div class="stat-item">
-    <span class="stat-label">Toplam</span>
+    <span class="stat-label">Toplam Bayi</span>
     <span class="stat-value" id="totalCount">0</span>
   </div>
   <div class="stat-item">
@@ -551,11 +551,11 @@ select:focus, input[type="text"]:focus {
     
     <div class="filter-section">
       <label class="filter-label">Ara</label>
-      <input type="text" id="searchInput" placeholder="Satış noktası adı, şehir, adres veya telefon...">
+      <input type="text" id="searchInput" placeholder="Bayi adı, şehir, adres veya telefon...">
     </div>
     
     <div class="filter-section">
-      <label class="filter-label">Satış Noktası Tipi</label>
+      <label class="filter-label">Bayi Tipi</label>
       <div class="type-filters">
         <button class="type-filter-btn active" data-type="all">
           <span>Tümü</span>
@@ -576,7 +576,7 @@ select:focus, input[type="text"]:focus {
     </div>
     
     <div class="dealer-list-section">
-      <label class="filter-label">Satış Noktası Listesi</label>
+      <label class="filter-label">Bayi Listesi</label>
       <div id="dealerList"></div>
     </div>
   </div>
