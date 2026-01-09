@@ -1,3 +1,17 @@
+<!--
+⚠️ PLAYGROUND MODE ⚠️
+
+Bu dosya DENEY alanıdır.
+LIVE klasörüne KOPYALAMADAN ÖNCE:
+
+☐ Playground banner kaldırıldı mı?
+☐ console.log("PLAYGROUND") silindi mi?
+☐ test CSS silindi mi?
+☐ mock dealers.json mu kullanılıyor?
+
+SİL → CANLIYA AL
+-->
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -11,6 +25,26 @@
 
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  #playground-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: repeating-linear-gradient(
+    45deg,
+    #ff9800,
+    #ff9800 10px,
+    #000 10px,
+    #000 20px
+  );
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  padding: 6px 0;
+  z-index: 9999;
+}
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
@@ -638,6 +672,10 @@ select:focus, input[type="text"]:focus {
 </head>
 
 <body>
+  
+<div id="playground-banner">
+  ⚠️ PLAYGROUND MODE – CANLI DEĞİL
+</div>
 
 <header>
   <div class="logo-container">
