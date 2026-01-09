@@ -1103,16 +1103,11 @@ document.querySelectorAll(".type-filter-btn").forEach(btn => {
 });
 
 fetch("dealers.json")
-  .then(r => {
-    if (!r.ok) {
-      throw new Error(`HTTP error! status: ${r.status}`);
-    }
-    return r.json();
-  })
+  .then(r => r.json())
   .then(loadDealers)
   .catch(err => {
-    console.error("dealers.json yüklenirken hata:", err);
-    alert("Bayi verileri yüklenemedi. Lütfen dealers.json dosyasının index.html ile aynı klasörde olduğundan emin olun.");
+    console.error("dealers.json yüklenemedi:", err);
+    alert("Bayi verileri yüklenemedi. Lütfen dealers.json dosyasının doğru konumda olduğundan emin olun.");
   });
 </script>
 
