@@ -73,26 +73,27 @@ header {
 
 .filter-toggle {
   position: fixed;
-  top: 130px;
+  top: 115px;
   right: 20px;
   z-index: 899;
-  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-  border: 1px solid #e0e0e0;
-  padding: 13px 24px;
-  border-radius: 12px;
+  background: #ffffff;
+  border: 2px solid #547B58;
+  padding: 14px 28px;
+  border-radius: 14px;
   cursor: pointer;
   font-size: 14px;
-  font-weight: 600;
-  color: #1a1a1a;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+  font-weight: 700;
+  color: #547B58;
+  box-shadow: 0 6px 20px rgba(84, 123, 88, 0.2);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  letter-spacing: 0.3px;
+  letter-spacing: 0.5px;
 }
 
 .filter-toggle:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0,0,0,0.12);
-  border-color: #547B58;
+  background: #547B58;
+  color: #ffffff;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(84, 123, 88, 0.35);
 }
 
 .filter-panel {
@@ -236,9 +237,9 @@ select:focus, input[type="text"]:focus {
 }
 
 .stats-bar {
-  padding: 18px 40px;
-  background: linear-gradient(to bottom, #ffffff 0%, #fafafa 100%);
-  border-bottom: 1px solid #f0f0f0;
+  padding: 14px 40px;
+  background: #fafafa;
+  border-bottom: 2px solid #f0f0f0;
   display: flex;
   gap: 40px;
   align-items: center;
@@ -259,15 +260,77 @@ select:focus, input[type="text"]:focus {
 }
 
 .stat-value {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 700;
   color: #1a1a1a;
   letter-spacing: -0.5px;
 }
 
 #map {
-  height: calc(100vh - 154px);
+  height: calc(100vh - 134px);
   width: 100%;
+  position: relative;
+}
+
+.map-legend {
+  position: absolute;
+  top: 120px;
+  left: 15px;
+  z-index: 1000;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 250, 0.95) 100%);
+  backdrop-filter: blur(16px);
+  padding: 10px 14px;
+  border-radius: 12px;
+  box-shadow: 0 6px 24px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
+  border: 1px solid rgba(84, 123, 88, 0.15);
+}
+
+.legend-title {
+  font-size: 9px;
+  font-weight: 700;
+  color: #547B58;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid rgba(84, 123, 88, 0.1);
+}
+
+.legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 4px;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.legend-item:hover {
+  background: rgba(84, 123, 88, 0.05);
+  transform: translateX(2px);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+  border: 2px solid white;
+}
+
+.legend-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #2a2a2a;
+  letter-spacing: 0.1px;
+  white-space: nowrap;
 }
 
 .dealer-list-section {
@@ -369,15 +432,9 @@ select:focus, input[type="text"]:focus {
   font-size: 15px;
   letter-spacing: 0.3px;
   transition: color 0.3s;
-  display: inline-block;
 }
 
 .popup-phone a:hover {
-  color: #547B58;
-}
-
-.popup-phone a:active,
-.popup-phone a:focus {
   color: #547B58;
 }
 
@@ -439,16 +496,10 @@ select:focus, input[type="text"]:focus {
   color: #1a1a1a;
   text-decoration: none;
   font-weight: 500;
-  display: inline-block;
 }
 
 .dealer-phone a:hover {
-  color: #547B58;
-}
-
-.dealer-phone a:active,
-.dealer-phone a:focus {
-  color: #547B58;
+  color: #667eea;
 }
 
 .dealer-actions {
@@ -502,8 +553,8 @@ select:focus, input[type="text"]:focus {
   }
   
   .logo-container {
-    width: 140px;
-    height: 45px;
+    width: 160px;
+    height: 50px;
   }
   
   .header-content {
@@ -529,6 +580,35 @@ select:focus, input[type="text"]:focus {
     top: auto;
     bottom: 20px;
     right: 20px;
+  }
+  
+  .map-legend {
+    top: 100px;
+    left: 12px;
+    padding: 8px 12px;
+  }
+  
+  .legend-title {
+    font-size: 8px;
+    margin-bottom: 6px;
+    padding-bottom: 5px;
+  }
+  
+  .legend-items {
+    gap: 5px;
+  }
+  
+  .legend-item {
+    padding: 2px 3px;
+  }
+  
+  .legend-dot {
+    width: 9px;
+    height: 9px;
+  }
+  
+  .legend-label {
+    font-size: 10px;
   }
 }
 </style>
@@ -561,7 +641,25 @@ select:focus, input[type="text"]:focus {
   </div>
 </div>
 
-<div id="map"></div>
+<div id="map">
+  <div class="map-legend">
+    <div class="legend-title">Satış Noktaları</div>
+    <div class="legend-items">
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #e17937;"></div>
+        <span class="legend-label">Uzman Bayi</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #547B58;"></div>
+        <span class="legend-label">Bayi</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-dot" style="background: #121199;"></div>
+        <span class="legend-label">Satış Noktası</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <button class="filter-toggle" onclick="toggleFilters()">Filtrele</button>
 
@@ -851,7 +949,7 @@ function loadDealers(data) {
         <div class="popup-info">
           <div class="popup-city">${d.city}</div>
           ${d.address ? `<div class="popup-address">${d.address}</div>` : ''}
-          ${d.phone ? `<div class="popup-phone"><a href="tel:${d.phone}" onclick="event.stopPropagation();">${d.phone}</a></div>` : ''}
+          ${d.phone ? `<div class="popup-phone"><a href="tel:${d.phone}">${d.phone}</a></div>` : ''}
           <div>
             <span class="dealer-type-tag" style="background: ${TYPE_COLORS[d.type]}; color: white;">
               ${TYPE_LABELS[d.type]}
@@ -875,19 +973,6 @@ function loadDealers(data) {
     `;
 
     marker.bindPopup(popupContent);
-    
-    // Mobilde popup açılınca lejandı gizle
-    marker.on('popupopen', function() {
-      if (window.innerWidth <= 768) {
-        document.querySelector('.map-legend').classList.add('hidden');
-      }
-    });
-    
-    marker.on('popupclose', function() {
-      if (window.innerWidth <= 768) {
-        document.querySelector('.map-legend').classList.remove('hidden');
-      }
-    });
     allMarkers.push({ marker, data: d });
   });
 
@@ -982,16 +1067,11 @@ document.querySelectorAll(".type-filter-btn").forEach(btn => {
 });
 
 fetch("dealers.json")
-  .then(r => {
-    if (!r.ok) {
-      throw new Error(`HTTP error! status: ${r.status}`);
-    }
-    return r.json();
-  })
+  .then(r => r.json())
   .then(loadDealers)
   .catch(err => {
-    console.error("dealers.json yüklenirken hata:", err);
-    alert("Bayi verileri yüklenemedi. Lütfen dealers.json dosyasının index.html ile aynı klasörde olduğundan emin olun.");
+    console.error("dealers.json yüklenemedi:", err);
+    alert("Bayi verileri yüklenemedi. Lütfen dealers.json dosyasının doğru konumda olduğundan emin olun.");
   });
 </script>
 
