@@ -902,19 +902,79 @@ function loadDealers(data) {
     // ULTRA ELEGANT ARTİSTİK PIN
     const customSVGIcon = L.divIcon({
   className: "",
-  iconSize: [40, 56],
-  iconAnchor: [20, 56],
-  popupAnchor: [0, -56],
+  iconSize: [32, 40],
+  iconAnchor: [16, 40],
+  popupAnchor: [0, -40],
   html: `
-    <svg width="40" height="56" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2));">
-      <!-- Ana pin gövdesi -->
-      <path style="fill:${TYPE_COLORS[d.type]};" d="M347.297,113.058c-38.643-53.957-76.655-96.656-78.254-98.448L256,0l-13.042,14.61 c-1.599,1.792-39.61,44.492-78.254,98.448c-53.317,74.445-80.351,131.985-80.351,171.022c0,94.647,77.001,171.648,171.648,171.648 s171.648-77.001,171.648-171.648C427.648,245.043,400.614,187.503,347.297,113.058z"/>
+    <svg 
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 64 80"
+      width="32"
+      height="40"
+      style="filter: drop-shadow(0 3px 8px rgba(0,0,0,0.25))${d.type === 'uzman' ? ' drop-shadow(0 0 12px ' + TYPE_COLORS[d.type] + ')' : ''};"
+    >
+      <!-- Uzman bayi için glow efekti -->
+      ${d.type === 'uzman' ? `
+      <defs>
+        <filter id="glow-${Date.now()}">
+          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+          <feMerge>
+            <feMergeNode in="coloredBlur"/>
+            <feMergeNode in="SourceGraphic"/>
+          </feMerge>
+        </filter>
+      </defs>
+      ` : ''}
       
-      <!-- Daha koyu ton (sağ taraf için gradient etkisi) -->
-      <path style="fill:${TYPE_COLORS[d.type]}; opacity: 0.8;" d="M256,455.728c94.647,0,171.648-77.001,171.648-171.648c0-39.037-27.033-96.577-80.351-171.022 c-38.643-53.957-76.655-96.656-78.254-98.448L256,0"/>
+      <!-- Outer glow ring (sadece uzman bayi için) -->
+      ${d.type === 'uzman' ? `
+      <path
+        d="M32 4
+           C18 8, 8 20, 8 34
+           C8 48, 18 58, 26 66
+           C29 69, 31 73, 32 76
+           C33 73, 35 69, 38 66
+           C46 58, 56 48, 56 34
+           C56 20, 46 8, 32 4 Z"
+        fill="${TYPE_COLORS[d.type]}"
+        opacity="0.3"
+        transform="scale(1.15) translate(-2.4, -2.4)"
+      />
+      ` : ''}
       
-      <!-- Ok işareti (beyaz) -->
-      <polygon style="fill:#FFFFFF;" points="338.3,314.55 313.575,289.823 273.484,329.913 273.484,274.46 314.988,232.956 290.263,208.229 256,242.49 221.738,208.229 197.012,232.956 238.516,274.46 238.516,329.913 198.425,289.823 173.7,314.55 238.516,379.367 238.516,512 273.484,512 273.484,379.367 "/>
+      <!-- Outer pin -->
+      <path
+        d="M32 4
+           C18 8, 8 20, 8 34
+           C8 48, 18 58, 26 66
+           C29 69, 31 73, 32 76
+           C33 73, 35 69, 38 66
+           C46 58, 56 48, 56 34
+           C56 20, 46 8, 32 4 Z"
+        fill="${TYPE_COLORS[d.type]}"
+        ${d.type === 'uzman' ? `filter="url(#glow-${Date.now()})"` : ''}
+      />
+      
+      <!-- Inner essence -->
+      <circle
+        cx="32"
+        cy="32"
+        r="10"
+        fill="#ffffff"
+        opacity="0.95"
+      />
+      
+      <!-- Subtle life crack -->
+      <path
+        d="M32 24
+           C31 27, 33 29, 32 32
+           C31 35, 33 37, 32 40"
+        stroke="#dcdcdc"
+        stroke-width="1.2"
+        fill="none"
+        stroke-linecap="round"
+        opacity="0.8"
+      />
     </svg>
   `
 });
