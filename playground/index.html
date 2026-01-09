@@ -902,15 +902,15 @@ function loadDealers(data) {
     // ULTRA ELEGANT ARTİSTİK PIN
     const customSVGIcon = L.divIcon({
   className: "",
-  iconSize: [32, 40],
-  iconAnchor: [16, 40],
-  popupAnchor: [0, -40],
+  iconSize: [32, 42],
+  iconAnchor: [16, 42],
+  popupAnchor: [0, -42],
   html: `
     <svg 
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 64 80"
+      viewBox="0 0 64 84"
       width="32"
-      height="40"
+      height="42"
       style="filter: drop-shadow(0 3px 8px rgba(0,0,0,0.25))${d.type === 'uzman' ? ' drop-shadow(0 0 12px ' + TYPE_COLORS[d.type] + ')' : ''};"
     >
       <!-- Uzman bayi için glow efekti -->
@@ -929,51 +929,50 @@ function loadDealers(data) {
       <!-- Outer glow ring (sadece uzman bayi için) -->
       ${d.type === 'uzman' ? `
       <path
-        d="M32 4
-           C18 8, 8 20, 8 34
-           C8 48, 18 58, 26 66
-           C29 69, 31 73, 32 76
-           C33 73, 35 69, 38 66
-           C46 58, 56 48, 56 34
-           C56 20, 46 8, 32 4 Z"
+        d="M32 6
+           C18 10, 10 22, 10 38
+           C10 52, 20 62, 27 70
+           C30 74, 31 78, 32 82
+           C33 78, 34 74, 37 70
+           C44 62, 54 52, 54 38
+           C54 22, 46 10, 32 6 Z"
         fill="${TYPE_COLORS[d.type]}"
         opacity="0.3"
-        transform="scale(1.15) translate(-2.4, -2.4)"
+        transform="scale(1.15) translate(-2.4, -2.52)"
       />
       ` : ''}
       
-      <!-- Outer pin -->
+      <!-- Outer organic pin -->
       <path
-        d="M32 4
-           C18 8, 8 20, 8 34
-           C8 48, 18 58, 26 66
-           C29 69, 31 73, 32 76
-           C33 73, 35 69, 38 66
-           C46 58, 56 48, 56 34
-           C56 20, 46 8, 32 4 Z"
+        d="M32 6
+           C18 10, 10 22, 10 38
+           C10 52, 20 62, 27 70
+           C30 74, 31 78, 32 82
+           C33 78, 34 74, 37 70
+           C44 62, 54 52, 54 38
+           C54 22, 46 10, 32 6 Z"
         fill="${TYPE_COLORS[d.type]}"
         ${d.type === 'uzman' ? `filter="url(#glow-${Date.now()})"` : ''}
       />
       
-      <!-- Inner essence -->
-      <circle
-        cx="32"
-        cy="32"
-        r="10"
-        fill="#ffffff"
+      <!-- Inner essence (asymmetric, non-eye) -->
+      <path
+        d="M30 28
+           C25 32, 26 40, 32 44
+           C37 47, 41 42, 40 36
+           C39 30, 34 26, 30 28 Z"
+        fill="#F9FAF7"
         opacity="0.95"
       />
       
-      <!-- Subtle life crack -->
+      <!-- subtle growth line -->
       <path
-        d="M32 24
-           C31 27, 33 29, 32 32
-           C31 35, 33 37, 32 40"
-        stroke="#dcdcdc"
-        stroke-width="1.2"
+        d="M31 30
+           C30 34, 33 36, 32 40"
+        stroke="rgba(0,0,0,0.25)"
+        stroke-width="1"
         fill="none"
         stroke-linecap="round"
-        opacity="0.8"
       />
     </svg>
   `
