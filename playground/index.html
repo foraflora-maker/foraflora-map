@@ -781,7 +781,7 @@ const TYPE_LABELS = {
 };
 
 const map = L.map("map").setView([39, 35], 6);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
   attribution: "© OpenStreetMap",
   maxZoom: 18
 }).addTo(map);
