@@ -850,7 +850,8 @@ const markerCluster = L.markerClusterGroup({
   spiderfyOnMaxZoom: true,
   showCoverageOnHover: false,
   zoomToBoundsOnClick: true,
-  maxClusterRadius: 60
+  maxClusterRadius: 60,
+  disableClusteringAtZoom: 8
 });
 
 map.addLayer(markerCluster);
