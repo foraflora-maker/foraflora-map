@@ -1034,7 +1034,7 @@ function loadDealers(data) {
     allMarkers.push({ marker, data: d });
   });
 
-  [...cities].sort().forEach(c => {
+  [...cities].sort((a, b) => a.localeCompare(b, 'tr')).forEach(c => {
     const opt = document.createElement("option");
     opt.value = c;
     opt.textContent = c;
