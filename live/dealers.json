@@ -584,6 +584,15 @@
       "type": "satis",
       "address": "2 Nolu Beşi̇rli̇ Mahallesi 913. Sokak No: 8/B Ortahisar",
       "phone": "0462 223 39 13"
+    },
+    {
+      "name": "Güneşim Eczanesi",
+      "city": "Adana",
+      "lat": 37.02557086890833, 
+      "lng": 35.83435718373982,
+      "type": "satis",
+      "address": "İstiklal Mahallesi, İbrahim Mete Bulvarı No:139/1 Ceyhan",
+      "phone": "0322 504 53 32"
     }
   ]
 }
