@@ -2,877 +2,938 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Foraflora Bayi Haritası</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Foraflora — Satış Noktaları</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* ─── DESIGN TOKENS ───────────────────────────────────────────────── */
+:root {
+  --brand:        #547B58;
+  --brand-dark:   #3d5c40;
+  --brand-light:  #e8f0e9;
+  --brand-mid:    #6a9470;
 
+  --uzman:        #e17937;
+  --uzman-bg:     #fdf0e7;
+  --bayi:         #547B58;
+  --bayi-bg:      #e8f0e9;
+  --satis:        #2d5fa6;
+  --satis-bg:     #e8eef8;
+
+  --ink-900:      #0f1117;
+  --ink-700:      #2c2f36;
+  --ink-500:      #5c6070;
+  --ink-300:      #9ba3b2;
+  --ink-100:      #e8eaed;
+  --ink-50:       #f4f5f7;
+  --white:        #ffffff;
+
+  --radius-sm:    6px;
+  --radius-md:    10px;
+  --radius-lg:    16px;
+  --radius-xl:    22px;
+
+  --shadow-xs:    0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-sm:    0 2px 8px rgba(0,0,0,.07), 0 1px 3px rgba(0,0,0,.05);
+  --shadow-md:    0 6px 20px rgba(0,0,0,.09), 0 2px 6px rgba(0,0,0,.05);
+  --shadow-lg:    0 16px 48px rgba(0,0,0,.11), 0 4px 12px rgba(0,0,0,.06);
+  --shadow-brand: 0 6px 20px rgba(84,123,88,.28);
+
+  --header-h:     68px;
+  --statsbar-h:   48px;
+  --topbar-total: calc(var(--header-h) + var(--statsbar-h));
+
+  --ease-out:     cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-std:     cubic-bezier(0.4, 0, 0.2, 1);
+
+  --panel-w:      380px;
+  --font-base:    'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono:    'DM Mono', 'Fira Mono', monospace;
+}
+
+/* ─── RESET ───────────────────────────────────────────────────────── */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { -webkit-text-size-adjust: 100%; }
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  background: #f5f7f9;
-  color: #1a1a1a;
+  font-family: var(--font-base);
+  background: var(--ink-50);
+  color: var(--ink-700);
+  overflow: hidden;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
 }
+a { color: inherit; text-decoration: none; }
+button { font-family: inherit; cursor: pointer; }
+input, select { font-family: inherit; }
 
-a {
-  color: inherit;
-  text-decoration: none;
+/* ─── LOADING SCREEN ──────────────────────────────────────────────── */
+#loading-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: var(--white);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 20px;
+  transition: opacity .4s var(--ease-std), visibility .4s;
 }
-
-a:hover {
-  text-decoration: none;
+#loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
+.loading-logo { width: 160px; opacity: .9; }
+.loading-bar-track {
+  width: 160px; height: 3px; background: var(--ink-100);
+  border-radius: 99px; overflow: hidden;
 }
+.loading-bar-fill {
+  height: 100%; width: 0; background: var(--brand);
+  border-radius: 99px;
+  animation: loadFill 1.4s var(--ease-out) forwards .2s;
+}
+@keyframes loadFill { to { width: 100%; } }
+.loading-text { font-size: 12px; color: var(--ink-300); letter-spacing: .4px; }
 
+/* ─── HEADER ──────────────────────────────────────────────────────── */
 header {
-  background: #ffffff;
-  padding: 20px 40px;
-  border-bottom: 2px solid #f5f5f5;
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  box-shadow: 0 4px 16px rgba(0,0,0,0.04);
+  height: var(--header-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--ink-100);
+  display: flex; align-items: center;
+  padding: 0 24px;
+  gap: 20px;
   position: relative;
-  z-index: 900;
-}
-
-.logo-container {
-  width: 240px;
-  height: 70px;
-  display: flex;
-  align-items: center;
+  z-index: 800;
   flex-shrink: 0;
+  box-shadow: var(--shadow-xs);
+}
+.logo-wrap {
+  height: 40px; width: 150px;
+  display: flex; align-items: center; flex-shrink: 0;
+}
+.logo-wrap img { max-height: 100%; max-width: 100%; object-fit: contain; }
+
+.header-divider {
+  width: 1px; height: 28px; background: var(--ink-100); flex-shrink: 0;
 }
 
-.logo-container img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
-}
-
-.header-content {
-  flex: 1;
-  min-width: 0;
-}
-
+.header-meta { flex: 1; min-width: 0; }
 .header-title {
-  font-size: 24px;
-  font-weight: 700;
-  color: #1a1a1a;
-  letter-spacing: -0.8px;
+  font-size: 15px; font-weight: 600;
+  color: var(--ink-900); letter-spacing: -.2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.header-sub {
+  font-size: 11.5px; color: var(--ink-300); margin-top: 1px; letter-spacing: .1px;
 }
 
-.header-subtitle {
-  font-size: 13px;
-  color: #666;
-  margin-top: 2px;
-}
+.header-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
 
-.filter-toggle {
-  position: fixed;
-  top: 115px;
-  right: 20px;
-  z-index: 899;
-  background: #ffffff;
-  border: 2px solid #547B58;
-  padding: 14px 28px;
-  border-radius: 14px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 700;
-  color: #547B58;
-  box-shadow: 0 6px 20px rgba(84, 123, 88, 0.2);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  letter-spacing: 0.5px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.hdr-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 8px 14px; border-radius: var(--radius-md);
+  font-size: 13px; font-weight: 600;
+  border: 1.5px solid var(--ink-100);
+  background: var(--white); color: var(--ink-700);
+  transition: all .2s var(--ease-std);
+  white-space: nowrap;
 }
-
-.filter-toggle:hover {
-  background: #547B58;
-  color: #ffffff;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(84, 123, 88, 0.35);
+.hdr-btn:hover { background: var(--ink-50); border-color: var(--ink-300); }
+.hdr-btn.primary {
+  background: var(--brand); color: var(--white);
+  border-color: var(--brand);
+  box-shadow: var(--shadow-brand);
 }
+.hdr-btn.primary:hover { background: var(--brand-dark); border-color: var(--brand-dark); }
+.hdr-btn svg { flex-shrink: 0; }
 
-.filter-panel {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 400px;
-  height: 100vh;
-  background: #ffffff;
-  box-shadow: -4px 0 24px rgba(0,0,0,0.08);
-  transform: translateX(100%);
-  transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1000;
-  overflow-y: auto;
-}
+/* Filter open state — shift button label */
+.hdr-btn.filter-open { background: var(--brand-light); color: var(--brand-dark); border-color: var(--brand); }
 
-.filter-panel.open {
-  transform: translateX(0);
-}
-
-.filter-header {
-  padding: 28px 32px;
-  border-bottom: 2px solid #f5f5f5;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  position: sticky;
-  top: 0;
-  background: #ffffff;
-  z-index: 10;
-}
-
-.filter-title {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1a1a1a;
-  letter-spacing: -0.5px;
-}
-
-.close-btn {
-  background: none;
-  border: none;
-  font-size: 28px;
-  color: #999;
-  cursor: pointer;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  line-height: 1;
-}
-
-.leaflet-popup-close-button {
-  background: none !important;
-  border: none !important;
-  font-size: 28px !important;
-  color: #999 !important;
-  cursor: pointer !important;
-  width: 36px !important;
-  height: 36px !important;
-  display: flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  border-radius: 8px !important;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  line-height: 1 !important;
-  top: 8px !important;
-  right: 8px !important;
-  padding: 0 !important;
-}
-
-.leaflet-popup-close-button:hover {
-  background: #f5f5f5 !important;
-  color: #1a1a1a !important;
-  transform: rotate(90deg) !important;
-}
-
-.leaflet-popup-close-button span {
-  display: block !important;
-  font-size: 28px !important;
-  line-height: 1 !important;
-}
-
-.close-btn:hover {
-  background: #f5f5f5;
-  color: #1a1a1a;
-  transform: rotate(90deg);
-}
-
-.filter-content {
-  padding: 32px;
-}
-
-.filter-section {
-  margin-bottom: 32px;
-}
-
-.filter-label {
-  font-size: 12px;
-  font-weight: 600;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.8px;
-  margin-bottom: 12px;
-  display: block;
-}
-
-select, input[type="text"] {
-  width: 100%;
-  padding: 13px 16px;
-  border: 1.5px solid #e8e8e8;
-  border-radius: 10px;
-  font-size: 14px;
-  color: #1a1a1a;
-  background: #fafafa;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  font-family: inherit;
-}
-
-select:focus, input[type="text"]:focus {
-  outline: none;
-  border-color: #547B58;
-  background: #ffffff;
-  box-shadow: 0 0 0 3px rgba(84, 123, 88, 0.1);
-}
-
-.type-filters {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.type-filter-btn {
-  padding: 15px 20px;
-  border: 1.5px solid #e8e8e8;
-  border-radius: 10px;
-  background: #fafafa;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  color: #1a1a1a;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.type-filter-btn:hover {
-  background: #f0f0f0;
-  border-color: #d0d0d0;
-  transform: translateX(4px);
-}
-
-.type-filter-btn.active {
-  background: linear-gradient(135deg, #547B58 0%, #5f8b63 100%);
-  color: #ffffff;
-  border-color: #547B58;
-  box-shadow: 0 6px 16px rgba(84, 123, 88, 0.3);
-  transform: translateX(2px);
-}
-
-.color-dot {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  border: 2px solid white;
-}
-
+/* ─── STATS BAR ───────────────────────────────────────────────────── */
 .stats-bar {
-  padding: 14px 40px;
-  background: #fafafa;
-  border-bottom: 2px solid #f0f0f0;
-  display: flex;
-  gap: 40px;
-  align-items: center;
+  height: var(--statsbar-h);
+  background: var(--white);
+  border-bottom: 1px solid var(--ink-100);
+  display: flex; align-items: center;
+  padding: 0 24px; gap: 0;
+  flex-shrink: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
 }
+.stats-bar::-webkit-scrollbar { display: none; }
 
-.stat-item {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.stat-pill {
+  display: flex; align-items: center; gap: 8px;
+  padding: 0 16px; height: 100%;
+  border-right: 1px solid var(--ink-100);
+  white-space: nowrap;
+  transition: background .15s;
 }
+.stat-pill:first-child { padding-left: 0; }
+.stat-pill:last-child { border-right: none; }
+.stat-pill:hover { background: var(--ink-50); }
 
-.stat-label {
-  font-size: 11px;
-  color: #999;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  font-weight: 500;
+.stat-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
 }
+.stat-num {
+  font-size: 14px; font-weight: 700; color: var(--ink-900);
+  font-variant-numeric: tabular-nums;
+  transition: color .3s;
+}
+.stat-lbl {
+  font-size: 11px; color: var(--ink-300); font-weight: 500; letter-spacing: .2px;
+}
+.stat-sep { width: 1px; height: 14px; background: var(--ink-100); }
 
-.stat-value {
-  font-size: 20px;
-  font-weight: 700;
-  color: #1a1a1a;
-  letter-spacing: -0.5px;
+/* Active filter indicator */
+.active-filters-badge {
+  display: none; align-items: center; gap: 6px;
+  margin-left: auto; padding: 4px 10px;
+  background: var(--brand-light); color: var(--brand-dark);
+  border-radius: 99px; font-size: 11px; font-weight: 600;
+  border: 1px solid rgba(84,123,88,.2);
+  cursor: pointer; transition: all .2s;
+  flex-shrink: 0;
+}
+.active-filters-badge.visible { display: flex; }
+.active-filters-badge:hover { background: #d6e8d8; }
+
+/* ─── MAP CONTAINER ───────────────────────────────────────────────── */
+.map-wrap {
+  position: relative; flex: 1; min-height: 0;
 }
 
 #map {
-  height: calc(100vh - 134px);
-  width: 100%;
-  position: relative;
+  height: 100%; width: 100%;
+  position: absolute; inset: 0;
 }
 
+/* ─── MAP LEGEND ──────────────────────────────────────────────────── */
 .map-legend {
-  position: absolute;
-  top: 120px;
-  left: 15px;
-  z-index: 1000;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(250, 250, 250, 0.95) 100%);
-  backdrop-filter: blur(16px);
-  padding: 10px 14px;
-  border-radius: 12px;
-  box-shadow: 0 6px 24px rgba(0,0,0,0.08), 0 2px 8px rgba(0,0,0,0.04);
-  border: 1px solid rgba(84, 123, 88, 0.15);
-  transition: opacity 0.3s ease, visibility 0.3s ease;
-  opacity: 1;
-  visibility: visible;
+  position: absolute; top: 14px; left: 14px;
+  z-index: 600;
+  background: rgba(255,255,255,.95);
+  backdrop-filter: blur(12px);
+  padding: 12px 14px; border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(84,123,88,.12);
+  transition: opacity .3s, visibility .3s, transform .3s var(--ease-std);
 }
-
-.map-legend.hidden {
-  opacity: 0;
-  visibility: hidden;
-}
+.map-legend.hidden { opacity: 0; visibility: hidden; transform: translateY(-4px); }
 
 .legend-title {
-  font-size: 9px;
-  font-weight: 700;
-  color: #547B58;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 8px;
-  padding-bottom: 6px;
-  border-bottom: 1.5px solid rgba(84, 123, 88, 0.1);
+  font-size: 9px; font-weight: 700; color: var(--brand);
+  text-transform: uppercase; letter-spacing: 1.2px;
+  margin-bottom: 9px; padding-bottom: 8px;
+  border-bottom: 1px solid var(--brand-light);
 }
-
-.legend-items {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
+.legend-items { display: flex; flex-direction: column; gap: 6px; }
 .legend-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 3px 4px;
-  border-radius: 6px;
-  transition: all 0.2s ease;
+  display: flex; align-items: center; gap: 8px;
+  padding: 3px 4px; border-radius: var(--radius-sm);
+  cursor: default;
+  transition: background .15s;
 }
-
-.legend-item:hover {
-  background: rgba(84, 123, 88, 0.05);
-  transform: translateX(2px);
-}
-
+.legend-item:hover { background: var(--ink-50); }
 .legend-dot {
-  width: 13px;
-  height: 13px;
-  border-radius: 50%;
+  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,.18); border: 1.5px solid var(--white);
+}
+.legend-lbl { font-size: 11px; font-weight: 600; color: var(--ink-700); white-space: nowrap; }
+.legend-count {
+  margin-left: auto; padding-left: 10px;
+  font-size: 10px; font-weight: 700; color: var(--ink-300);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── MAP FAB CONTROLS ────────────────────────────────────────────── */
+.map-fabs {
+  position: absolute; bottom: 24px; right: 14px;
+  z-index: 600; display: flex; flex-direction: column; gap: 8px;
+}
+.map-fab {
+  width: 40px; height: 40px; border-radius: var(--radius-md);
+  background: var(--white); border: 1px solid var(--ink-100);
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow-sm);
+  transition: all .2s var(--ease-std);
+  color: var(--ink-500);
+}
+.map-fab:hover { background: var(--ink-50); border-color: var(--ink-300); color: var(--ink-900); transform: scale(1.05); }
+.map-fab.active { background: var(--brand); color: var(--white); border-color: var(--brand); }
+
+/* ─── FILTER PANEL ────────────────────────────────────────────────── */
+.panel-overlay {
+  position: fixed; inset: 0; z-index: 900;
+  background: rgba(15,17,23,.35);
+  backdrop-filter: blur(2px);
+  opacity: 0; visibility: hidden;
+  transition: opacity .35s var(--ease-std), visibility .35s;
+}
+.panel-overlay.open { opacity: 1; visibility: visible; }
+
+.filter-panel {
+  position: fixed; top: 0; right: 0;
+  width: var(--panel-w); height: 100dvh;
+  background: var(--white);
+  box-shadow: var(--shadow-lg);
+  transform: translateX(100%);
+  transition: transform .38s var(--ease-out);
+  z-index: 1000;
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+.filter-panel.open { transform: translateX(0); }
+
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 22px; border-bottom: 1px solid var(--ink-100);
   flex-shrink: 0;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  border: 2px solid white;
+  position: sticky; top: 0; background: var(--white); z-index: 10;
+}
+.panel-title { font-size: 16px; font-weight: 700; color: var(--ink-900); letter-spacing: -.3px; }
+.panel-close {
+  width: 32px; height: 32px; border-radius: var(--radius-sm);
+  background: none; border: none;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--ink-300); transition: all .2s var(--ease-std);
+}
+.panel-close:hover { background: var(--ink-50); color: var(--ink-900); }
+
+/* Panel result count bar */
+.panel-resultbar {
+  padding: 10px 22px; background: var(--ink-50);
+  border-bottom: 1px solid var(--ink-100); flex-shrink: 0;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.panel-resultbar-count {
+  font-size: 12px; font-weight: 600; color: var(--ink-500);
+}
+.panel-resultbar-count strong { color: var(--brand); font-size: 14px; }
+.panel-reset-btn {
+  font-size: 11px; font-weight: 600; color: var(--ink-300);
+  background: none; border: none; padding: 4px 8px;
+  border-radius: var(--radius-sm); transition: all .15s;
+  display: none;
+}
+.panel-reset-btn.visible { display: block; }
+.panel-reset-btn:hover { background: var(--ink-100); color: var(--ink-700); }
+
+.panel-body { flex: 1; overflow-y: auto; padding: 22px; }
+.panel-body::-webkit-scrollbar { width: 4px; }
+.panel-body::-webkit-scrollbar-track { background: transparent; }
+.panel-body::-webkit-scrollbar-thumb { background: var(--ink-100); border-radius: 99px; }
+
+/* ─── FILTER FIELDS ───────────────────────────────────────────────── */
+.filter-section { margin-bottom: 26px; }
+.filter-label {
+  display: block; font-size: 10px; font-weight: 700;
+  color: var(--ink-300); text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 10px;
 }
 
-.legend-label {
-  font-size: 11px;
-  font-weight: 600;
-  color: #2a2a2a;
-  letter-spacing: 0.1px;
-  white-space: nowrap;
+.input-wrap { position: relative; }
+.input-icon {
+  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--ink-300); pointer-events: none;
+  display: flex; align-items: center;
+}
+.input-clear {
+  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--ink-100); border: none;
+  display: none; align-items: center; justify-content: center;
+  color: var(--ink-500); transition: all .15s;
+}
+.input-clear.visible { display: flex; }
+.input-clear:hover { background: var(--ink-300); color: var(--white); }
+
+input[type="text"], select {
+  width: 100%; padding: 10px 14px 10px 36px;
+  border: 1.5px solid var(--ink-100);
+  border-radius: var(--radius-md);
+  font-size: 13.5px; color: var(--ink-700);
+  background: var(--ink-50);
+  transition: all .2s var(--ease-std);
+  appearance: none; -webkit-appearance: none;
+}
+input[type="text"]:focus, select:focus {
+  outline: none; border-color: var(--brand);
+  background: var(--white);
+  box-shadow: 0 0 0 3px rgba(84,123,88,.12);
+}
+input[type="text"]::placeholder { color: var(--ink-300); }
+
+select { padding-left: 36px; background-image: none; }
+.select-wrap .input-icon { pointer-events: none; }
+.select-arrow {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  pointer-events: none; color: var(--ink-300);
 }
 
-.dealer-list-section {
-  margin-top: 32px;
-  padding-top: 28px;
-  border-top: 2px solid #f0f0f0;
+/* Type filters */
+.type-btns { display: flex; flex-direction: column; gap: 7px; }
+.type-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px; border-radius: var(--radius-md);
+  border: 1.5px solid var(--ink-100); background: var(--ink-50);
+  font-size: 13px; font-weight: 500; color: var(--ink-700);
+  text-align: left; transition: all .2s var(--ease-std);
+  position: relative; overflow: hidden;
 }
+.type-btn::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
+  width: 3px; background: transparent;
+  transition: background .2s;
+}
+.type-btn:hover { border-color: var(--ink-300); background: var(--white); }
+.type-btn.active {
+  background: var(--white); border-color: var(--brand);
+  color: var(--ink-900);
+  box-shadow: 0 2px 10px rgba(84,123,88,.12);
+}
+.type-btn.active::before { background: var(--brand); }
+.type-btn[data-type="uzman"].active { border-color: var(--uzman); box-shadow: 0 2px 10px rgba(225,121,55,.12); }
+.type-btn[data-type="uzman"].active::before { background: var(--uzman); }
+.type-btn[data-type="satis"].active { border-color: var(--satis); box-shadow: 0 2px 10px rgba(45,95,166,.12); }
+.type-btn[data-type="satis"].active::before { background: var(--satis); }
+
+.type-dot {
+  width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 1px 4px rgba(0,0,0,.18); border: 1.5px solid var(--white);
+}
+.type-btn-count {
+  margin-left: auto; font-size: 11px; font-weight: 700;
+  color: var(--ink-300); font-variant-numeric: tabular-nums;
+}
+.type-btn.active .type-btn-count { color: var(--brand); }
+.type-btn[data-type="uzman"].active .type-btn-count { color: var(--uzman); }
+.type-btn[data-type="satis"].active .type-btn-count { color: var(--satis); }
+
+/* ─── DEALER LIST ──────────────────────────────────────────────────── */
+.dealer-list-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 12px;
+}
+.dealer-list-section { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--ink-100); }
+
+#dealerList { display: flex; flex-direction: column; gap: 0; }
 
 .dealer-item {
-  padding: 20px 0;
-  border-bottom: 2px solid #f8f9fa;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border-radius: 10px;
+  padding: 14px 12px; border-radius: var(--radius-md);
+  cursor: pointer; transition: all .2s var(--ease-std);
+  border: 1px solid transparent;
+  position: relative;
 }
-
+.dealer-item:not(:last-child) {
+  border-bottom-color: var(--ink-100);
+  border-bottom-left-radius: 0; border-bottom-right-radius: 0;
+}
+.dealer-item:not(:first-child) {
+  border-top-left-radius: 0; border-top-right-radius: 0;
+}
 .dealer-item:hover {
-  padding-left: 16px;
-  background: linear-gradient(to right, rgba(84, 123, 88, 0.05) 0%, transparent 100%);
+  background: var(--ink-50); border-color: var(--ink-100);
+  border-radius: var(--radius-md); z-index: 1;
+  box-shadow: var(--shadow-xs);
+  transform: translateX(2px);
 }
-
 .dealer-name {
-  font-weight: 700;
-  color: #1a1a1a;
-  margin-bottom: 10px;
-  font-size: 15px;
-  letter-spacing: -0.2px;
+  font-size: 13.5px; font-weight: 600; color: var(--ink-900);
+  margin-bottom: 5px; letter-spacing: -.1px;
 }
-
-.dealer-info {
-  display: flex;
-  gap: 16px;
-  font-size: 13px;
-  color: #666;
-  align-items: center;
+.dealer-meta {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
 }
-
-.dealer-type-tag {
-  padding: 5px 12px;
-  border-radius: 6px;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+.dealer-city {
+  font-size: 12px; color: var(--ink-500);
+  display: flex; align-items: center; gap: 4px;
 }
+.dealer-city svg { color: var(--ink-300); }
+.dealer-type-chip {
+  padding: 2px 8px; border-radius: 99px;
+  font-size: 9px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: .6px;
+}
+.dealer-addr {
+  font-size: 11px; color: var(--ink-300); margin-top: 4px;
+  line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.dealer-phone-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 8px;
+}
+.dealer-phone-link {
+  font-size: 12px; font-weight: 600; color: var(--ink-700);
+  display: flex; align-items: center; gap: 5px;
+  transition: color .15s;
+}
+.dealer-phone-link:hover { color: var(--brand); }
+.dealer-phone-link svg { color: var(--ink-300); flex-shrink: 0; }
+.dealer-go-btn {
+  font-size: 11px; font-weight: 700; color: var(--brand);
+  background: var(--brand-light); border: none;
+  padding: 4px 10px; border-radius: var(--radius-sm);
+  transition: all .15s;
+  text-decoration: none;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.dealer-go-btn:hover { background: var(--brand); color: var(--white); }
 
+/* Empty state */
+.empty-state {
+  display: none; flex-direction: column; align-items: center; justify-content: center;
+  padding: 40px 20px; text-align: center; gap: 12px;
+}
+.empty-state.visible { display: flex; }
+.empty-state svg { color: var(--ink-100); }
+.empty-state-title { font-size: 14px; font-weight: 600; color: var(--ink-500); }
+.empty-state-sub { font-size: 12px; color: var(--ink-300); }
+
+/* ─── LEAFLET POPUP ────────────────────────────────────────────────── */
 .leaflet-popup-content-wrapper {
-  border-radius: 24px;
-  box-shadow: 0 16px 48px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.08);
-  padding: 0;
-  overflow: hidden;
-  border: 2px solid rgba(84, 123, 88, 0.1);
+  border-radius: var(--radius-xl) !important;
+  box-shadow: var(--shadow-lg) !important;
+  padding: 0 !important; overflow: hidden;
+  border: 1px solid var(--ink-100) !important;
+  min-width: 240px;
 }
-
-.leaflet-popup-content {
-  margin: 0;
-  min-width: 200px;
+.leaflet-popup-content { margin: 0 !important; }
+.leaflet-popup-tip-container { display: none; }
+.leaflet-popup-close-button {
+  top: 10px !important; right: 10px !important;
+  width: 28px !important; height: 28px !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+  border-radius: var(--radius-sm) !important;
+  background: var(--ink-50) !important;
+  color: var(--ink-500) !important;
+  font-size: 18px !important;
+  border: none !important; padding: 0 !important;
+  transition: all .2s !important;
+  line-height: 1 !important;
 }
+.leaflet-popup-close-button:hover { background: var(--ink-100) !important; color: var(--ink-900) !important; }
 
-.popup-content {
-  padding: 26px;
-  background: #ffffff;
+.popup-wrap { padding: 20px; }
+.popup-type-bar {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
 }
-
-.popup-title {
-  font-weight: 700;
-  font-size: 16px;
-  color: #1a1a1a;
-  margin-bottom: 14px;
-  letter-spacing: -0.3px;
+.popup-type-badge {
+  padding: 3px 9px; border-radius: 99px;
+  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px;
 }
-
-.popup-info {
-  color: #666;
-  line-height: 1.8;
-  font-size: 13px;
+.popup-name {
+  font-size: 15.5px; font-weight: 700; color: var(--ink-900);
+  margin-bottom: 10px; letter-spacing: -.2px; line-height: 1.3;
+  padding-right: 28px; /* space for close btn */
 }
-
-.popup-city {
-  margin-bottom: 8px;
+.popup-detail {
+  display: flex; align-items: flex-start; gap: 8px;
+  font-size: 12.5px; color: var(--ink-500); line-height: 1.5;
+  margin-bottom: 6px;
 }
-
-.popup-address {
-  margin-bottom: 8px;
-  font-size: 12px;
-  color: #888;
-  line-height: 1.6;
-}
-
-.popup-phone {
-  margin-bottom: 10px;
-}
-
-.popup-phone a {
-  color: #1a1a1a;
-  text-decoration: none;
-  font-weight: 700;
-  font-size: 15px;
-  letter-spacing: 0.3px;
-  transition: color 0.3s;
-  display: inline-block;
-}
-
-.popup-phone a:hover {
-  color: #547B58;
-}
-
-.popup-phone a:active,
-.popup-phone a:focus {
-  color: #547B58;
-}
-
+.popup-detail svg { flex-shrink: 0; margin-top: 1px; color: var(--ink-300); }
+.popup-detail a { color: var(--ink-700); font-weight: 600; transition: color .15s; }
+.popup-detail a:hover { color: var(--brand); }
 .popup-actions {
-  margin-top: 18px;
-  padding-top: 18px;
-  border-top: 1px solid #f5f5f5;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--ink-100);
 }
-
-.directions-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px 24px;
-  background: #547B58;
-  color: #ffffff !important;
-  text-decoration: none !important;
-  border-radius: 12px;
-  font-size: 14px;
-  font-weight: 600;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 2px 8px rgba(84, 123, 88, 0.25);
-  letter-spacing: 0.3px;
-  width: 100%;
-  border: none;
+.popup-btn {
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  padding: 10px; border-radius: var(--radius-md);
+  font-size: 12px; font-weight: 700; text-decoration: none;
+  transition: all .2s var(--ease-std); border: none;
+  cursor: pointer; letter-spacing: .1px;
 }
-
-.directions-btn:hover {
-  background: #5f8b63;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(84, 123, 88, 0.35);
-  color: #ffffff !important;
-  text-decoration: none !important;
+.popup-btn-primary {
+  background: var(--brand); color: var(--white);
+  box-shadow: 0 2px 8px rgba(84,123,88,.25);
 }
-
-.directions-btn:active {
-  transform: translateY(0);
+.popup-btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
+.popup-btn-secondary {
+  background: var(--ink-50); color: var(--ink-700);
+  border: 1.5px solid var(--ink-100);
 }
-
-.directions-btn:visited {
-  color: #ffffff !important;
-  text-decoration: none !important;
+.popup-btn-secondary:hover { background: var(--ink-100); }
+/* Copy toast */
+.copy-toast {
+  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(8px);
+  background: var(--ink-900); color: var(--white);
+  padding: 8px 16px; border-radius: var(--radius-md);
+  font-size: 12px; font-weight: 600; letter-spacing: .2px;
+  z-index: 9000; pointer-events: none;
+  opacity: 0; transition: all .25s var(--ease-std);
+  white-space: nowrap;
 }
+.copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
-.dealer-address {
-  font-size: 12px;
-  color: #888;
-  margin-top: 6px;
-  line-height: 1.5;
+/* ─── LOCATE BTN ──────────────────────────────────────────────────── */
+.locate-spinner {
+  animation: spin .8s linear infinite;
+  display: none;
 }
+.locate-btn.loading .locate-spinner { display: block; }
+.locate-btn.loading .locate-icon { display: none; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-.dealer-phone {
-  font-size: 13px;
-  margin-top: 6px;
-}
-
-.dealer-phone a {
-  color: #1a1a1a;
-  text-decoration: none;
-  font-weight: 500;
-  display: inline-block;
-}
-
-.dealer-phone a:hover {
-  color: #547B58;
-}
-
-.dealer-phone a:active,
-.dealer-phone a:focus {
-  color: #547B58;
-}
-
-.dealer-actions {
-  margin-top: 12px;
-  padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
-}
-
-.dealer-directions-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 18px;
-  background: #ffffff;
-  color: #547B58 !important;
-  text-decoration: none !important;
-  border-radius: 10px;
-  font-size: 13px;
-  font-weight: 700;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 2px solid #547B58;
-  box-shadow: 0 2px 8px rgba(84, 123, 88, 0.1);
-}
-
-.dealer-directions-btn:hover {
-  background: #547B58;
-  color: #ffffff !important;
-  border-color: #547B58;
-  transform: translateX(4px);
-  box-shadow: 0 4px 16px rgba(84, 123, 88, 0.3);
-  text-decoration: none !important;
-}
-
-.dealer-directions-btn:visited {
-  color: #547B58 !important;
-  text-decoration: none !important;
-}
-
-.dealer-directions-btn:hover:visited {
-  color: #ffffff !important;
-}
-
-@media (max-width: 768px) {
-  .filter-panel {
-    width: 100%;
+/* ─── RESPONSIVE ──────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  :root {
+    --header-h:     58px;
+    --statsbar-h:   42px;
+    --panel-w:      100vw;
   }
-  
-  header {
-    padding: 16px 20px;
-    flex-wrap: wrap;
-  }
-  
-  .logo-container {
-    width: 160px;
-    height: 50px;
-  }
-  
-  .header-content {
-    width: 100%;
-    margin-top: 8px;
-  }
-  
-  .header-title {
-    font-size: 20px;
-  }
-  
-  .header-subtitle {
-    font-size: 12px;
-  }
-  
-  .stats-bar {
-    padding: 12px 20px;
-    gap: 20px;
-    overflow-x: auto;
-  }
-  
-  .filter-toggle {
-    top: auto;
-    bottom: 20px;
-    right: 20px;
-  }
-  
-  .map-legend {
-    top: 100px;
-    left: 12px;
-    padding: 8px 12px;
-  }
-  
-  .legend-title {
-    font-size: 8px;
-    margin-bottom: 6px;
-    padding-bottom: 5px;
-  }
-  
-  .legend-items {
-    gap: 5px;
-  }
-  
-  .legend-item {
-    padding: 2px 3px;
-  }
-  
-  .legend-dot {
-    width: 11px;
-    height: 11px;
-  }
-  
-  .legend-label {
-    font-size: 10px;
+
+  header { padding: 0 16px; gap: 12px; }
+  .logo-wrap { width: 120px; height: 34px; }
+  .header-divider { display: none; }
+  .header-meta { display: none; }
+  .header-actions { gap: 8px; }
+  .hdr-btn span { display: none; }
+  .hdr-btn { padding: 8px 10px; }
+
+  .stats-bar { padding: 0 16px; gap: 0; }
+  .stat-pill { padding: 0 12px; }
+
+  .panel-body { padding: 16px; }
+  .panel-header { padding: 14px 18px; }
+
+  .map-legend { top: 10px; left: 10px; padding: 10px 12px; }
+
+  .map-fabs { bottom: 80px; right: 12px; }
+
+  .filter-toggle-mobile {
+    position: fixed; bottom: 20px; right: 20px; z-index: 700;
   }
 }
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  :root { --panel-w: 340px; }
+  header { padding: 0 20px; }
+  .stats-bar { padding: 0 20px; }
+}
+
+/* ─── LEAFLET CUSTOM CLUSTER OVERRIDES ───────────────────────────── */
+.marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
+  background: transparent !important;
+}
+.marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
+  background: transparent !important;
+}
+
+/* ─── TILE LAYER — slightly desaturate ───────────────────────────── */
+.leaflet-tile { filter: saturate(0.88) brightness(1.02); }
+
+/* ─── SCROLLBAR ──────────────────────────────────────────────────── */
+.panel-body { scrollbar-gutter: stable; }
+
+/* ─── FOCUS VISIBLE ───────────────────────────────────────────────── */
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 </style>
 </head>
-
 <body>
 
-<header>
-  <div class="logo-container">
-    <img src="logo.svg" alt="Foraflora Logo">
+<!-- Loading Screen -->
+<div id="loading-screen" role="status" aria-live="polite">
+  <img src="logo.svg" alt="Foraflora" class="loading-logo">
+  <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
+  <p class="loading-text">Satış noktaları yükleniyor…</p>
+</div>
+
+<!-- Copy Toast -->
+<div id="copyToast" class="copy-toast" role="status" aria-live="polite">Adres kopyalandı</div>
+
+<!-- Header -->
+<header role="banner">
+  <div class="logo-wrap">
+    <img src="logo.svg" alt="Foraflora">
   </div>
-  <div class="header-content">
-    <div class="header-title">Foraflora Haritası</div>
-    <div class="header-subtitle">Türkiye genelindeki onaylı satış noktalarımız</div>
+  <div class="header-divider" aria-hidden="true"></div>
+  <div class="header-meta">
+    <div class="header-title">Satış Noktaları Haritası</div>
+    <div class="header-sub">Türkiye genelindeki onaylı satış noktalarımız</div>
+  </div>
+  <div class="header-actions">
+    <button class="hdr-btn" id="locateBtn" title="Konumuma git" aria-label="Konumuma git">
+      <svg class="locate-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-width="1.5" stroke-dasharray="2 2"/></svg>
+      <svg class="locate-spinner" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-9-9" stroke-linecap="round"/></svg>
+      <span>Konumum</span>
+    </button>
+    <button class="hdr-btn primary" id="filterToggleBtn" onclick="togglePanel()" aria-expanded="false" aria-controls="filterPanel" title="Filtreleri aç/kapat">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+      <span id="filterBtnLabel">Filtrele</span>
+    </button>
   </div>
 </header>
 
-<div class="stats-bar">
-  <div class="stat-item">
-    <span class="stat-label">Toplam</span>
-    <span class="stat-value" id="totalCount">0</span>
+<!-- Stats Bar -->
+<div class="stats-bar" role="status" aria-live="polite" aria-label="Bayi istatistikleri">
+  <div class="stat-pill">
+    <div class="stat-dot" style="background:var(--ink-300)"></div>
+    <span class="stat-num" id="totalCount">—</span>
+    <span class="stat-lbl">Toplam</span>
   </div>
-  <div class="stat-item">
-    <span class="stat-label">Gösterilen</span>
-    <span class="stat-value" id="visibleCount">0</span>
+  <div class="stat-pill">
+    <div class="stat-dot" style="background:var(--brand)"></div>
+    <span class="stat-num" id="visibleCount">—</span>
+    <span class="stat-lbl">Gösterilen</span>
   </div>
-  <div class="stat-item">
-    <span class="stat-label">Konum</span>
-    <span class="stat-value" id="selectedCity">Türkiye</span>
+  <div class="stat-pill">
+    <div class="stat-dot" style="background:var(--uzman)"></div>
+    <span class="stat-num" id="uzmanCount">—</span>
+    <span class="stat-lbl">Uzman Bayi</span>
   </div>
+  <div class="stat-pill">
+    <div class="stat-dot" style="background:var(--bayi)"></div>
+    <span class="stat-num" id="bayiCount">—</span>
+    <span class="stat-lbl">Bayi</span>
+  </div>
+  <div class="stat-pill">
+    <div class="stat-dot" style="background:var(--satis)"></div>
+    <span class="stat-num" id="satisCount">—</span>
+    <span class="stat-lbl">Satış Noktası</span>
+  </div>
+  <div class="stat-pill" style="border:none;">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ink-300)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <span class="stat-num" id="selectedCity" style="font-size:13px; font-weight:600; color:var(--ink-700)">Türkiye</span>
+  </div>
+  <button class="active-filters-badge" id="activeFiltersBadge" onclick="resetFilters()" title="Filtreleri sıfırla" style="display:none" aria-label="Aktif filtreleri temizle">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <span id="activeFiltersText">Filtre aktif</span>
+  </button>
 </div>
 
-<div id="map">
-  <div class="map-legend">
-    <div class="legend-title">Satış Noktaları</div>
+<!-- Map -->
+<div class="map-wrap" role="main">
+  <div id="map" aria-label="Satış noktaları haritası"></div>
+
+  <!-- Legend -->
+  <div class="map-legend" id="mapLegend" role="complementary" aria-label="Harita lejandı">
+    <div class="legend-title">Satış Noktası Tipi</div>
     <div class="legend-items">
       <div class="legend-item">
-        <div class="legend-dot" style="background: #e17937;"></div>
-        <span class="legend-label">Uzman Bayi</span>
+        <div class="legend-dot" style="background:var(--uzman)"></div>
+        <span class="legend-lbl">Uzman Bayi</span>
+        <span class="legend-count" id="leg-uzman">—</span>
       </div>
       <div class="legend-item">
-        <div class="legend-dot" style="background: #547B58;"></div>
-        <span class="legend-label">Bayi</span>
+        <div class="legend-dot" style="background:var(--bayi)"></div>
+        <span class="legend-lbl">Bayi</span>
+        <span class="legend-count" id="leg-bayi">—</span>
       </div>
       <div class="legend-item">
-        <div class="legend-dot" style="background: #121199;"></div>
-        <span class="legend-label">Satış Noktası</span>
+        <div class="legend-dot" style="background:var(--satis)"></div>
+        <span class="legend-lbl">Satış Noktası</span>
+        <span class="legend-count" id="leg-satis">—</span>
       </div>
     </div>
+  </div>
+
+  <!-- Floating action buttons -->
+  <div class="map-fabs" role="group" aria-label="Harita kontrolleri">
+    <button class="map-fab" id="zoomInBtn" title="Yakınlaştır" aria-label="Yakınlaştır">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+    <button class="map-fab" id="zoomOutBtn" title="Uzaklaştır" aria-label="Uzaklaştır">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </button>
+    <button class="map-fab" id="fitAllBtn" title="Tümünü göster" aria-label="Tümünü haritaya sığdır">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/></svg>
+    </button>
   </div>
 </div>
 
-<button class="filter-toggle" onclick="toggleFilters()">Filtrele</button>
+<!-- Panel Overlay -->
+<div class="panel-overlay" id="panelOverlay" onclick="togglePanel()" aria-hidden="true"></div>
 
-<div class="filter-panel" id="filterPanel">
-  <div class="filter-header">
-    <span class="filter-title">Filtreler</span>
-    <button class="close-btn" onclick="toggleFilters()">×</button>
+<!-- Filter Panel -->
+<aside class="filter-panel" id="filterPanel" role="complementary" aria-label="Filtre paneli" aria-hidden="true">
+  <div class="panel-header">
+    <h2 class="panel-title">Filtreler &amp; Listele</h2>
+    <button class="panel-close" onclick="togglePanel()" title="Kapat" aria-label="Filtreleri kapat">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
   </div>
-  
-  <div class="filter-content">
-    <div class="filter-section">
-      <label class="filter-label">Şehir</label>
-      <select id="citySelect">
-        <option value="">Tüm Şehirler</option>
-      </select>
+
+  <div class="panel-resultbar">
+    <div class="panel-resultbar-count">
+      <strong id="panelCount">—</strong> satış noktası bulundu
     </div>
-    
+    <button class="panel-reset-btn" id="panelResetBtn" onclick="resetFilters()" aria-label="Filtreleri sıfırla">
+      Sıfırla ×
+    </button>
+  </div>
+
+  <div class="panel-body">
+
+    <!-- Search -->
     <div class="filter-section">
-      <label class="filter-label">Ara</label>
-      <input type="text" id="searchInput" placeholder="Satış noktası adı, şehir, adres veya telefon...">
+      <label class="filter-label" for="searchInput">Arama</label>
+      <div class="input-wrap">
+        <span class="input-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        </span>
+        <input type="text" id="searchInput" placeholder="İsim, şehir, adres veya telefon…" autocomplete="off" spellcheck="false">
+        <button class="input-clear" id="searchClear" onclick="clearSearch()" aria-label="Aramayı temizle">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
     </div>
-    
+
+    <!-- City -->
+    <div class="filter-section">
+      <label class="filter-label" for="citySelect">Şehir</label>
+      <div class="input-wrap select-wrap">
+        <span class="input-icon">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </span>
+        <select id="citySelect" aria-label="Şehir seçin">
+          <option value="">Tüm Şehirler</option>
+        </select>
+        <span class="select-arrow">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </span>
+      </div>
+    </div>
+
+    <!-- Type -->
     <div class="filter-section">
       <label class="filter-label">Satış Noktası Tipi</label>
-      <div class="type-filters">
-        <button class="type-filter-btn active" data-type="all">
+      <div class="type-btns" role="group" aria-label="Satış noktası tipi filtresi">
+        <button class="type-btn active" data-type="all" aria-pressed="true">
           <span>Tümü</span>
+          <span class="type-btn-count" id="cnt-all">—</span>
         </button>
-        <button class="type-filter-btn" data-type="uzman">
-          <span class="color-dot" style="background:#e17937"></span>
+        <button class="type-btn" data-type="uzman" aria-pressed="false">
+          <span class="type-dot" style="background:var(--uzman)"></span>
           <span>Uzman Bayi</span>
+          <span class="type-btn-count" id="cnt-uzman">—</span>
         </button>
-        <button class="type-filter-btn" data-type="bayi">
-          <span class="color-dot" style="background:#547B58"></span>
+        <button class="type-btn" data-type="bayi" aria-pressed="false">
+          <span class="type-dot" style="background:var(--bayi)"></span>
           <span>Bayi</span>
+          <span class="type-btn-count" id="cnt-bayi">—</span>
         </button>
-        <button class="type-filter-btn" data-type="satis">
-          <span class="color-dot" style="background:#121199"></span>
+        <button class="type-btn" data-type="satis" aria-pressed="false">
+          <span class="type-dot" style="background:var(--satis)"></span>
           <span>Satış Noktası</span>
+          <span class="type-btn-count" id="cnt-satis">—</span>
         </button>
       </div>
     </div>
-    
+
+    <!-- Dealer List -->
     <div class="dealer-list-section">
-      <label class="filter-label">Satış Noktası Listesi</label>
-      <div id="dealerList"></div>
+      <label class="filter-label">Satış Noktaları</label>
+      <div id="dealerList" role="list" aria-label="Satış noktaları listesi"></div>
+      <div class="empty-state" id="emptyState" role="status">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <div class="empty-state-title">Sonuç bulunamadı</div>
+        <div class="empty-state-sub">Farklı bir arama veya filtre deneyin</div>
+      </div>
     </div>
-  </div>
-</div>
+
+  </div><!-- /panel-body -->
+</aside>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
 
 <script>
-const TYPE_COLORS = {
-  uzman: "#e17937",
-  bayi: "#547B58",
-  satis: "#121199"
-};
+/* ─── CONFIG ──────────────────────────────────────────────────────── */
+const TYPE_COLORS  = { uzman: '#e17937', bayi: '#547B58', satis: '#2d5fa6' };
+const TYPE_LABELS  = { uzman: 'Uzman Bayi', bayi: 'Bayi', satis: 'Satış Noktası' };
+const TYPE_BG      = { uzman: '#fdf0e7', bayi: '#e8f0e9', satis: '#e8eef8' };
 
-const TYPE_LABELS = {
-  uzman: "Uzman Bayi",
-  bayi: "Bayi",
-  satis: "Satış Noktası"
-};
+/* ─── MAP INIT ────────────────────────────────────────────────────── */
+const map = L.map('map', {
+  zoomControl: false,
+  attributionControl: true
+}).setView([39, 35], 6);
 
-const map = L.map("map").setView([39, 35], 4);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-  attribution: "© OpenStreetMap",
-  maxZoom: 18
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+  maxZoom: 19,
+  subdomains: 'abcd'
 }).addTo(map);
 
+/* Custom attribution */
+map.attributionControl.setPrefix(false);
+
+/* ─── FAB ZOOM CONTROLS ───────────────────────────────────────────── */
+document.getElementById('zoomInBtn').onclick  = () => map.zoomIn();
+document.getElementById('zoomOutBtn').onclick = () => map.zoomOut();
+document.getElementById('fitAllBtn').onclick  = fitAll;
+
+/* ─── LOCATE ──────────────────────────────────────────────────────── */
+const locateBtn = document.getElementById('locateBtn');
+let locateMarker = null;
+locateBtn.onclick = () => {
+  locateBtn.classList.add('loading');
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      locateBtn.classList.remove('loading');
+      const { latitude: lat, longitude: lng } = pos.coords;
+      if (locateMarker) map.removeLayer(locateMarker);
+      locateMarker = L.circleMarker([lat, lng], {
+        radius: 8, color: '#fff', weight: 2.5,
+        fillColor: '#547B58', fillOpacity: 1
+      }).addTo(map).bindPopup('<b>Konumunuz</b>').openPopup();
+      map.setView([lat, lng], 13);
+    },
+    err => {
+      locateBtn.classList.remove('loading');
+      alert('Konum alınamadı: ' + err.message);
+    },
+    { timeout: 8000 }
+  );
+};
+
+/* ─── CLUSTER ─────────────────────────────────────────────────────── */
 function createClusterIcon(cluster) {
   const counts = {};
   cluster.getAllChildMarkers().forEach(m => {
     const t = m.options.dealerType;
     counts[t] = (counts[t] || 0) + 1;
   });
-
-  const types = Object.keys(counts);
-  const total = cluster.getChildCount();
-  const size = 52;
-  const uniqueId = Date.now() + Math.random();
+  const types  = Object.keys(counts);
+  const total  = cluster.getChildCount();
+  const base   = 44;
+  const size   = total > 50 ? base + 12 : total > 20 ? base + 6 : base;
 
   if (types.length === 1) {
+    const c = TYPE_COLORS[types[0]];
     return L.divIcon({
-      html: `<div style="
-        position: relative;
-        width: ${size}px;
-        height: ${size}px;">
-        <div style="
-          position: absolute;
-          inset: 0;
-          background: ${TYPE_COLORS[types[0]]};
-          opacity: 0.15;
-          border-radius: 50%;
-          transform: scale(1.2);
-        "></div>
-        <div style="
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, ${TYPE_COLORS[types[0]]} 0%, ${TYPE_COLORS[types[0]]}dd 100%);
-          border-radius: 50%;
-          border: 2px solid white;
-          box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-weight: 600;
-          font-size: 16px;
-        ">${total}</div>
+      html: `<div style="position:relative;width:${size}px;height:${size}px">
+        <div style="position:absolute;inset:0;background:${c};opacity:.15;border-radius:50%;transform:scale(1.25)"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(135deg,${c},${c}cc);border-radius:50%;border:2.5px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:${total>99?11:13}px;font-family:'DM Sans',sans-serif">${total}</div>
       </div>`,
-      className: "",
-      iconSize: [size, size]
+      className: '', iconSize: [size, size]
     });
   }
 
-  const segments = types.map((t, i) => {
-    const percent = (counts[t] / total) * 100;
-    const start = i === 0 ? 0 : types.slice(0, i).reduce((sum, type) => sum + (counts[type] / total) * 100, 0);
-    return `${TYPE_COLORS[t]} ${start}% ${start + percent}%`;
-  }).join(", ");
+  const segs = types.map((t, i) => {
+    const pct   = (counts[t] / total) * 100;
+    const start = types.slice(0, i).reduce((s, x) => s + (counts[x] / total) * 100, 0);
+    return `${TYPE_COLORS[t]} ${start}% ${start + pct}%`;
+  }).join(', ');
 
   return L.divIcon({
-    html: `<div style="
-      position: relative;
-      width: ${size}px;
-      height: ${size}px;">
-      <div style="
-        position: absolute;
-        inset: 0;
-        background: conic-gradient(${segments});
-        opacity: 0.15;
-        border-radius: 50%;
-        transform: scale(1.2);
-      "></div>
-      <div style="
-        position: absolute;
-        inset: 2px;
-        background: conic-gradient(${segments});
-        border-radius: 50%;
-        border: 2px solid white;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-      "></div>
-      <div style="
-        position: absolute;
-        inset: 0;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-        font-size: 16px;
-        text-shadow: 0 1px 3px rgba(0,0,0,0.3);
-      ">${total}</div>
+    html: `<div style="position:relative;width:${size}px;height:${size}px">
+      <div style="position:absolute;inset:0;background:conic-gradient(${segs});opacity:.12;border-radius:50%;transform:scale(1.25)"></div>
+      <div style="position:absolute;inset:0;background:conic-gradient(${segs});border-radius:50%;border:2.5px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.18)"></div>
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:${total>99?11:13}px;font-family:'DM Sans',sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.35)">${total}</div>
     </div>`,
-    className: "",
-    iconSize: [size, size]
+    className: '', iconSize: [size, size]
   });
 }
 
@@ -881,258 +942,349 @@ const markerCluster = L.markerClusterGroup({
   spiderfyOnMaxZoom: true,
   showCoverageOnHover: false,
   zoomToBoundsOnClick: true,
-  maxClusterRadius: 60
+  maxClusterRadius: 60,
+  animate: true
 });
-
 map.addLayer(markerCluster);
 
+/* ─── STATE ───────────────────────────────────────────────────────── */
 const allMarkers = [];
-let currentFilter = { city: "", type: "all", search: "" };
+const filter = { city: '', type: 'all', search: '' };
+let totalCounts = { uzman: 0, bayi: 0, satis: 0 };
+let allBounds = null;
 
-function toggleFilters() {
-  document.getElementById("filterPanel").classList.toggle("open");
+/* ─── PANEL TOGGLE ────────────────────────────────────────────────── */
+function togglePanel() {
+  const panel   = document.getElementById('filterPanel');
+  const overlay = document.getElementById('panelOverlay');
+  const btn     = document.getElementById('filterToggleBtn');
+  const isOpen  = panel.classList.toggle('open');
+  overlay.classList.toggle('open', isOpen);
+  btn.setAttribute('aria-expanded', isOpen);
+  panel.setAttribute('aria-hidden', !isOpen);
+  btn.classList.toggle('filter-open', isOpen);
+  document.getElementById('filterBtnLabel').textContent = isOpen ? 'Kapat' : 'Filtrele';
 }
 
+/* ─── LOAD ────────────────────────────────────────────────────────── */
 function loadDealers(data) {
   const cities = new Set();
+  let idx = 0;
 
   data.dealers.forEach(d => {
+    if (!d.id) d.id = `d-${idx++}`;
     cities.add(d.city);
-    
-    // Eğer d.id yoksa, benzersiz ID oluştur
-    if (!d.id) {
-      d.id = `dealer-${d.city.replace(/\s+/g, '-')}-${d.name.replace(/\s+/g, '-')}-${allMarkers.length}`;
-    }
+    totalCounts[d.type] = (totalCounts[d.type] || 0) + 1;
 
-    // ULTRA ELEGANT ARTİSTİK PIN
-    const customSVGIcon = L.divIcon({
-  className: "",
-  iconSize: [32, 42],
-  iconAnchor: [16, 42],
-  popupAnchor: [0, -42],
-  html: `
-    <svg 
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 64 84"
-      width="32"
-      height="42"
-      style="filter: drop-shadow(0 3px 8px rgba(0,0,0,0.25))${d.type === 'uzman' ? ' drop-shadow(0 0 12px ' + TYPE_COLORS[d.type] + ')' : ''};"
-    >
-      <!-- Uzman bayi için glow efekti -->
-      ${d.type === 'uzman' ? `
-      <defs>
-        <filter id="glow-${d.id}">
-          <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-          <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
-          </feMerge>
-        </filter>
-      </defs>
-      ` : ''}
-      
-      <!-- Outer glow ring (sadece uzman bayi için) -->
-      ${d.type === 'uzman' ? `
-      <path
-        d="M32 6
-           C18 10, 10 22, 10 38
-           C10 52, 21 62, 28 70
-           C31 74, 33 78, 33.5 82
-           C35 78, 36 74, 39 70
-           C46 62, 54 52, 54 38
-           C54 22, 46 10, 32 6 Z"
-        fill="${TYPE_COLORS[d.type]}"
-        opacity="0.3"
-        transform="scale(1.15) translate(-2.4, -2.52)"
-      />
-      ` : ''}
-      
-      <!-- Outer organic pin (slightly off-center bottom) -->
-      <path
-        d="M32 6
-           C18 10, 10 22, 10 38
-           C10 52, 21 62, 28 70
-           C31 74, 33 78, 33.5 82
-           C35 78, 36 74, 39 70
-           C46 62, 54 52, 54 38
-           C54 22, 46 10, 32 6 Z"
-        fill="${TYPE_COLORS[d.type]}"
-        ${d.type === 'uzman' ? `filter="url(#glow-${d.id})"` : ''}
-      />
-      
-      <!-- Carved inner essence (negative space) -->
-      <path
-        d="M30 28
-           C25 33, 26 41, 32 45
-           C38 48, 42 43, 41 36
-           C40 30, 34 25, 30 28 Z"
-        fill="white"
-      />
-      
-      <!-- inner growth cut -->
-      <path
-        d="M32 30
-           C31 35, 34 37, 33 41"
-        fill="none"
-        stroke="white"
-        stroke-width="1.2"
-        stroke-linecap="round"
-      />
-    </svg>
-  `
-});
-
+    const icon = buildPinIcon(d);
     const marker = L.marker([d.lat, d.lng], {
-      dealerType: d.type,
-      dealerData: d,
-      icon: customSVGIcon  // Buradan icon seçeneğini değiştirebilirsiniz
+      dealerType: d.type, dealerData: d, icon
     });
 
-    const popupContent = `
-      <div class="popup-content">
-        <div class="popup-title">${d.name}</div>
-        <div class="popup-info">
-          <div class="popup-city">${d.city}</div>
-          ${d.address ? `<div class="popup-address">${d.address}</div>` : ''}
-          ${d.phone ? `<div class="popup-phone"><a href="tel:${d.phone}" onclick="event.stopPropagation();">${d.phone}</a></div>` : ''}
-          <div>
-            <span class="dealer-type-tag" style="background: ${TYPE_COLORS[d.type]}; color: white;">
-              ${TYPE_LABELS[d.type]}
-            </span>
-          </div>
-        </div>
-        <div class="popup-actions">
-          <a href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}" 
-             target="_blank" 
-             class="directions-btn"
-             style="color: #ffffff !important;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-              <polyline points="15 3 21 3 21 9"></polyline>
-              <line x1="10" y1="14" x2="21" y2="3"></line>
-            </svg>
-            <span style="color: #ffffff !important;">Yol Tarifi Al</span>
-          </a>
-        </div>
-      </div>
-    `;
+    marker.bindPopup(buildPopup(d), {
+      maxWidth: 300, minWidth: 250,
+      className: 'custom-popup'
+    });
 
-    marker.bindPopup(popupContent);
-    
-    // Mobilde popup açılınca lejandı gizle
-    marker.on('popupopen', function() {
-      if (window.innerWidth <= 768) {
-        document.querySelector('.map-legend').classList.add('hidden');
-      }
+    marker.on('popupopen', () => {
+      if (window.innerWidth <= 640)
+        document.getElementById('mapLegend').classList.add('hidden');
     });
-    
-    marker.on('popupclose', function() {
-      if (window.innerWidth <= 768) {
-        document.querySelector('.map-legend').classList.remove('hidden');
-      }
+    marker.on('popupclose', () => {
+      document.getElementById('mapLegend').classList.remove('hidden');
     });
+
     allMarkers.push({ marker, data: d });
   });
 
+  // Populate city dropdown
   [...cities].sort((a, b) => a.localeCompare(b, 'tr')).forEach(c => {
-    const opt = document.createElement("option");
-    opt.value = c;
-    opt.textContent = c;
-    document.getElementById("citySelect").appendChild(opt);
+    const opt = document.createElement('option');
+    opt.value = c; opt.textContent = c;
+    document.getElementById('citySelect').appendChild(opt);
   });
 
-  document.getElementById("totalCount").textContent = allMarkers.length;
+  // Global counts
+  const total = allMarkers.length;
+  document.getElementById('totalCount').textContent = total;
+  document.getElementById('cnt-all').textContent    = total;
+  document.getElementById('cnt-uzman').textContent  = totalCounts.uzman || 0;
+  document.getElementById('cnt-bayi').textContent   = totalCounts.bayi  || 0;
+  document.getElementById('cnt-satis').textContent  = totalCounts.satis || 0;
+  document.getElementById('uzmanCount').textContent = totalCounts.uzman || 0;
+  document.getElementById('bayiCount').textContent  = totalCounts.bayi  || 0;
+  document.getElementById('satisCount').textContent = totalCounts.satis || 0;
+  document.getElementById('leg-uzman').textContent  = totalCounts.uzman || 0;
+  document.getElementById('leg-bayi').textContent   = totalCounts.bayi  || 0;
+  document.getElementById('leg-satis').textContent  = totalCounts.satis || 0;
+
+  // Store global bounds
+  const grp = L.featureGroup(allMarkers.map(o => o.marker));
+  allBounds = grp.getBounds();
+
   applyFilters();
+
+  // Hide loading screen
+  setTimeout(() => {
+    document.getElementById('loading-screen').classList.add('hidden');
+  }, 600);
 }
 
+/* ─── PIN ICON ────────────────────────────────────────────────────── */
+function buildPinIcon(d) {
+  const c = TYPE_COLORS[d.type];
+  const isUzman = d.type === 'uzman';
+  const glowDefs = isUzman ? `<defs>
+    <filter id="glow-${d.id}" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="2.5" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>` : '';
+
+  const glowRing = isUzman ? `<path d="M32 6C18 10,10 22,10 38C10 52,21 62,28 70C31 74,33 78,33.5 82C35 78,36 74,39 70C46 62,54 52,54 38C54 22,46 10,32 6Z"
+    fill="${c}" opacity="0.25" transform="scale(1.14) translate(-2.3,-2.4)"/>` : '';
+
+  return L.divIcon({
+    className: '',
+    iconSize: [30, 40], iconAnchor: [15, 40], popupAnchor: [0, -42],
+    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 84" width="30" height="40"
+      style="filter:drop-shadow(0 3px 7px rgba(0,0,0,.22))${isUzman ? ` drop-shadow(0 0 10px ${c}88)` : ''}">
+      ${glowDefs}${glowRing}
+      <path d="M32 6C18 10,10 22,10 38C10 52,21 62,28 70C31 74,33 78,33.5 82C35 78,36 74,39 70C46 62,54 52,54 38C54 22,46 10,32 6Z"
+        fill="${c}" ${isUzman ? `filter="url(#glow-${d.id})"` : ''}/>
+      <path d="M30 28C25 33,26 41,32 45C38 48,42 43,41 36C40 30,34 25,30 28Z" fill="rgba(255,255,255,.9)"/>
+      <path d="M32 30C31 35,34 37,33 41" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.2" stroke-linecap="round"/>
+    </svg>`
+  });
+}
+
+/* ─── POPUP ───────────────────────────────────────────────────────── */
+function buildPopup(d) {
+  const c  = TYPE_COLORS[d.type];
+  const bg = TYPE_BG[d.type];
+  const label = TYPE_LABELS[d.type];
+
+  const addrEncoded = encodeURIComponent(d.address || `${d.lat},${d.lng}`);
+  const mapsUrl     = `https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}`;
+  const wazeUrl     = `https://waze.com/ul?ll=${d.lat},${d.lng}&navigate=yes`;
+
+  return `<div class="popup-wrap">
+    <div class="popup-type-bar">
+      <span class="popup-type-badge" style="background:${bg};color:${c}">${label}</span>
+    </div>
+    <div class="popup-name">${d.name}</div>
+    ${d.city ? `<div class="popup-detail">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      ${d.city}
+    </div>` : ''}
+    ${d.address ? `<div class="popup-detail">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <span>${d.address}</span>
+    </div>` : ''}
+    ${d.phone ? `<div class="popup-detail">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      <a href="tel:${d.phone}" onclick="event.stopPropagation()">${d.phone}</a>
+    </div>` : ''}
+    <div class="popup-actions">
+      <a href="${mapsUrl}" target="_blank" rel="noopener" class="popup-btn popup-btn-primary" onclick="event.stopPropagation()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+        Yol Tarifi
+      </a>
+      ${d.address ? `<button class="popup-btn popup-btn-secondary" onclick="copyAddress('${d.address.replace(/'/g,"&#39;")}');event.stopPropagation()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Adresi Kopyala
+      </button>` : ''}
+    </div>
+  </div>`;
+}
+
+/* ─── COPY ADDRESS ────────────────────────────────────────────────── */
+function copyAddress(addr) {
+  navigator.clipboard.writeText(addr).then(() => {
+    const toast = document.getElementById('copyToast');
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 2200);
+  }).catch(() => {});
+}
+
+/* ─── APPLY FILTERS ───────────────────────────────────────────────── */
 function applyFilters() {
   markerCluster.clearLayers();
-  const dealerList = document.getElementById("dealerList");
-  dealerList.innerHTML = "";
+  const list     = document.getElementById('dealerList');
+  const empty    = document.getElementById('emptyState');
+  list.innerHTML = '';
+
+  const q = filter.search.toLowerCase().trim();
 
   const visible = allMarkers.filter(o => {
-    const cityMatch = !currentFilter.city || o.data.city === currentFilter.city;
-    const typeMatch = currentFilter.type === "all" || o.data.type === currentFilter.type;
-    const searchMatch = !currentFilter.search || 
-      o.data.name.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
-      o.data.city.toLowerCase().includes(currentFilter.search.toLowerCase()) ||
-      (o.data.address && o.data.address.toLowerCase().includes(currentFilter.search.toLowerCase())) ||
-      (o.data.phone && o.data.phone.includes(currentFilter.search));
-    
-    return cityMatch && typeMatch && searchMatch;
+    const cityOk   = !filter.city   || o.data.city === filter.city;
+    const typeOk   = filter.type === 'all' || o.data.type === filter.type;
+    const searchOk = !q ||
+      o.data.name.toLowerCase().includes(q) ||
+      o.data.city.toLowerCase().includes(q) ||
+      (o.data.address && o.data.address.toLowerCase().includes(q)) ||
+      (o.data.phone   && o.data.phone.includes(q));
+    return cityOk && typeOk && searchOk;
   });
 
+  // Count by type in current results
+  const vc = { uzman: 0, bayi: 0, satis: 0 };
+  visible.forEach(o => { vc[o.data.type] = (vc[o.data.type] || 0) + 1; });
+
+  visible.forEach(o => markerCluster.addLayer(o.marker));
+
+  // Dealer list items
   visible.forEach(o => {
-    markerCluster.addLayer(o.marker);
-
-    const item = document.createElement("div");
-    item.className = "dealer-item";
-    item.innerHTML = `
+    const el = document.createElement('div');
+    el.className = 'dealer-item';
+    el.setAttribute('role', 'listitem');
+    el.setAttribute('tabindex', '0');
+    const c  = TYPE_COLORS[o.data.type];
+    const bg = TYPE_BG[o.data.type];
+    el.innerHTML = `
       <div class="dealer-name">${o.data.name}</div>
-      <div class="dealer-info">
-        <span>${o.data.city}</span>
-        <span class="dealer-type-tag" style="background: ${TYPE_COLORS[o.data.type]}; color: white;">
-          ${TYPE_LABELS[o.data.type]}
+      <div class="dealer-meta">
+        <span class="dealer-city">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${o.data.city}
         </span>
+        <span class="dealer-type-chip" style="background:${bg};color:${c}">${TYPE_LABELS[o.data.type]}</span>
       </div>
-      ${o.data.address ? `<div class="dealer-address">${o.data.address}</div>` : ''}
-      ${o.data.phone ? `<div class="dealer-phone"><a href="tel:${o.data.phone}">${o.data.phone}</a></div>` : ''}
-      <div class="dealer-actions">
-        <a href="https://www.google.com/maps/dir/?api=1&destination=${o.data.lat},${o.data.lng}" 
-           target="_blank" 
-           class="dealer-directions-btn"
-           onclick="event.stopPropagation();">
-          Yol Tarifi
+      ${o.data.address ? `<div class="dealer-addr">${o.data.address}</div>` : ''}
+      ${o.data.phone ? `<div class="dealer-phone-row">
+        <a class="dealer-phone-link" href="tel:${o.data.phone}" onclick="event.stopPropagation()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          ${o.data.phone}
         </a>
-      </div>
+        <a class="dealer-go-btn" href="https://www.google.com/maps/dir/?api=1&destination=${o.data.lat},${o.data.lng}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
+          Git
+        </a>
+      </div>` : ''}
     `;
-    item.onclick = () => {
-      map.setView(o.marker.getLatLng(), 14);
+    el.onclick = () => {
+      map.setView(o.marker.getLatLng(), 15);
       o.marker.openPopup();
-      if (window.innerWidth <= 768) {
-        toggleFilters();
-      }
+      if (window.innerWidth <= 640) togglePanel();
     };
-    dealerList.appendChild(item);
+    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') el.click(); };
+    list.appendChild(el);
   });
 
-  document.getElementById("visibleCount").textContent = visible.length;
-  document.getElementById("selectedCity").textContent = currentFilter.city || "Türkiye";
+  // Empty state
+  empty.classList.toggle('visible', visible.length === 0);
 
-  // ✅ Sadece şehir seçiliyken fitBounds yap (arama/type değişikliğinde zıplatma)
-  if (currentFilter.city && visible.length > 0) {
-    const group = L.featureGroup(visible.map(o => o.marker));
-    map.fitBounds(group.getBounds().pad(0.1));
+  // Update counts
+  const vlen = visible.length;
+  document.getElementById('visibleCount').textContent = vlen;
+  document.getElementById('panelCount').textContent   = vlen;
+  document.getElementById('leg-uzman').textContent    = vc.uzman || 0;
+  document.getElementById('leg-bayi').textContent     = vc.bayi  || 0;
+  document.getElementById('leg-satis').textContent    = vc.satis || 0;
+
+  // Location label
+  document.getElementById('selectedCity').textContent = filter.city || 'Türkiye';
+
+  // Active filters badge
+  const hasFilter = filter.city || filter.type !== 'all' || filter.search;
+  document.getElementById('activeFiltersBadge').style.display = hasFilter ? 'flex' : 'none';
+  document.getElementById('panelResetBtn').classList.toggle('visible', !!hasFilter);
+  if (hasFilter) {
+    const parts = [];
+    if (filter.city)          parts.push(filter.city);
+    if (filter.type !== 'all') parts.push(TYPE_LABELS[filter.type]);
+    if (filter.search)        parts.push(`"${filter.search}"`);
+    document.getElementById('activeFiltersText').textContent = parts.join(', ');
+  }
+
+  // Fit bounds
+  if (filter.city && visible.length > 0) {
+    const grp = L.featureGroup(visible.map(o => o.marker));
+    map.fitBounds(grp.getBounds().pad(0.15));
   }
 }
 
-document.getElementById("citySelect").onchange = (e) => {
-  currentFilter.city = e.target.value;
+/* ─── FIT ALL ─────────────────────────────────────────────────────── */
+function fitAll() {
+  if (allBounds) map.fitBounds(allBounds.pad(0.05));
+}
+
+/* ─── RESET FILTERS ───────────────────────────────────────────────── */
+function resetFilters() {
+  filter.city   = '';
+  filter.type   = 'all';
+  filter.search = '';
+  document.getElementById('citySelect').value   = '';
+  document.getElementById('searchInput').value  = '';
+  document.getElementById('searchClear').classList.remove('visible');
+  document.querySelectorAll('.type-btn').forEach(b => {
+    const active = b.dataset.type === 'all';
+    b.classList.toggle('active', active);
+    b.setAttribute('aria-pressed', active);
+  });
+  applyFilters();
+  fitAll();
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('searchClear').classList.remove('visible');
+  filter.search = '';
+  applyFilters();
+}
+
+/* ─── DEBOUNCE ────────────────────────────────────────────────────── */
+let searchTimer;
+function debounce(fn, ms) {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(fn, ms);
+}
+
+/* ─── EVENT LISTENERS ─────────────────────────────────────────────── */
+document.getElementById('citySelect').onchange = e => {
+  filter.city = e.target.value;
   applyFilters();
 };
 
-document.getElementById("searchInput").oninput = (e) => {
-  currentFilter.search = e.target.value;
-  applyFilters();
+document.getElementById('searchInput').oninput = e => {
+  const val = e.target.value;
+  document.getElementById('searchClear').classList.toggle('visible', val.length > 0);
+  debounce(() => { filter.search = val; applyFilters(); }, 220);
 };
 
-document.querySelectorAll(".type-filter-btn").forEach(btn => {
+document.querySelectorAll('.type-btn').forEach(btn => {
   btn.onclick = () => {
-    document.querySelectorAll(".type-filter-btn").forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
-    currentFilter.type = btn.dataset.type;
+    document.querySelectorAll('.type-btn').forEach(b => {
+      b.classList.remove('active');
+      b.setAttribute('aria-pressed', 'false');
+    });
+    btn.classList.add('active');
+    btn.setAttribute('aria-pressed', 'true');
+    filter.type = btn.dataset.type;
     applyFilters();
   };
 });
 
-fetch("dealers.json")
-  .then(r => r.json())
+/* ─── FETCH DATA ──────────────────────────────────────────────────── */
+fetch('dealers.json')
+  .then(r => {
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    return r.json();
+  })
   .then(loadDealers)
   .catch(err => {
-    console.error("dealers.json yüklenemedi:", err);
-    alert("Bayi verileri yüklenemedi. Lütfen dealers.json dosyasının doğru konumda olduğundan emin olun.");
+    document.getElementById('loading-screen').classList.add('hidden');
+    console.error('dealers.json yüklenemedi:', err);
+    const body = document.querySelector('.map-wrap');
+    body.insertAdjacentHTML('afterbegin', `
+      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#fff;z-index:999;padding:40px;text-align:center">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#e17937" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p style="font-size:16px;font-weight:700;color:#0f1117">Veriler yüklenemedi</p>
+        <p style="font-size:13px;color:#5c6070">dealers.json dosyasının doğru konumda olduğundan emin olun.</p>
+        <button onclick="location.reload()" style="margin-top:8px;padding:10px 20px;background:#547B58;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Yeniden Dene</button>
+      </div>
+    `);
   });
 </script>
-
 </body>
 </html>
