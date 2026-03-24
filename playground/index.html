@@ -2,1288 +2,916 @@
 <html lang="tr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#ffffff">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Foraflora — Satış Noktaları</title>
+
+<!--
+  iframe + GitHub Pages uyumluluk notları:
+  • body { height:100% }       — 100dvh yerine, iframe içinde doğru çalışır
+  • position: absolute          — fixed yerine (overlay, panel, toast, loading)
+  • fetch('./dealers.json')     — GitHub Pages subdirectory için göreli path
+  • Geolocation hatası          — izin yoksa Türkçe zarif toast mesajı
+  • clipboard fallback          — execCommand ile eski tarayıcı desteği
+  • system-font fallback        — Google Fonts CSP bloklamasına karşı güvenli
+-->
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 
 <style>
-/* ─── DESIGN TOKENS ───────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════════════ */
 :root {
-  --brand:        #547B58;
-  --brand-dark:   #3d5c40;
-  --brand-light:  #e8f0e9;
-  --brand-mid:    #6a9470;
+  --brand:       #4e7453;
+  --brand-dk:    #3a5a3e;
+  --brand-lt:    #eaf1eb;
 
-  --uzman:        #e17937;
-  --uzman-bg:     #fdf0e7;
-  --bayi:         #547B58;
-  --bayi-bg:      #e8f0e9;
-  --satis:        #2d5fa6;
-  --satis-bg:     #e8eef8;
+  --uzman:       #d4692a;
+  --uzman-bg:    #fdf1ea;
+  --bayi:        #4e7453;
+  --bayi-bg:     #eaf1eb;
+  --satis:       #2c5fa8;
+  --satis-bg:    #e9eef8;
 
-  --ink-900:      #0f1117;
-  --ink-700:      #2c2f36;
-  --ink-500:      #5c6070;
-  --ink-300:      #9ba3b2;
-  --ink-100:      #e8eaed;
-  --ink-50:       #f4f5f7;
-  --white:        #ffffff;
+  --k950: #090c10;
+  --k800: #1e2330;
+  --k600: #434b5c;
+  --k400: #8891a4;
+  --k200: #d8dce6;
+  --k100: #edeef2;
+  --k50:  #f5f6f8;
+  --wht:  #ffffff;
 
-  --radius-sm:    6px;
-  --radius-md:    10px;
-  --radius-lg:    16px;
-  --radius-xl:    22px;
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 18px;
+  --r-xl: 24px;
 
-  --shadow-xs:    0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
-  --shadow-sm:    0 2px 8px rgba(0,0,0,.07), 0 1px 3px rgba(0,0,0,.05);
-  --shadow-md:    0 6px 20px rgba(0,0,0,.09), 0 2px 6px rgba(0,0,0,.05);
-  --shadow-lg:    0 16px 48px rgba(0,0,0,.11), 0 4px 12px rgba(0,0,0,.06);
-  --shadow-brand: 0 6px 20px rgba(84,123,88,.28);
+  --sh-xs: 0 1px 2px rgba(0,0,0,.05);
+  --sh-sm: 0 2px 8px rgba(0,0,0,.07);
+  --sh-md: 0 6px 20px rgba(0,0,0,.09);
+  --sh-lg: 0 20px 48px rgba(0,0,0,.12);
 
-  --header-h:     68px;
-  --statsbar-h:   48px;
-  --topbar-total: calc(var(--header-h) + var(--statsbar-h));
+  --hdr-h:   62px;
+  --bar-h:   44px;
+  --panel-w: 360px;
 
-  --ease-out:     cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-spring:  cubic-bezier(0.34, 1.56, 0.64, 1);
-  --ease-std:     cubic-bezier(0.4, 0, 0.2, 1);
+  --ease:     cubic-bezier(.4,0,.2,1);
+  --ease-out: cubic-bezier(.22,1,.36,1);
 
-  --panel-w:      380px;
-  --font-base:    'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  --font-mono:    'DM Mono', 'Fira Mono', monospace;
+  --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
 }
 
-/* ─── RESET ───────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   RESET & BASE
+   ✅ height:100% — iframe safe (100dvh/100vh yerine)
+═══════════════════════════════════════════════════════ */
 *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-html { -webkit-text-size-adjust: 100%; }
-body {
-  font-family: var(--font-base);
-  background: var(--ink-50);
-  color: var(--ink-700);
+
+html, body {
+  width: 100%;
+  height: 100%;
   overflow: hidden;
-  height: 100dvh;
+}
+body {
+  font-family: var(--font);
+  background: var(--k50);
+  color: var(--k800);
   display: flex;
   flex-direction: column;
   -webkit-font-smoothing: antialiased;
-}
-a { color: inherit; text-decoration: none; }
-button { font-family: inherit; cursor: pointer; }
-input, select { font-family: inherit; }
-
-/* ─── LOADING SCREEN ──────────────────────────────────────────────── */
-#loading-screen {
-  position: fixed; inset: 0; z-index: 9999;
-  background: var(--white);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 20px;
-  transition: opacity .4s var(--ease-std), visibility .4s;
-}
-#loading-screen.hidden { opacity: 0; visibility: hidden; pointer-events: none; }
-.loading-logo { width: 160px; opacity: .9; }
-.loading-bar-track {
-  width: 160px; height: 3px; background: var(--ink-100);
-  border-radius: 99px; overflow: hidden;
-}
-.loading-bar-fill {
-  height: 100%; width: 0; background: var(--brand);
-  border-radius: 99px;
-  animation: loadFill 1.4s var(--ease-out) forwards .2s;
-}
-@keyframes loadFill { to { width: 100%; } }
-.loading-text { font-size: 12px; color: var(--ink-300); letter-spacing: .4px; }
-
-/* ─── HEADER ──────────────────────────────────────────────────────── */
-header {
-  height: var(--header-h);
-  background: var(--white);
-  border-bottom: 1px solid var(--ink-100);
-  display: flex; align-items: center;
-  padding: 0 24px;
-  gap: 20px;
+  -moz-osx-font-smoothing: grayscale;
+  /* ✅ position:relative — absolute child'lar için kapsayıcı referans */
   position: relative;
-  z-index: 800;
-  flex-shrink: 0;
-  box-shadow: var(--shadow-xs);
 }
-.logo-wrap {
-  height: 40px; width: 150px;
-  display: flex; align-items: center; flex-shrink: 0;
-}
-.logo-wrap img { max-height: 100%; max-width: 100%; object-fit: contain; }
+a  { color:inherit; text-decoration:none; }
+button { font-family:inherit; border:none; background:none; cursor:pointer; }
+input, select { font-family:inherit; }
+img { display:block; }
 
-.header-divider {
-  width: 1px; height: 28px; background: var(--ink-100); flex-shrink: 0;
-}
-
-.header-meta { flex: 1; min-width: 0; }
-.header-title {
-  font-size: 15px; font-weight: 600;
-  color: var(--ink-900); letter-spacing: -.2px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.header-sub {
-  font-size: 11.5px; color: var(--ink-300); margin-top: 1px; letter-spacing: .1px;
-}
-
-.header-actions { display: flex; align-items: center; gap: 10px; margin-left: auto; }
-
-.hdr-btn {
-  display: inline-flex; align-items: center; gap: 7px;
-  padding: 8px 14px; border-radius: var(--radius-md);
-  font-size: 13px; font-weight: 600;
-  border: 1.5px solid var(--ink-100);
-  background: var(--white); color: var(--ink-700);
-  transition: all .2s var(--ease-std);
-  white-space: nowrap;
-}
-.hdr-btn:hover { background: var(--ink-50); border-color: var(--ink-300); }
-.hdr-btn.primary {
-  background: var(--brand); color: var(--white);
-  border-color: var(--brand);
-  box-shadow: var(--shadow-brand);
-}
-.hdr-btn.primary:hover { background: var(--brand-dark); border-color: var(--brand-dark); }
-.hdr-btn svg { flex-shrink: 0; }
-
-/* Filter open state — shift button label */
-.hdr-btn.filter-open { background: var(--brand-light); color: var(--brand-dark); border-color: var(--brand); }
-
-/* ─── STATS BAR ───────────────────────────────────────────────────── */
-.stats-bar {
-  height: var(--statsbar-h);
-  background: var(--white);
-  border-bottom: 1px solid var(--ink-100);
-  display: flex; align-items: center;
-  padding: 0 24px; gap: 0;
-  flex-shrink: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-.stats-bar::-webkit-scrollbar { display: none; }
-
-.stat-pill {
-  display: flex; align-items: center; gap: 8px;
-  padding: 0 16px; height: 100%;
-  border-right: 1px solid var(--ink-100);
-  white-space: nowrap;
-  transition: background .15s;
-}
-.stat-pill:first-child { padding-left: 0; }
-.stat-pill:last-child { border-right: none; }
-.stat-pill:hover { background: var(--ink-50); }
-
-.stat-dot {
-  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
-}
-.stat-num {
-  font-size: 14px; font-weight: 700; color: var(--ink-900);
-  font-variant-numeric: tabular-nums;
-  transition: color .3s;
-}
-.stat-lbl {
-  font-size: 11px; color: var(--ink-300); font-weight: 500; letter-spacing: .2px;
-}
-.stat-sep { width: 1px; height: 14px; background: var(--ink-100); }
-
-/* Active filter indicator */
-.active-filters-badge {
-  display: none; align-items: center; gap: 6px;
-  margin-left: auto; padding: 4px 10px;
-  background: var(--brand-light); color: var(--brand-dark);
-  border-radius: 99px; font-size: 11px; font-weight: 600;
-  border: 1px solid rgba(84,123,88,.2);
-  cursor: pointer; transition: all .2s;
-  flex-shrink: 0;
-}
-.active-filters-badge.visible { display: flex; }
-.active-filters-badge:hover { background: #d6e8d8; }
-
-/* ─── MAP CONTAINER ───────────────────────────────────────────────── */
-.map-wrap {
-  position: relative; flex: 1; min-height: 0;
-}
-
-#map {
-  height: 100%; width: 100%;
-  position: absolute; inset: 0;
-}
-
-/* ─── MAP LEGEND ──────────────────────────────────────────────────── */
-.map-legend {
-  position: absolute; top: 14px; left: 14px;
-  z-index: 600;
-  background: rgba(255,255,255,.95);
-  backdrop-filter: blur(12px);
-  padding: 12px 14px; border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-md);
-  border: 1px solid rgba(84,123,88,.12);
-  transition: opacity .3s, visibility .3s, transform .3s var(--ease-std);
-}
-.map-legend.hidden { opacity: 0; visibility: hidden; transform: translateY(-4px); }
-
-.legend-title {
-  font-size: 9px; font-weight: 700; color: var(--brand);
-  text-transform: uppercase; letter-spacing: 1.2px;
-  margin-bottom: 9px; padding-bottom: 8px;
-  border-bottom: 1px solid var(--brand-light);
-}
-.legend-items { display: flex; flex-direction: column; gap: 6px; }
-.legend-item {
-  display: flex; align-items: center; gap: 8px;
-  padding: 3px 4px; border-radius: var(--radius-sm);
-  cursor: default;
-  transition: background .15s;
-}
-.legend-item:hover { background: var(--ink-50); }
-.legend-dot {
-  width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-  box-shadow: 0 1px 4px rgba(0,0,0,.18); border: 1.5px solid var(--white);
-}
-.legend-lbl { font-size: 11px; font-weight: 600; color: var(--ink-700); white-space: nowrap; }
-.legend-count {
-  margin-left: auto; padding-left: 10px;
-  font-size: 10px; font-weight: 700; color: var(--ink-300);
-  font-variant-numeric: tabular-nums;
-}
-
-/* ─── MAP FAB CONTROLS ────────────────────────────────────────────── */
-.map-fabs {
-  position: absolute; bottom: 24px; right: 14px;
-  z-index: 600; display: flex; flex-direction: column; gap: 8px;
-}
-.map-fab {
-  width: 40px; height: 40px; border-radius: var(--radius-md);
-  background: var(--white); border: 1px solid var(--ink-100);
-  display: flex; align-items: center; justify-content: center;
-  box-shadow: var(--shadow-sm);
-  transition: all .2s var(--ease-std);
-  color: var(--ink-500);
-}
-.map-fab:hover { background: var(--ink-50); border-color: var(--ink-300); color: var(--ink-900); transform: scale(1.05); }
-.map-fab.active { background: var(--brand); color: var(--white); border-color: var(--brand); }
-
-/* ─── FILTER PANEL ────────────────────────────────────────────────── */
-.panel-overlay {
-  position: fixed; inset: 0; z-index: 900;
-  background: rgba(15,17,23,.35);
-  backdrop-filter: blur(2px);
-  opacity: 0; visibility: hidden;
-  transition: opacity .35s var(--ease-std), visibility .35s;
-}
-.panel-overlay.open { opacity: 1; visibility: visible; }
-
-.filter-panel {
-  position: fixed; top: 0; right: 0;
-  width: var(--panel-w); height: 100dvh;
-  background: var(--white);
-  box-shadow: var(--shadow-lg);
-  transform: translateX(100%);
-  transition: transform .38s var(--ease-out);
-  z-index: 1000;
+/* ═══════════════════════════════════════════════════════
+   LOADING SCREEN
+   ✅ position:absolute — iframe içinde taşmaz
+═══════════════════════════════════════════════════════ */
+#ls {
+  position: absolute; inset: 0; z-index: 9999;
+  background: var(--wht);
   display: flex; flex-direction: column;
-  overflow: hidden;
+  align-items: center; justify-content: center; gap: 18px;
+  transition: opacity .4s var(--ease), visibility .4s;
 }
-.filter-panel.open { transform: translateX(0); }
+#ls.done { opacity:0; visibility:hidden; pointer-events:none; }
+.ls-logo  { width:144px; }
+.ls-track { width:144px; height:2px; background:var(--k100); border-radius:99px; overflow:hidden; }
+.ls-fill  { height:100%; width:0; background:linear-gradient(90deg,var(--brand),#628566); border-radius:99px; animation:lsFill 1.6s var(--ease-out) forwards .1s; }
+@keyframes lsFill { to { width:100%; } }
+.ls-txt { font-size:11.5px; color:var(--k400); letter-spacing:.3px; }
 
-.panel-header {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 18px 22px; border-bottom: 1px solid var(--ink-100);
+/* ═══════════════════════════════════════════════════════
+   HEADER
+═══════════════════════════════════════════════════════ */
+.app-hdr {
+  height: var(--hdr-h);
   flex-shrink: 0;
-  position: sticky; top: 0; background: var(--white); z-index: 10;
-}
-.panel-title { font-size: 16px; font-weight: 700; color: var(--ink-900); letter-spacing: -.3px; }
-.panel-close {
-  width: 32px; height: 32px; border-radius: var(--radius-sm);
-  background: none; border: none;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--ink-300); transition: all .2s var(--ease-std);
-}
-.panel-close:hover { background: var(--ink-50); color: var(--ink-900); }
-
-/* Panel result count bar */
-.panel-resultbar {
-  padding: 10px 22px; background: var(--ink-50);
-  border-bottom: 1px solid var(--ink-100); flex-shrink: 0;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.panel-resultbar-count {
-  font-size: 12px; font-weight: 600; color: var(--ink-500);
-}
-.panel-resultbar-count strong { color: var(--brand); font-size: 14px; }
-.panel-reset-btn {
-  font-size: 11px; font-weight: 600; color: var(--ink-300);
-  background: none; border: none; padding: 4px 8px;
-  border-radius: var(--radius-sm); transition: all .15s;
-  display: none;
-}
-.panel-reset-btn.visible { display: block; }
-.panel-reset-btn:hover { background: var(--ink-100); color: var(--ink-700); }
-
-.panel-body { flex: 1; overflow-y: auto; padding: 22px; }
-.panel-body::-webkit-scrollbar { width: 4px; }
-.panel-body::-webkit-scrollbar-track { background: transparent; }
-.panel-body::-webkit-scrollbar-thumb { background: var(--ink-100); border-radius: 99px; }
-
-/* ─── FILTER FIELDS ───────────────────────────────────────────────── */
-.filter-section { margin-bottom: 26px; }
-.filter-label {
-  display: block; font-size: 10px; font-weight: 700;
-  color: var(--ink-300); text-transform: uppercase;
-  letter-spacing: 1px; margin-bottom: 10px;
-}
-
-.input-wrap { position: relative; }
-.input-icon {
-  position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-  color: var(--ink-300); pointer-events: none;
+  background: var(--wht);
+  border-bottom: 1px solid var(--k100);
   display: flex; align-items: center;
+  padding: 0 22px; gap: 16px;
+  position: relative; z-index: 700;
+  box-shadow: var(--sh-xs);
 }
-.input-clear {
-  position: absolute; right: 10px; top: 50%; transform: translateY(-50%);
-  width: 22px; height: 22px; border-radius: 50%;
-  background: var(--ink-100); border: none;
-  display: none; align-items: center; justify-content: center;
-  color: var(--ink-500); transition: all .15s;
+.hdr-logo { height:36px; width:136px; flex-shrink:0; display:flex; align-items:center; }
+.hdr-logo img { max-height:100%; max-width:100%; object-fit:contain; }
+.hdr-div  { width:1px; height:24px; background:var(--k100); flex-shrink:0; }
+.hdr-meta { flex:1; min-width:0; }
+.hdr-ttl  { font-size:14px; font-weight:600; color:var(--k950); letter-spacing:-.15px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hdr-sub  { font-size:11px; color:var(--k400); margin-top:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.hdr-acts { display:flex; align-items:center; gap:8px; margin-left:auto; flex-shrink:0; }
+
+.hbtn {
+  display:inline-flex; align-items:center; gap:6px;
+  padding:7px 13px; border-radius:var(--r-sm);
+  font-size:12.5px; font-weight:600; letter-spacing:-.1px;
+  border:1.5px solid var(--k100); background:var(--wht); color:var(--k600);
+  transition:background .18s var(--ease), border-color .18s, color .18s, box-shadow .18s;
+  white-space:nowrap;
 }
-.input-clear.visible { display: flex; }
-.input-clear:hover { background: var(--ink-300); color: var(--white); }
+.hbtn:hover { background:var(--k50); border-color:var(--k200); color:var(--k800); }
+.hbtn svg { flex-shrink:0; }
+.hbtn-pri { background:var(--brand); color:var(--wht); border-color:var(--brand); box-shadow:0 4px 14px rgba(78,116,83,.28); }
+.hbtn-pri:hover { background:var(--brand-dk); border-color:var(--brand-dk); color:var(--wht); box-shadow:0 4px 18px rgba(78,116,83,.36); }
+.hbtn-open { background:var(--brand-lt); color:var(--brand-dk); border-color:rgba(78,116,83,.35); box-shadow:none; }
+.hbtn-open:hover { background:#ddeade; color:var(--brand-dk); border-color:rgba(78,116,83,.5); }
+
+/* ═══════════════════════════════════════════════════════
+   STATS BAR
+═══════════════════════════════════════════════════════ */
+.stats-bar {
+  height:var(--bar-h); flex-shrink:0;
+  background:var(--wht); border-bottom:1px solid var(--k100);
+  display:flex; align-items:center; padding:0 22px;
+  overflow-x:auto; scrollbar-width:none;
+  position:relative; z-index:600;
+}
+.stats-bar::-webkit-scrollbar { display:none; }
+.st { display:flex; align-items:center; gap:7px; padding:0 14px; height:100%; border-right:1px solid var(--k100); white-space:nowrap; flex-shrink:0; }
+.st:first-child { padding-left:0; }
+.st:last-child  { border-right:none; padding-right:0; }
+.st-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; }
+.st-val { font-size:13.5px; font-weight:700; color:var(--k950); font-variant-numeric:tabular-nums; }
+.st-lbl { font-size:10.5px; color:var(--k400); font-weight:500; }
+
+.fbadge {
+  display:none; align-items:center; gap:5px;
+  margin-left:auto; flex-shrink:0;
+  padding:4px 10px; background:var(--brand-lt); color:var(--brand-dk);
+  border-radius:99px; font-size:10.5px; font-weight:700;
+  border:1px solid rgba(78,116,83,.22); cursor:pointer;
+  transition:background .15s;
+}
+.fbadge.on { display:flex; }
+.fbadge:hover { background:#d8e9da; }
+
+/* ═══════════════════════════════════════════════════════
+   MAP AREA
+═══════════════════════════════════════════════════════ */
+.map-wrap { flex:1; min-height:0; position:relative; }
+#map { position:absolute; inset:0; width:100%; height:100%; }
+.leaflet-tile { filter:saturate(.85) brightness(1.02); }
+.leaflet-control-attribution { font-size:9px !important; background:rgba(255,255,255,.75) !important; backdrop-filter:blur(4px); border-radius:var(--r-xs) !important; }
+
+/* ═══════════════════════════════════════════════════════
+   LEGEND
+═══════════════════════════════════════════════════════ */
+.legend {
+  position:absolute; top:12px; left:12px; z-index:500;
+  background:rgba(255,255,255,.96); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+  border-radius:var(--r-lg); padding:12px 14px;
+  box-shadow:var(--sh-md); border:1px solid rgba(78,116,83,.13);
+  transition:opacity .3s var(--ease), visibility .3s, transform .3s var(--ease);
+}
+.legend.hidden { opacity:0; visibility:hidden; transform:translateY(-5px) scale(.97); pointer-events:none; }
+.leg-ttl { font-size:8.5px; font-weight:700; color:var(--brand); text-transform:uppercase; letter-spacing:1.3px; margin-bottom:9px; padding-bottom:8px; border-bottom:1px solid var(--brand-lt); }
+.leg-list { display:flex; flex-direction:column; gap:5px; }
+.leg-row { display:flex; align-items:center; gap:8px; padding:2px 4px; border-radius:var(--r-xs); transition:background .12s; }
+.leg-row:hover { background:var(--k50); }
+.leg-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; box-shadow:0 1px 4px rgba(0,0,0,.2); border:1.5px solid var(--wht); }
+.leg-name { font-size:10.5px; font-weight:600; color:var(--k600); white-space:nowrap; }
+.leg-cnt { margin-left:auto; padding-left:10px; font-size:10px; font-weight:700; color:var(--k400); font-variant-numeric:tabular-nums; }
+
+/* ═══════════════════════════════════════════════════════
+   MAP FABs
+   ✅ position:absolute — haritaya göre konumlanır
+═══════════════════════════════════════════════════════ */
+.map-fabs { position:absolute; bottom:22px; right:12px; z-index:500; display:flex; flex-direction:column; gap:6px; }
+.mfab {
+  width:38px; height:38px; border-radius:var(--r-sm);
+  background:var(--wht); border:1px solid var(--k200);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:var(--sh-sm); color:var(--k600);
+  transition:all .18s var(--ease);
+}
+.mfab:hover { background:var(--k50); color:var(--k950); border-color:var(--k400); transform:scale(1.06); }
+.mfab:active { transform:scale(.97); }
+
+/* ═══════════════════════════════════════════════════════
+   PANEL OVERLAY
+   ✅ position:absolute — iframe içinde taşmaz
+═══════════════════════════════════════════════════════ */
+.overlay {
+  position:absolute; inset:0; z-index:800;
+  background:rgba(9,12,16,.38);
+  backdrop-filter:blur(3px); -webkit-backdrop-filter:blur(3px);
+  opacity:0; visibility:hidden;
+  transition:opacity .32s var(--ease), visibility .32s;
+}
+.overlay.open { opacity:1; visibility:visible; }
+
+/* ═══════════════════════════════════════════════════════
+   FILTER PANEL
+   ✅ position:absolute — iframe içinde taşmaz
+═══════════════════════════════════════════════════════ */
+.panel {
+  position:absolute; top:0; right:0;
+  width:var(--panel-w); height:100%;
+  background:var(--wht);
+  box-shadow:var(--sh-lg);
+  transform:translateX(100%);
+  transition:transform .36s var(--ease-out);
+  z-index:900;
+  display:flex; flex-direction:column;
+  overflow:hidden;
+}
+.panel.open { transform:translateX(0); }
+
+.pnl-hd { display:flex; align-items:center; justify-content:space-between; padding:16px 20px; border-bottom:1px solid var(--k100); flex-shrink:0; }
+.pnl-ttl { font-size:15px; font-weight:700; color:var(--k950); letter-spacing:-.2px; }
+.pnl-cls { width:30px; height:30px; border-radius:var(--r-xs); display:flex; align-items:center; justify-content:center; color:var(--k400); transition:background .15s, color .15s; }
+.pnl-cls:hover { background:var(--k50); color:var(--k800); }
+
+.pnl-bar { display:flex; align-items:center; justify-content:space-between; padding:9px 20px; background:var(--k50); border-bottom:1px solid var(--k100); flex-shrink:0; }
+.pnl-cnt { font-size:11.5px; font-weight:500; color:var(--k400); }
+.pnl-cnt strong { font-size:13px; font-weight:700; color:var(--brand); }
+.pnl-rst { font-size:11px; font-weight:600; color:var(--k400); padding:3px 8px; border-radius:var(--r-xs); transition:all .15s; display:none; }
+.pnl-rst.on { display:block; }
+.pnl-rst:hover { background:var(--k100); color:var(--k800); }
+
+.pnl-body { flex:1; overflow-y:auto; padding:20px; scrollbar-width:thin; scrollbar-color:var(--k100) transparent; }
+.pnl-body::-webkit-scrollbar { width:4px; }
+.pnl-body::-webkit-scrollbar-thumb { background:var(--k100); border-radius:99px; }
+
+/* ═══════════════════════════════════════════════════════
+   FILTER FIELDS
+═══════════════════════════════════════════════════════ */
+.fsec { margin-bottom:24px; }
+.flbl { display:block; font-size:9.5px; font-weight:700; color:var(--k400); text-transform:uppercase; letter-spacing:1.1px; margin-bottom:9px; }
+.fwrp { position:relative; }
+.fico { position:absolute; left:11px; top:50%; transform:translateY(-50%); color:var(--k400); pointer-events:none; display:flex; align-items:center; }
+.fclr { position:absolute; right:8px; top:50%; transform:translateY(-50%); width:20px; height:20px; border-radius:50%; background:var(--k100); display:none; align-items:center; justify-content:center; color:var(--k600); transition:background .15s; }
+.fclr.on { display:flex; }
+.fclr:hover { background:var(--k200); color:var(--k950); }
+.sarr { position:absolute; right:11px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--k400); }
 
 input[type="text"], select {
-  width: 100%; padding: 10px 14px 10px 36px;
-  border: 1.5px solid var(--ink-100);
-  border-radius: var(--radius-md);
-  font-size: 13.5px; color: var(--ink-700);
-  background: var(--ink-50);
-  transition: all .2s var(--ease-std);
-  appearance: none; -webkit-appearance: none;
+  width:100%; padding:9px 12px 9px 34px;
+  border:1.5px solid var(--k100); border-radius:var(--r-md);
+  font-size:13px; color:var(--k800); background:var(--k50);
+  appearance:none; -webkit-appearance:none;
+  transition:border-color .18s var(--ease), box-shadow .18s, background .18s;
 }
-input[type="text"]:focus, select:focus {
-  outline: none; border-color: var(--brand);
-  background: var(--white);
-  box-shadow: 0 0 0 3px rgba(84,123,88,.12);
-}
-input[type="text"]::placeholder { color: var(--ink-300); }
+input[type="text"]:focus, select:focus { outline:none; border-color:var(--brand); background:var(--wht); box-shadow:0 0 0 3px rgba(78,116,83,.12); }
+input[type="text"]::placeholder { color:var(--k400); }
+select { padding-left:34px; }
 
-select { padding-left: 36px; background-image: none; }
-.select-wrap .input-icon { pointer-events: none; }
-.select-arrow {
-  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
-  pointer-events: none; color: var(--ink-300);
+/* Type buttons */
+.type-btns { display:flex; flex-direction:column; gap:6px; }
+.tbtn {
+  display:flex; align-items:center; gap:9px;
+  padding:10px 13px; border-radius:var(--r-md);
+  border:1.5px solid var(--k100); background:var(--k50);
+  font-size:12.5px; font-weight:500; color:var(--k600);
+  text-align:left; transition:all .18s var(--ease);
+  position:relative; overflow:hidden;
 }
+.tbtn::after { content:''; position:absolute; left:0; top:0; bottom:0; width:0; border-radius:0 2px 2px 0; transition:width .2s var(--ease); }
+.tbtn:hover { border-color:var(--k200); background:var(--wht); color:var(--k800); }
+.tbtn.on { background:var(--wht); color:var(--k950); font-weight:600; }
+.tbtn.on::after { width:3px; }
+.tbtn[data-type="all"].on    { border-color:var(--brand);  box-shadow:0 2px 10px rgba(78,116,83,.1); }
+.tbtn[data-type="all"].on::after { background:var(--brand); }
+.tbtn[data-type="uzman"].on  { border-color:var(--uzman);  box-shadow:0 2px 10px rgba(212,105,42,.1); }
+.tbtn[data-type="uzman"].on::after { background:var(--uzman); }
+.tbtn[data-type="bayi"].on   { border-color:var(--bayi);   box-shadow:0 2px 10px rgba(78,116,83,.1); }
+.tbtn[data-type="bayi"].on::after { background:var(--bayi); }
+.tbtn[data-type="satis"].on  { border-color:var(--satis);  box-shadow:0 2px 10px rgba(44,95,168,.1); }
+.tbtn[data-type="satis"].on::after { background:var(--satis); }
+.tdot { width:10px; height:10px; border-radius:50%; flex-shrink:0; border:1.5px solid var(--wht); box-shadow:0 1px 3px rgba(0,0,0,.2); }
+.tcnt { margin-left:auto; font-size:10.5px; font-weight:700; color:var(--k400); font-variant-numeric:tabular-nums; }
+.tbtn[data-type="all"].on    .tcnt { color:var(--brand); }
+.tbtn[data-type="uzman"].on  .tcnt { color:var(--uzman); }
+.tbtn[data-type="bayi"].on   .tcnt { color:var(--bayi); }
+.tbtn[data-type="satis"].on  .tcnt { color:var(--satis); }
 
-/* Type filters */
-.type-btns { display: flex; flex-direction: column; gap: 7px; }
-.type-btn {
-  display: flex; align-items: center; gap: 10px;
-  padding: 11px 14px; border-radius: var(--radius-md);
-  border: 1.5px solid var(--ink-100); background: var(--ink-50);
-  font-size: 13px; font-weight: 500; color: var(--ink-700);
-  text-align: left; transition: all .2s var(--ease-std);
-  position: relative; overflow: hidden;
+/* ═══════════════════════════════════════════════════════
+   DEALER LIST
+═══════════════════════════════════════════════════════ */
+.dlr-sec { margin-top:26px; padding-top:22px; border-top:1px solid var(--k100); }
+#dealerList { display:flex; flex-direction:column; }
+.di {
+  padding:13px 11px; border-radius:var(--r-md); cursor:pointer;
+  border:1px solid transparent; transition:all .18s var(--ease); position:relative;
 }
-.type-btn::before {
-  content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-  width: 3px; background: transparent;
-  transition: background .2s;
+.di:not(:last-child) { border-bottom-color:var(--k100); border-bottom-left-radius:0; border-bottom-right-radius:0; }
+.di:not(:first-child) { border-top-left-radius:0; border-top-right-radius:0; }
+.di:hover { background:var(--k50); border-radius:var(--r-md); border-color:var(--k100); z-index:1; transform:translateX(3px); box-shadow:var(--sh-xs); }
+.di-name { font-size:13px; font-weight:600; color:var(--k950); margin-bottom:5px; letter-spacing:-.1px; }
+.di-meta { display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+.di-city { font-size:11.5px; color:var(--k400); display:flex; align-items:center; gap:3px; }
+.di-chip { padding:1px 7px; border-radius:99px; font-size:8.5px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; }
+.di-addr { font-size:11px; color:var(--k400); margin-top:4px; line-height:1.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.di-row  { display:flex; align-items:center; justify-content:space-between; margin-top:7px; }
+.di-tel  { font-size:11.5px; font-weight:600; color:var(--k600); display:flex; align-items:center; gap:5px; transition:color .15s; }
+.di-tel:hover { color:var(--brand); }
+.di-tel svg { color:var(--k400); flex-shrink:0; }
+.di-go  {
+  display:inline-flex; align-items:center; gap:3px;
+  padding:3px 9px; background:var(--brand-lt); color:var(--brand-dk);
+  border-radius:var(--r-xs); font-size:10.5px; font-weight:700;
+  transition:all .15s; text-decoration:none;
 }
-.type-btn:hover { border-color: var(--ink-300); background: var(--white); }
-.type-btn.active {
-  background: var(--white); border-color: var(--brand);
-  color: var(--ink-900);
-  box-shadow: 0 2px 10px rgba(84,123,88,.12);
-}
-.type-btn.active::before { background: var(--brand); }
-.type-btn[data-type="uzman"].active { border-color: var(--uzman); box-shadow: 0 2px 10px rgba(225,121,55,.12); }
-.type-btn[data-type="uzman"].active::before { background: var(--uzman); }
-.type-btn[data-type="satis"].active { border-color: var(--satis); box-shadow: 0 2px 10px rgba(45,95,166,.12); }
-.type-btn[data-type="satis"].active::before { background: var(--satis); }
+.di-go:hover { background:var(--brand); color:var(--wht); }
 
-.type-dot {
-  width: 11px; height: 11px; border-radius: 50%; flex-shrink: 0;
-  box-shadow: 0 1px 4px rgba(0,0,0,.18); border: 1.5px solid var(--white);
-}
-.type-btn-count {
-  margin-left: auto; font-size: 11px; font-weight: 700;
-  color: var(--ink-300); font-variant-numeric: tabular-nums;
-}
-.type-btn.active .type-btn-count { color: var(--brand); }
-.type-btn[data-type="uzman"].active .type-btn-count { color: var(--uzman); }
-.type-btn[data-type="satis"].active .type-btn-count { color: var(--satis); }
+.empty { display:none; flex-direction:column; align-items:center; padding:36px 16px; gap:10px; text-align:center; }
+.empty.on { display:flex; }
+.empty svg { color:var(--k200); }
+.empty-ttl { font-size:13.5px; font-weight:600; color:var(--k600); }
+.empty-sub { font-size:11.5px; color:var(--k400); }
 
-/* ─── DEALER LIST ──────────────────────────────────────────────────── */
-.dealer-list-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 12px;
-}
-.dealer-list-section { margin-top: 28px; padding-top: 24px; border-top: 1px solid var(--ink-100); }
-
-#dealerList { display: flex; flex-direction: column; gap: 0; }
-
-.dealer-item {
-  padding: 14px 12px; border-radius: var(--radius-md);
-  cursor: pointer; transition: all .2s var(--ease-std);
-  border: 1px solid transparent;
-  position: relative;
-}
-.dealer-item:not(:last-child) {
-  border-bottom-color: var(--ink-100);
-  border-bottom-left-radius: 0; border-bottom-right-radius: 0;
-}
-.dealer-item:not(:first-child) {
-  border-top-left-radius: 0; border-top-right-radius: 0;
-}
-.dealer-item:hover {
-  background: var(--ink-50); border-color: var(--ink-100);
-  border-radius: var(--radius-md); z-index: 1;
-  box-shadow: var(--shadow-xs);
-  transform: translateX(2px);
-}
-.dealer-name {
-  font-size: 13.5px; font-weight: 600; color: var(--ink-900);
-  margin-bottom: 5px; letter-spacing: -.1px;
-}
-.dealer-meta {
-  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
-}
-.dealer-city {
-  font-size: 12px; color: var(--ink-500);
-  display: flex; align-items: center; gap: 4px;
-}
-.dealer-city svg { color: var(--ink-300); }
-.dealer-type-chip {
-  padding: 2px 8px; border-radius: 99px;
-  font-size: 9px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: .6px;
-}
-.dealer-addr {
-  font-size: 11px; color: var(--ink-300); margin-top: 4px;
-  line-height: 1.5; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.dealer-phone-row {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-top: 8px;
-}
-.dealer-phone-link {
-  font-size: 12px; font-weight: 600; color: var(--ink-700);
-  display: flex; align-items: center; gap: 5px;
-  transition: color .15s;
-}
-.dealer-phone-link:hover { color: var(--brand); }
-.dealer-phone-link svg { color: var(--ink-300); flex-shrink: 0; }
-.dealer-go-btn {
-  font-size: 11px; font-weight: 700; color: var(--brand);
-  background: var(--brand-light); border: none;
-  padding: 4px 10px; border-radius: var(--radius-sm);
-  transition: all .15s;
-  text-decoration: none;
-  display: inline-flex; align-items: center; gap: 4px;
-}
-.dealer-go-btn:hover { background: var(--brand); color: var(--white); }
-
-/* Empty state */
-.empty-state {
-  display: none; flex-direction: column; align-items: center; justify-content: center;
-  padding: 40px 20px; text-align: center; gap: 12px;
-}
-.empty-state.visible { display: flex; }
-.empty-state svg { color: var(--ink-100); }
-.empty-state-title { font-size: 14px; font-weight: 600; color: var(--ink-500); }
-.empty-state-sub { font-size: 12px; color: var(--ink-300); }
-
-/* ─── LEAFLET POPUP ────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════
+   LEAFLET POPUP
+═══════════════════════════════════════════════════════ */
 .leaflet-popup-content-wrapper {
-  border-radius: var(--radius-xl) !important;
-  box-shadow: var(--shadow-lg) !important;
-  padding: 0 !important; overflow: hidden;
-  border: 1px solid var(--ink-100) !important;
-  min-width: 240px;
+  border-radius:var(--r-xl) !important; box-shadow:var(--sh-lg) !important;
+  padding:0 !important; overflow:hidden; border:1px solid var(--k100) !important;
 }
-.leaflet-popup-content { margin: 0 !important; }
-.leaflet-popup-tip-container { display: none; }
+.leaflet-popup-content { margin:0 !important; min-width:240px; }
+.leaflet-popup-tip-container { display:none; }
 .leaflet-popup-close-button {
-  top: 10px !important; right: 10px !important;
-  width: 28px !important; height: 28px !important;
-  display: flex !important; align-items: center !important; justify-content: center !important;
-  border-radius: var(--radius-sm) !important;
-  background: var(--ink-50) !important;
-  color: var(--ink-500) !important;
-  font-size: 18px !important;
-  border: none !important; padding: 0 !important;
-  transition: all .2s !important;
-  line-height: 1 !important;
+  top:10px !important; right:10px !important;
+  width:26px !important; height:26px !important;
+  display:flex !important; align-items:center !important; justify-content:center !important;
+  border-radius:var(--r-xs) !important; background:var(--k50) !important;
+  color:var(--k400) !important; font-size:17px !important; line-height:1 !important;
+  border:none !important; padding:0 !important;
+  transition:background .15s, color .15s !important;
 }
-.leaflet-popup-close-button:hover { background: var(--ink-100) !important; color: var(--ink-900) !important; }
+.leaflet-popup-close-button:hover { background:var(--k100) !important; color:var(--k950) !important; }
 
-.popup-wrap { padding: 20px; }
-.popup-type-bar {
-  display: flex; align-items: center; gap: 8px; margin-bottom: 12px;
+.pb { padding:18px; }
+.pb-type { display:inline-block; padding:2px 8px; border-radius:99px; font-size:8.5px; font-weight:700; text-transform:uppercase; letter-spacing:.7px; margin-bottom:9px; }
+.pb-name { font-size:15px; font-weight:700; color:var(--k950); letter-spacing:-.2px; line-height:1.3; margin-bottom:10px; padding-right:24px; }
+.pb-row { display:flex; align-items:flex-start; gap:7px; font-size:12px; color:var(--k600); margin-bottom:5px; line-height:1.5; }
+.pb-row svg { flex-shrink:0; margin-top:1px; color:var(--k400); }
+.pb-row a { color:var(--k800); font-weight:600; }
+.pb-row a:hover { color:var(--brand); }
+.pb-acts { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:14px; padding-top:14px; border-top:1px solid var(--k100); }
+.pb-btn {
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  padding:9px; border-radius:var(--r-sm); font-size:11.5px; font-weight:700;
+  text-decoration:none; transition:all .18s var(--ease); cursor:pointer; letter-spacing:-.05px;
 }
-.popup-type-badge {
-  padding: 3px 9px; border-radius: 99px;
-  font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px;
-}
-.popup-name {
-  font-size: 15.5px; font-weight: 700; color: var(--ink-900);
-  margin-bottom: 10px; letter-spacing: -.2px; line-height: 1.3;
-  padding-right: 28px; /* space for close btn */
-}
-.popup-detail {
-  display: flex; align-items: flex-start; gap: 8px;
-  font-size: 12.5px; color: var(--ink-500); line-height: 1.5;
-  margin-bottom: 6px;
-}
-.popup-detail svg { flex-shrink: 0; margin-top: 1px; color: var(--ink-300); }
-.popup-detail a { color: var(--ink-700); font-weight: 600; transition: color .15s; }
-.popup-detail a:hover { color: var(--brand); }
-.popup-actions {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
-  margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--ink-100);
-}
-.popup-btn {
-  display: flex; align-items: center; justify-content: center; gap: 7px;
-  padding: 10px; border-radius: var(--radius-md);
-  font-size: 12px; font-weight: 700; text-decoration: none;
-  transition: all .2s var(--ease-std); border: none;
-  cursor: pointer; letter-spacing: .1px;
-}
-.popup-btn-primary {
-  background: var(--brand); color: var(--white);
-  box-shadow: 0 2px 8px rgba(84,123,88,.25);
-}
-.popup-btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
-.popup-btn-secondary {
-  background: var(--ink-50); color: var(--ink-700);
-  border: 1.5px solid var(--ink-100);
-}
-.popup-btn-secondary:hover { background: var(--ink-100); }
-/* Copy toast */
-.copy-toast {
-  position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(8px);
-  background: var(--ink-900); color: var(--white);
-  padding: 8px 16px; border-radius: var(--radius-md);
-  font-size: 12px; font-weight: 600; letter-spacing: .2px;
-  z-index: 9000; pointer-events: none;
-  opacity: 0; transition: all .25s var(--ease-std);
-  white-space: nowrap;
-}
-.copy-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.pb-btn-p { background:var(--brand); color:var(--wht); border:none; box-shadow:0 2px 8px rgba(78,116,83,.28); }
+.pb-btn-p:hover { background:var(--brand-dk); transform:translateY(-1px); box-shadow:0 4px 14px rgba(78,116,83,.34); color:var(--wht); }
+.pb-btn-s { background:var(--k50); color:var(--k600); border:1.5px solid var(--k100); }
+.pb-btn-s:hover { background:var(--k100); color:var(--k950); }
 
-/* ─── LOCATE BTN ──────────────────────────────────────────────────── */
-.locate-spinner {
-  animation: spin .8s linear infinite;
-  display: none;
+/* ═══════════════════════════════════════════════════════
+   TOAST
+   ✅ position:absolute — body içinde konumlanır
+═══════════════════════════════════════════════════════ */
+#toast {
+  position:absolute; bottom:28px; left:50%;
+  transform:translateX(-50%) translateY(8px);
+  background:var(--k950); color:var(--wht);
+  padding:8px 16px; border-radius:var(--r-md);
+  font-size:11.5px; font-weight:600; letter-spacing:.15px;
+  z-index:9500; pointer-events:none;
+  opacity:0; white-space:nowrap;
+  transition:opacity .24s var(--ease), transform .24s var(--ease);
 }
-.locate-btn.loading .locate-spinner { display: block; }
-.locate-btn.loading .locate-icon { display: none; }
-@keyframes spin { to { transform: rotate(360deg); } }
+#toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
 
-/* ─── RESPONSIVE ──────────────────────────────────────────────────── */
-@media (max-width: 640px) {
-  :root {
-    --header-h:     58px;
-    --statsbar-h:   42px;
-    --panel-w:      100vw;
-  }
+/* ═══════════════════════════════════════════════════════
+   CLUSTER OVERRIDES
+═══════════════════════════════════════════════════════ */
+.marker-cluster-small,.marker-cluster-medium,.marker-cluster-large { background:transparent !important; }
+.marker-cluster-small div,.marker-cluster-medium div,.marker-cluster-large div { background:transparent !important; }
 
-  header { padding: 0 16px; gap: 12px; }
-  .logo-wrap { width: 120px; height: 34px; }
-  .header-divider { display: none; }
-  .header-meta { display: none; }
-  .header-actions { gap: 8px; }
-  .hdr-btn span { display: none; }
-  .hdr-btn { padding: 8px 10px; }
+/* ═══════════════════════════════════════════════════════
+   LOCATE SPINNER
+═══════════════════════════════════════════════════════ */
+.spin-i { display:none; animation:spin .8s linear infinite; }
+.locating .spin-i { display:block; }
+.locating .loc-i  { display:none; }
+@keyframes spin { to { transform:rotate(360deg); } }
 
-  .stats-bar { padding: 0 16px; gap: 0; }
-  .stat-pill { padding: 0 12px; }
+/* ═══════════════════════════════════════════════════════
+   FOCUS
+═══════════════════════════════════════════════════════ */
+:focus-visible { outline:2px solid var(--brand); outline-offset:2px; }
 
-  .panel-body { padding: 16px; }
-  .panel-header { padding: 14px 18px; }
-
-  .map-legend { top: 10px; left: 10px; padding: 10px 12px; }
-
-  .map-fabs { bottom: 80px; right: 12px; }
-
-  .filter-toggle-mobile {
-    position: fixed; bottom: 20px; right: 20px; z-index: 700;
-  }
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE — ≤600px (mobil)
+═══════════════════════════════════════════════════════ */
+@media (max-width:600px) {
+  :root { --hdr-h:54px; --bar-h:40px; --panel-w:100%; }
+  .app-hdr { padding:0 14px; gap:10px; }
+  .hdr-logo { width:108px; height:30px; }
+  .hdr-div, .hdr-meta { display:none; }
+  .hdr-acts { gap:6px; }
+  .hbtn span { display:none; }
+  .hbtn { padding:7px 10px; }
+  .stats-bar { padding:0 14px; }
+  .st { padding:0 10px; }
+  .st-lbl { display:none; }
+  .map-fabs { bottom:16px; right:10px; }
+  .legend { padding:9px 11px; }
+  .pnl-body { padding:16px; }
+  .leaflet-control-attribution { display:none !important; }
 }
 
-@media (min-width: 641px) and (max-width: 1024px) {
-  :root { --panel-w: 340px; }
-  header { padding: 0 20px; }
-  .stats-bar { padding: 0 20px; }
+/* 601–1024px (tablet) */
+@media (min-width:601px) and (max-width:1024px) {
+  :root { --panel-w:320px; }
+  .app-hdr, .stats-bar { padding-left:18px; padding-right:18px; }
 }
-
-/* ─── LEAFLET CUSTOM CLUSTER OVERRIDES ───────────────────────────── */
-.marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
-  background: transparent !important;
-}
-.marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
-  background: transparent !important;
-}
-
-/* ─── TILE LAYER — slightly desaturate ───────────────────────────── */
-.leaflet-tile { filter: saturate(0.88) brightness(1.02); }
-
-/* ─── SCROLLBAR ──────────────────────────────────────────────────── */
-.panel-body { scrollbar-gutter: stable; }
-
-/* ─── FOCUS VISIBLE ───────────────────────────────────────────────── */
-:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
 </style>
 </head>
 <body>
 
-<!-- Loading Screen -->
-<div id="loading-screen" role="status" aria-live="polite">
-  <img src="logo.svg" alt="Foraflora" class="loading-logo">
-  <div class="loading-bar-track"><div class="loading-bar-fill"></div></div>
-  <p class="loading-text">Satış noktaları yükleniyor…</p>
+<!-- LOADING SCREEN -->
+<div id="ls" role="status" aria-live="polite" aria-label="Yükleniyor">
+  <img class="ls-logo" src="logo.svg" alt="Foraflora">
+  <div class="ls-track"><div class="ls-fill"></div></div>
+  <p class="ls-txt">Satış noktaları yükleniyor…</p>
 </div>
 
-<!-- Copy Toast -->
-<div id="copyToast" class="copy-toast" role="status" aria-live="polite">Adres kopyalandı</div>
+<!-- TOAST -->
+<div id="toast" role="status" aria-live="polite"></div>
 
-<!-- Header -->
-<header role="banner">
-  <div class="logo-wrap">
-    <img src="logo.svg" alt="Foraflora">
+<!-- HEADER -->
+<header class="app-hdr" role="banner">
+  <div class="hdr-logo"><img src="logo.svg" alt="Foraflora"></div>
+  <div class="hdr-div" aria-hidden="true"></div>
+  <div class="hdr-meta">
+    <div class="hdr-ttl">Satış Noktaları Haritası</div>
+    <div class="hdr-sub">Türkiye genelindeki onaylı satış noktaları</div>
   </div>
-  <div class="header-divider" aria-hidden="true"></div>
-  <div class="header-meta">
-    <div class="header-title">Satış Noktaları Haritası</div>
-    <div class="header-sub">Türkiye genelindeki onaylı satış noktalarımız</div>
-  </div>
-  <div class="header-actions">
-    <button class="hdr-btn" id="locateBtn" title="Konumuma git" aria-label="Konumuma git">
-      <svg class="locate-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-width="1.5" stroke-dasharray="2 2"/></svg>
-      <svg class="locate-spinner" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-9-9" stroke-linecap="round"/></svg>
+  <div class="hdr-acts">
+    <button class="hbtn" id="locBtn" aria-label="Mevcut konumuma git" title="Konumuma git">
+      <svg class="loc-i" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/><circle cx="12" cy="12" r="8" stroke-dasharray="2 2" stroke-width="1.4"/></svg>
+      <svg class="spin-i" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 12a9 9 0 1 1-9-9" stroke-linecap="round"/></svg>
       <span>Konumum</span>
     </button>
-    <button class="hdr-btn primary" id="filterToggleBtn" onclick="togglePanel()" aria-expanded="false" aria-controls="filterPanel" title="Filtreleri aç/kapat">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
-      <span id="filterBtnLabel">Filtrele</span>
+    <button class="hbtn hbtn-pri" id="filterBtn" onclick="togglePanel()" aria-expanded="false" aria-controls="panel" aria-label="Filtre panelini aç/kapat">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+      <span id="fBtnLbl">Filtrele</span>
     </button>
   </div>
 </header>
 
-<!-- Stats Bar -->
-<div class="stats-bar" role="status" aria-live="polite" aria-label="Bayi istatistikleri">
-  <div class="stat-pill">
-    <div class="stat-dot" style="background:var(--ink-300)"></div>
-    <span class="stat-num" id="totalCount">—</span>
-    <span class="stat-lbl">Toplam</span>
+<!-- STATS BAR -->
+<div class="stats-bar" role="status" aria-live="polite" aria-label="Harita istatistikleri">
+  <div class="st"><div class="st-dot" style="background:var(--k400)"></div><span class="st-val" id="stTotal">—</span><span class="st-lbl">Toplam</span></div>
+  <div class="st"><div class="st-dot" style="background:var(--brand)"></div><span class="st-val" id="stVis">—</span><span class="st-lbl">Gösterilen</span></div>
+  <div class="st"><div class="st-dot" style="background:var(--uzman)"></div><span class="st-val" id="stUzman">—</span><span class="st-lbl">Uzman Bayi</span></div>
+  <div class="st"><div class="st-dot" style="background:var(--bayi)"></div><span class="st-val" id="stBayi">—</span><span class="st-lbl">Bayi</span></div>
+  <div class="st"><div class="st-dot" style="background:var(--satis)"></div><span class="st-val" id="stSatis">—</span><span class="st-lbl">Satış Noktası</span></div>
+  <div class="st" style="border:none">
+    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--k400)" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+    <span class="st-val" id="stCity" style="font-size:12px;font-weight:600;color:var(--k600)">Türkiye</span>
   </div>
-  <div class="stat-pill">
-    <div class="stat-dot" style="background:var(--brand)"></div>
-    <span class="stat-num" id="visibleCount">—</span>
-    <span class="stat-lbl">Gösterilen</span>
-  </div>
-  <div class="stat-pill">
-    <div class="stat-dot" style="background:var(--uzman)"></div>
-    <span class="stat-num" id="uzmanCount">—</span>
-    <span class="stat-lbl">Uzman Bayi</span>
-  </div>
-  <div class="stat-pill">
-    <div class="stat-dot" style="background:var(--bayi)"></div>
-    <span class="stat-num" id="bayiCount">—</span>
-    <span class="stat-lbl">Bayi</span>
-  </div>
-  <div class="stat-pill">
-    <div class="stat-dot" style="background:var(--satis)"></div>
-    <span class="stat-num" id="satisCount">—</span>
-    <span class="stat-lbl">Satış Noktası</span>
-  </div>
-  <div class="stat-pill" style="border:none;">
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--ink-300)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-    <span class="stat-num" id="selectedCity" style="font-size:13px; font-weight:600; color:var(--ink-700)">Türkiye</span>
-  </div>
-  <button class="active-filters-badge" id="activeFiltersBadge" onclick="resetFilters()" title="Filtreleri sıfırla" style="display:none" aria-label="Aktif filtreleri temizle">
-    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    <span id="activeFiltersText">Filtre aktif</span>
+  <button class="fbadge" id="fbadge" onclick="resetFilters()" aria-label="Filtreleri temizle">
+    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    <span id="fbadgeTxt">Filtre aktif</span>
   </button>
 </div>
 
-<!-- Map -->
-<div class="map-wrap" role="main">
-  <div id="map" aria-label="Satış noktaları haritası"></div>
+<!-- MAP -->
+<div class="map-wrap">
+  <div id="map" role="application" aria-label="Türkiye satış noktaları haritası"></div>
 
-  <!-- Legend -->
-  <div class="map-legend" id="mapLegend" role="complementary" aria-label="Harita lejandı">
-    <div class="legend-title">Satış Noktası Tipi</div>
-    <div class="legend-items">
-      <div class="legend-item">
-        <div class="legend-dot" style="background:var(--uzman)"></div>
-        <span class="legend-lbl">Uzman Bayi</span>
-        <span class="legend-count" id="leg-uzman">—</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-dot" style="background:var(--bayi)"></div>
-        <span class="legend-lbl">Bayi</span>
-        <span class="legend-count" id="leg-bayi">—</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-dot" style="background:var(--satis)"></div>
-        <span class="legend-lbl">Satış Noktası</span>
-        <span class="legend-count" id="leg-satis">—</span>
-      </div>
+  <!-- Lejand -->
+  <div class="legend" id="legend" role="complementary" aria-label="Harita lejandı">
+    <div class="leg-ttl">Satış Noktası Tipi</div>
+    <div class="leg-list">
+      <div class="leg-row"><div class="leg-dot" style="background:var(--uzman)"></div><span class="leg-name">Uzman Bayi</span><span class="leg-cnt" id="legUz">—</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:var(--bayi)"></div><span class="leg-name">Bayi</span><span class="leg-cnt" id="legBa">—</span></div>
+      <div class="leg-row"><div class="leg-dot" style="background:var(--satis)"></div><span class="leg-name">Satış Noktası</span><span class="leg-cnt" id="legSa">—</span></div>
     </div>
   </div>
 
-  <!-- Floating action buttons -->
+  <!-- FABs -->
   <div class="map-fabs" role="group" aria-label="Harita kontrolleri">
-    <button class="map-fab" id="zoomInBtn" title="Yakınlaştır" aria-label="Yakınlaştır">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </button>
-    <button class="map-fab" id="zoomOutBtn" title="Uzaklaştır" aria-label="Uzaklaştır">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-    </button>
-    <button class="map-fab" id="fitAllBtn" title="Tümünü göster" aria-label="Tümünü haritaya sığdır">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/></svg>
-    </button>
-  </div>
-</div>
-
-<!-- Panel Overlay -->
-<div class="panel-overlay" id="panelOverlay" onclick="togglePanel()" aria-hidden="true"></div>
-
-<!-- Filter Panel -->
-<aside class="filter-panel" id="filterPanel" role="complementary" aria-label="Filtre paneli" aria-hidden="true">
-  <div class="panel-header">
-    <h2 class="panel-title">Filtreler &amp; Listele</h2>
-    <button class="panel-close" onclick="togglePanel()" title="Kapat" aria-label="Filtreleri kapat">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-    </button>
+    <button class="mfab" id="zIn"  title="Yakınlaştır" aria-label="Yakınlaştır"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+    <button class="mfab" id="zOut" title="Uzaklaştır"  aria-label="Uzaklaştır"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+    <button class="mfab" id="zFit" title="Tümünü göster" aria-label="Tüm satış noktalarını haritaya sığdır"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h6v6H3zM15 3h6v6h-6zM3 15h6v6H3zM15 15h6v6h-6z"/></svg></button>
   </div>
 
-  <div class="panel-resultbar">
-    <div class="panel-resultbar-count">
-      <strong id="panelCount">—</strong> satış noktası bulundu
+  <!-- Overlay -->
+  <div class="overlay" id="overlay" onclick="togglePanel()" aria-hidden="true"></div>
+
+  <!-- Filter Panel -->
+  <aside class="panel" id="panel" role="complementary" aria-label="Filtre ve liste paneli" aria-hidden="true">
+
+    <div class="pnl-hd">
+      <h2 class="pnl-ttl">Filtreler</h2>
+      <button class="pnl-cls" onclick="togglePanel()" aria-label="Paneli kapat" title="Kapat">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
-    <button class="panel-reset-btn" id="panelResetBtn" onclick="resetFilters()" aria-label="Filtreleri sıfırla">
-      Sıfırla ×
-    </button>
-  </div>
 
-  <div class="panel-body">
+    <div class="pnl-bar">
+      <div class="pnl-cnt"><strong id="pnlCnt">—</strong> satış noktası</div>
+      <button class="pnl-rst" id="pnlRst" onclick="resetFilters()" aria-label="Filtreleri sıfırla">Sıfırla ×</button>
+    </div>
 
-    <!-- Search -->
-    <div class="filter-section">
-      <label class="filter-label" for="searchInput">Arama</label>
-      <div class="input-wrap">
-        <span class="input-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        </span>
-        <input type="text" id="searchInput" placeholder="İsim, şehir, adres veya telefon…" autocomplete="off" spellcheck="false">
-        <button class="input-clear" id="searchClear" onclick="clearSearch()" aria-label="Aramayı temizle">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-        </button>
+    <div class="pnl-body">
+
+      <!-- Arama -->
+      <div class="fsec">
+        <label class="flbl" for="searchInput">Arama</label>
+        <div class="fwrp">
+          <span class="fico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
+          <input type="text" id="searchInput" placeholder="Eczane, şehir, adres veya telefon…" autocomplete="off" spellcheck="false" aria-label="Satış noktası ara">
+          <button class="fclr" id="sClr" onclick="clearSearch()" aria-label="Aramayı temizle"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
       </div>
-    </div>
 
-    <!-- City -->
-    <div class="filter-section">
-      <label class="filter-label" for="citySelect">Şehir</label>
-      <div class="input-wrap select-wrap">
-        <span class="input-icon">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-        </span>
-        <select id="citySelect" aria-label="Şehir seçin">
-          <option value="">Tüm Şehirler</option>
-        </select>
-        <span class="select-arrow">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </span>
+      <!-- Şehir -->
+      <div class="fsec">
+        <label class="flbl" for="citySelect">Şehir</label>
+        <div class="fwrp">
+          <span class="fico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></span>
+          <select id="citySelect" aria-label="Şehir seçin"><option value="">Tüm Şehirler</option></select>
+          <span class="sarr"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </div>
       </div>
-    </div>
 
-    <!-- Type -->
-    <div class="filter-section">
-      <label class="filter-label">Satış Noktası Tipi</label>
-      <div class="type-btns" role="group" aria-label="Satış noktası tipi filtresi">
-        <button class="type-btn active" data-type="all" aria-pressed="true">
-          <span>Tümü</span>
-          <span class="type-btn-count" id="cnt-all">—</span>
-        </button>
-        <button class="type-btn" data-type="uzman" aria-pressed="false">
-          <span class="type-dot" style="background:var(--uzman)"></span>
-          <span>Uzman Bayi</span>
-          <span class="type-btn-count" id="cnt-uzman">—</span>
-        </button>
-        <button class="type-btn" data-type="bayi" aria-pressed="false">
-          <span class="type-dot" style="background:var(--bayi)"></span>
-          <span>Bayi</span>
-          <span class="type-btn-count" id="cnt-bayi">—</span>
-        </button>
-        <button class="type-btn" data-type="satis" aria-pressed="false">
-          <span class="type-dot" style="background:var(--satis)"></span>
-          <span>Satış Noktası</span>
-          <span class="type-btn-count" id="cnt-satis">—</span>
-        </button>
+      <!-- Tip -->
+      <div class="fsec">
+        <label class="flbl">Satış Noktası Tipi</label>
+        <div class="type-btns" role="group" aria-label="Tip filtresi">
+          <button class="tbtn on" data-type="all"   aria-pressed="true"><span>Tümü</span><span class="tcnt" id="cAll">—</span></button>
+          <button class="tbtn"    data-type="uzman" aria-pressed="false"><span class="tdot" style="background:var(--uzman)"></span><span>Uzman Bayi</span><span class="tcnt" id="cUzman">—</span></button>
+          <button class="tbtn"    data-type="bayi"  aria-pressed="false"><span class="tdot" style="background:var(--bayi)"></span><span>Bayi</span><span class="tcnt" id="cBayi">—</span></button>
+          <button class="tbtn"    data-type="satis" aria-pressed="false"><span class="tdot" style="background:var(--satis)"></span><span>Satış Noktası</span><span class="tcnt" id="cSatis">—</span></button>
+        </div>
       </div>
-    </div>
 
-    <!-- Dealer List -->
-    <div class="dealer-list-section">
-      <label class="filter-label">Satış Noktaları</label>
-      <div id="dealerList" role="list" aria-label="Satış noktaları listesi"></div>
-      <div class="empty-state" id="emptyState" role="status">
-        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <div class="empty-state-title">Sonuç bulunamadı</div>
-        <div class="empty-state-sub">Farklı bir arama veya filtre deneyin</div>
+      <!-- Liste -->
+      <div class="dlr-sec">
+        <label class="flbl">Satış Noktaları</label>
+        <div id="dealerList" role="list" aria-label="Satış noktaları listesi"></div>
+        <div class="empty" id="emptyState" role="status">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <div class="empty-ttl">Sonuç bulunamadı</div>
+          <div class="empty-sub">Farklı bir arama veya filtre deneyin</div>
+        </div>
       </div>
-    </div>
 
-  </div><!-- /panel-body -->
-</aside>
+    </div>
+  </aside>
+</div><!-- /map-wrap -->
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-
 <script>
-/* ─── CONFIG ──────────────────────────────────────────────────────── */
-const TYPE_COLORS  = { uzman: '#e17937', bayi: '#547B58', satis: '#2d5fa6' };
-const TYPE_LABELS  = { uzman: 'Uzman Bayi', bayi: 'Bayi', satis: 'Satış Noktası' };
-const TYPE_BG      = { uzman: '#fdf0e7', bayi: '#e8f0e9', satis: '#e8eef8' };
+/* ──────────────────────────────────────────────────────
+   CONSTANTS
+────────────────────────────────────────────────────── */
+const C = { uzman:'#d4692a', bayi:'#4e7453', satis:'#2c5fa8' };
+const L_= { uzman:'Uzman Bayi', bayi:'Bayi', satis:'Satış Noktası' };
+const B = { uzman:'#fdf1ea', bayi:'#eaf1eb', satis:'#e9eef8' };
+const $ = id => document.getElementById(id);
 
-/* ─── MAP INIT ────────────────────────────────────────────────────── */
-const map = L.map('map', {
-  zoomControl: false,
-  attributionControl: true
-}).setView([39, 35], 6);
+/* ──────────────────────────────────────────────────────
+   MAP
+   CartoDB Light — daha temiz görünüm
+────────────────────────────────────────────────────── */
+const map = L.map('map', { zoomControl:false, attributionControl:true })
+              .setView([39, 35], 6);
 
 L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-  maxZoom: 19,
-  subdomains: 'abcd'
+  attribution: '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OSM</a> &copy; <a href="https://carto.com/" target="_blank">CARTO</a>',
+  maxZoom: 19, subdomains: 'abcd'
 }).addTo(map);
-
-/* Custom attribution */
 map.attributionControl.setPrefix(false);
 
-/* ─── FAB ZOOM CONTROLS ───────────────────────────────────────────── */
-document.getElementById('zoomInBtn').onclick  = () => map.zoomIn();
-document.getElementById('zoomOutBtn').onclick = () => map.zoomOut();
-document.getElementById('fitAllBtn').onclick  = fitAll;
+/* ──────────────────────────────────────────────────────
+   FAB CONTROLS
+────────────────────────────────────────────────────── */
+$('zIn').onclick  = () => map.zoomIn();
+$('zOut').onclick = () => map.zoomOut();
+$('zFit').onclick = () => { if (gBounds) map.fitBounds(gBounds.pad(.05)); };
 
-/* ─── LOCATE ──────────────────────────────────────────────────────── */
-const locateBtn = document.getElementById('locateBtn');
-let locateMarker = null;
-locateBtn.onclick = () => {
-  locateBtn.classList.add('loading');
+/* ──────────────────────────────────────────────────────
+   LOCATE ME
+   ✅ iframe izin yoksa Türkçe zarif hata mesajı
+────────────────────────────────────────────────────── */
+let locMark = null;
+$('locBtn').onclick = function () {
+  if (!navigator.geolocation) { showToast('Tarayıcınız konum özelliğini desteklemiyor'); return; }
+  const btn = this;
+  btn.classList.add('locating');
+  btn.disabled = true;
   navigator.geolocation.getCurrentPosition(
-    pos => {
-      locateBtn.classList.remove('loading');
-      const { latitude: lat, longitude: lng } = pos.coords;
-      if (locateMarker) map.removeLayer(locateMarker);
-      locateMarker = L.circleMarker([lat, lng], {
-        radius: 8, color: '#fff', weight: 2.5,
-        fillColor: '#547B58', fillOpacity: 1
-      }).addTo(map).bindPopup('<b>Konumunuz</b>').openPopup();
+    ({ coords: { latitude: lat, longitude: lng } }) => {
+      btn.classList.remove('locating'); btn.disabled = false;
+      if (locMark) map.removeLayer(locMark);
+      locMark = L.circleMarker([lat, lng], { radius:9, color:'#fff', weight:3, fillColor:'#4e7453', fillOpacity:1 })
+                 .addTo(map).bindPopup('<b style="font-family:Inter,sans-serif;font-size:13px">Konumunuz</b>').openPopup();
       map.setView([lat, lng], 13);
     },
     err => {
-      locateBtn.classList.remove('loading');
-      alert('Konum alınamadı: ' + err.message);
+      btn.classList.remove('locating'); btn.disabled = false;
+      showToast(err.code === 1 ? 'Konum izni verilmedi' : err.code === 3 ? 'Konum zaman aşımına uğradı' : 'Konum alınamadı');
     },
-    { timeout: 8000 }
+    { timeout:10000, maximumAge:60000 }
   );
 };
 
-/* ─── CLUSTER ─────────────────────────────────────────────────────── */
-function createClusterIcon(cluster) {
-  const counts = {};
-  cluster.getAllChildMarkers().forEach(m => {
-    const t = m.options.dealerType;
-    counts[t] = (counts[t] || 0) + 1;
-  });
-  const types  = Object.keys(counts);
-  const total  = cluster.getChildCount();
-  const base   = 44;
-  const size   = total > 50 ? base + 12 : total > 20 ? base + 6 : base;
+/* ──────────────────────────────────────────────────────
+   CLUSTER
+────────────────────────────────────────────────────── */
+function mkCluster(cl) {
+  const cnt = {}; cl.getAllChildMarkers().forEach(m => { const t=m.options.dealerType; cnt[t]=(cnt[t]||0)+1; });
+  const types=Object.keys(cnt), total=cl.getChildCount();
+  const size=total>50?54:total>20?48:42, fs=total>99?10:13;
 
-  if (types.length === 1) {
-    const c = TYPE_COLORS[types[0]];
-    return L.divIcon({
-      html: `<div style="position:relative;width:${size}px;height:${size}px">
-        <div style="position:absolute;inset:0;background:${c};opacity:.15;border-radius:50%;transform:scale(1.25)"></div>
-        <div style="position:absolute;inset:0;background:linear-gradient(135deg,${c},${c}cc);border-radius:50%;border:2.5px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.18);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:${total>99?11:13}px;font-family:'DM Sans',sans-serif">${total}</div>
-      </div>`,
-      className: '', iconSize: [size, size]
-    });
+  if (types.length===1) {
+    const c=C[types[0]];
+    return L.divIcon({ html:`<div style="position:relative;width:${size}px;height:${size}px">
+      <div style="position:absolute;inset:0;background:${c};opacity:.12;border-radius:50%;transform:scale(1.28)"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(135deg,${c},${c}cc);border-radius:50%;border:2px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.16);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:${fs}px;font-family:Inter,sans-serif">${total}</div>
+    </div>`, className:'', iconSize:[size,size] });
   }
 
-  const segs = types.map((t, i) => {
-    const pct   = (counts[t] / total) * 100;
-    const start = types.slice(0, i).reduce((s, x) => s + (counts[x] / total) * 100, 0);
-    return `${TYPE_COLORS[t]} ${start}% ${start + pct}%`;
-  }).join(', ');
+  const segs=types.map((t,i)=>{
+    const pct=(cnt[t]/total)*100, start=types.slice(0,i).reduce((s,x)=>s+(cnt[x]/total)*100,0);
+    return `${C[t]} ${start}% ${start+pct}%`;
+  }).join(',');
 
-  return L.divIcon({
-    html: `<div style="position:relative;width:${size}px;height:${size}px">
-      <div style="position:absolute;inset:0;background:conic-gradient(${segs});opacity:.12;border-radius:50%;transform:scale(1.25)"></div>
-      <div style="position:absolute;inset:0;background:conic-gradient(${segs});border-radius:50%;border:2.5px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.18)"></div>
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:${total>99?11:13}px;font-family:'DM Sans',sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.35)">${total}</div>
-    </div>`,
-    className: '', iconSize: [size, size]
-  });
+  return L.divIcon({ html:`<div style="position:relative;width:${size}px;height:${size}px">
+    <div style="position:absolute;inset:0;background:conic-gradient(${segs});opacity:.12;border-radius:50%;transform:scale(1.28)"></div>
+    <div style="position:absolute;inset:0;background:conic-gradient(${segs});border-radius:50%;border:2px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.16)"></div>
+    <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:${fs}px;font-family:Inter,sans-serif;text-shadow:0 1px 3px rgba(0,0,0,.3)">${total}</div>
+  </div>`, className:'', iconSize:[size,size] });
 }
 
-const markerCluster = L.markerClusterGroup({
-  iconCreateFunction: createClusterIcon,
-  spiderfyOnMaxZoom: true,
-  showCoverageOnHover: false,
-  zoomToBoundsOnClick: true,
-  maxClusterRadius: 60,
-  animate: true
+const clGroup = L.markerClusterGroup({
+  iconCreateFunction: mkCluster, spiderfyOnMaxZoom:true,
+  showCoverageOnHover:false, zoomToBoundsOnClick:true,
+  maxClusterRadius:60, animate:true
 });
-map.addLayer(markerCluster);
+map.addLayer(clGroup);
 
-/* ─── STATE ───────────────────────────────────────────────────────── */
-const allMarkers = [];
-const filter = { city: '', type: 'all', search: '' };
-let totalCounts = { uzman: 0, bayi: 0, satis: 0 };
-let allBounds = null;
+/* ──────────────────────────────────────────────────────
+   STATE
+────────────────────────────────────────────────────── */
+const all=[], state={city:'',type:'all',search:''};
+let gBounds=null, totCnt={uzman:0,bayi:0,satis:0}, stimer=null;
 
-/* ─── PANEL TOGGLE ────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────
+   PANEL
+────────────────────────────────────────────────────── */
 function togglePanel() {
-  const panel   = document.getElementById('filterPanel');
-  const overlay = document.getElementById('panelOverlay');
-  const btn     = document.getElementById('filterToggleBtn');
-  const isOpen  = panel.classList.toggle('open');
-  overlay.classList.toggle('open', isOpen);
-  btn.setAttribute('aria-expanded', isOpen);
-  panel.setAttribute('aria-hidden', !isOpen);
-  btn.classList.toggle('filter-open', isOpen);
-  document.getElementById('filterBtnLabel').textContent = isOpen ? 'Kapat' : 'Filtrele';
+  const p=$('panel'), ov=$('overlay'), btn=$('filterBtn'), lbl=$('fBtnLbl');
+  const open=p.classList.toggle('open');
+  ov.classList.toggle('open', open);
+  btn.setAttribute('aria-expanded', String(open));
+  p.setAttribute('aria-hidden', String(!open));
+  if (open) { btn.classList.replace('hbtn-pri','hbtn-open'); lbl.textContent='Kapat'; }
+  else       { btn.classList.replace('hbtn-open','hbtn-pri'); lbl.textContent='Filtrele'; }
 }
 
-/* ─── LOAD ────────────────────────────────────────────────────────── */
-function loadDealers(data) {
-  const cities = new Set();
-  let idx = 0;
-
-  data.dealers.forEach(d => {
-    if (!d.id) d.id = `d-${idx++}`;
-    cities.add(d.city);
-    totalCounts[d.type] = (totalCounts[d.type] || 0) + 1;
-
-    const icon = buildPinIcon(d);
-    const marker = L.marker([d.lat, d.lng], {
-      dealerType: d.type, dealerData: d, icon
-    });
-
-    marker.bindPopup(buildPopup(d), {
-      maxWidth: 300, minWidth: 250,
-      className: 'custom-popup'
-    });
-
-    marker.on('popupopen', () => {
-      if (window.innerWidth <= 640)
-        document.getElementById('mapLegend').classList.add('hidden');
-    });
-    marker.on('popupclose', () => {
-      document.getElementById('mapLegend').classList.remove('hidden');
-    });
-
-    allMarkers.push({ marker, data: d });
-  });
-
-  // Populate city dropdown
-  [...cities].sort((a, b) => a.localeCompare(b, 'tr')).forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c; opt.textContent = c;
-    document.getElementById('citySelect').appendChild(opt);
-  });
-
-  // Global counts
-  const total = allMarkers.length;
-  document.getElementById('totalCount').textContent = total;
-  document.getElementById('cnt-all').textContent    = total;
-  document.getElementById('cnt-uzman').textContent  = totalCounts.uzman || 0;
-  document.getElementById('cnt-bayi').textContent   = totalCounts.bayi  || 0;
-  document.getElementById('cnt-satis').textContent  = totalCounts.satis || 0;
-  document.getElementById('uzmanCount').textContent = totalCounts.uzman || 0;
-  document.getElementById('bayiCount').textContent  = totalCounts.bayi  || 0;
-  document.getElementById('satisCount').textContent = totalCounts.satis || 0;
-  document.getElementById('leg-uzman').textContent  = totalCounts.uzman || 0;
-  document.getElementById('leg-bayi').textContent   = totalCounts.bayi  || 0;
-  document.getElementById('leg-satis').textContent  = totalCounts.satis || 0;
-
-  // Store global bounds
-  const grp = L.featureGroup(allMarkers.map(o => o.marker));
-  allBounds = grp.getBounds();
-
-  applyFilters();
-
-  // Hide loading screen
-  setTimeout(() => {
-    document.getElementById('loading-screen').classList.add('hidden');
-  }, 600);
+/* ──────────────────────────────────────────────────────
+   TOAST
+────────────────────────────────────────────────────── */
+let tTimer=null;
+function showToast(msg) {
+  const el=$('toast'); el.textContent=msg; el.classList.add('on');
+  clearTimeout(tTimer); tTimer=setTimeout(()=>el.classList.remove('on'),2500);
 }
 
-/* ─── PIN ICON ────────────────────────────────────────────────────── */
-function buildPinIcon(d) {
-  const c = TYPE_COLORS[d.type];
-  const isUzman = d.type === 'uzman';
-  const glowDefs = isUzman ? `<defs>
-    <filter id="glow-${d.id}" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="2.5" result="b"/>
-      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-    </filter>
-  </defs>` : '';
+/* ──────────────────────────────────────────────────────
+   COPY ADDRESS
+   ✅ execCommand fallback — eski tarayıcılar
+────────────────────────────────────────────────────── */
+function copyAddr(addr) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(addr).then(()=>showToast('Adres kopyalandı ✓')).catch(()=>fbCopy(addr));
+  } else { fbCopy(addr); }
+}
+function fbCopy(t) {
+  const ta=document.createElement('textarea');
+  ta.value=t; ta.style.cssText='position:absolute;left:-9999px;opacity:0';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); showToast('Adres kopyalandı ✓'); }
+  catch { showToast('Kopyalanamadı'); }
+  document.body.removeChild(ta);
+}
 
-  const glowRing = isUzman ? `<path d="M32 6C18 10,10 22,10 38C10 52,21 62,28 70C31 74,33 78,33.5 82C35 78,36 74,39 70C46 62,54 52,54 38C54 22,46 10,32 6Z"
-    fill="${c}" opacity="0.25" transform="scale(1.14) translate(-2.3,-2.4)"/>` : '';
-
+/* ──────────────────────────────────────────────────────
+   PIN
+────────────────────────────────────────────────────── */
+function mkPin(d) {
+  const c=C[d.type], u=d.type==='uzman';
+  const gDef=u?`<defs><filter id="g${d._i}" x="-35%" y="-35%" width="170%" height="170%"><feGaussianBlur stdDeviation="2.2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>`:'';
+  const gRing=u?`<path d="M32 6C18 10,10 22,10 38C10 52,21 62,28 70C31 74,33 78,33.5 82C35 78,36 74,39 70C46 62,54 52,54 38C54 22,46 10,32 6Z" fill="${c}" opacity=".2" transform="scale(1.12) translate(-2.2,-2.2)"/>`:'';
   return L.divIcon({
-    className: '',
-    iconSize: [30, 40], iconAnchor: [15, 40], popupAnchor: [0, -42],
-    html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 84" width="30" height="40"
-      style="filter:drop-shadow(0 3px 7px rgba(0,0,0,.22))${isUzman ? ` drop-shadow(0 0 10px ${c}88)` : ''}">
-      ${glowDefs}${glowRing}
+    className:'', iconSize:[28,38], iconAnchor:[14,38], popupAnchor:[0,-40],
+    html:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 84" width="28" height="38"
+      style="filter:drop-shadow(0 3px 6px rgba(0,0,0,.2))${u?`;drop-shadow(0 0 8px ${c}66)`:''}">
+      ${gDef}${gRing}
       <path d="M32 6C18 10,10 22,10 38C10 52,21 62,28 70C31 74,33 78,33.5 82C35 78,36 74,39 70C46 62,54 52,54 38C54 22,46 10,32 6Z"
-        fill="${c}" ${isUzman ? `filter="url(#glow-${d.id})"` : ''}/>
-      <path d="M30 28C25 33,26 41,32 45C38 48,42 43,41 36C40 30,34 25,30 28Z" fill="rgba(255,255,255,.9)"/>
-      <path d="M32 30C31 35,34 37,33 41" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.2" stroke-linecap="round"/>
+        fill="${c}"${u?` filter="url(#g${d._i})"`:''}/>
+      <path d="M30 28C25 33,26 41,32 45C38 48,42 43,41 36C40 30,34 25,30 28Z" fill="rgba(255,255,255,.88)"/>
+      <path d="M32 30C31 35,34 37,33 41" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="1.2" stroke-linecap="round"/>
     </svg>`
   });
 }
 
-/* ─── POPUP ───────────────────────────────────────────────────────── */
-function buildPopup(d) {
-  const c  = TYPE_COLORS[d.type];
-  const bg = TYPE_BG[d.type];
-  const label = TYPE_LABELS[d.type];
-
-  const addrEncoded = encodeURIComponent(d.address || `${d.lat},${d.lng}`);
-  const mapsUrl     = `https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}`;
-  const wazeUrl     = `https://waze.com/ul?ll=${d.lat},${d.lng}&navigate=yes`;
-
-  return `<div class="popup-wrap">
-    <div class="popup-type-bar">
-      <span class="popup-type-badge" style="background:${bg};color:${c}">${label}</span>
-    </div>
-    <div class="popup-name">${d.name}</div>
-    ${d.city ? `<div class="popup-detail">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-      ${d.city}
-    </div>` : ''}
-    ${d.address ? `<div class="popup-detail">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-      <span>${d.address}</span>
-    </div>` : ''}
-    ${d.phone ? `<div class="popup-detail">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-      <a href="tel:${d.phone}" onclick="event.stopPropagation()">${d.phone}</a>
-    </div>` : ''}
-    <div class="popup-actions">
-      <a href="${mapsUrl}" target="_blank" rel="noopener" class="popup-btn popup-btn-primary" onclick="event.stopPropagation()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-        Yol Tarifi
+/* ──────────────────────────────────────────────────────
+   POPUP
+────────────────────────────────────────────────────── */
+function mkPopup(d) {
+  const c=C[d.type], bg=B[d.type], lb=L_[d.type];
+  const mUrl=`https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}`;
+  const sa=(d.address||'').replace(/'/g,"&#39;").replace(/"/g,'&quot;');
+  return `<div class="pb">
+    <span class="pb-type" style="background:${bg};color:${c}">${lb}</span>
+    <div class="pb-name">${d.name}</div>
+    ${d.city?`<div class="pb-row"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${d.city}</div>`:''}
+    ${d.address?`<div class="pb-row"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>${d.address}</span></div>`:''}
+    ${d.phone?`<div class="pb-row"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 15.1 19.79 19.79 0 0 1 1.62 6.49 2 2 0 0 1 3.6 4.44h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 12a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.56 19.18z"/></svg><a href="tel:${d.phone}" onclick="event.stopPropagation()">${d.phone}</a></div>`:''}
+    <div class="pb-acts">
+      <a href="${mUrl}" target="_blank" rel="noopener noreferrer" class="pb-btn pb-btn-p" onclick="event.stopPropagation()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Yol Tarifi
       </a>
-      ${d.address ? `<button class="popup-btn popup-btn-secondary" onclick="copyAddress('${d.address.replace(/'/g,"&#39;")}');event.stopPropagation()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-        Adresi Kopyala
-      </button>` : ''}
+      ${d.address?`<button class="pb-btn pb-btn-s" onclick="copyAddr('${sa}');event.stopPropagation()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Adresi Kopyala
+      </button>`:''}
     </div>
   </div>`;
 }
 
-/* ─── COPY ADDRESS ────────────────────────────────────────────────── */
-function copyAddress(addr) {
-  navigator.clipboard.writeText(addr).then(() => {
-    const toast = document.getElementById('copyToast');
-    toast.classList.add('show');
-    setTimeout(() => toast.classList.remove('show'), 2200);
-  }).catch(() => {});
+/* ──────────────────────────────────────────────────────
+   LOAD
+────────────────────────────────────────────────────── */
+function loadDealers(data) {
+  const cities=new Set(); let idx=0;
+  data.dealers.forEach(d => {
+    d._i=idx++;
+    cities.add(d.city);
+    totCnt[d.type]=(totCnt[d.type]||0)+1;
+    const m=L.marker([d.lat,d.lng],{dealerType:d.type,dealerData:d,icon:mkPin(d)});
+    m.bindPopup(mkPopup(d),{maxWidth:300,minWidth:250});
+    m.on('popupopen',  ()=>{ if(window.innerWidth<=600) $('legend').classList.add('hidden'); });
+    m.on('popupclose', ()=>$('legend').classList.remove('hidden'));
+    all.push({marker:m, data:d});
+  });
+
+  [...cities].sort((a,b)=>a.localeCompare(b,'tr')).forEach(c=>{
+    const o=document.createElement('option'); o.value=c; o.textContent=c;
+    $('citySelect').appendChild(o);
+  });
+
+  const tot=all.length;
+  ['stTotal','cAll'].forEach(id=>$(id).textContent=tot);
+  $('cUzman').textContent=$('stUzman').textContent=$('legUz').textContent=totCnt.uzman||0;
+  $('cBayi').textContent =$('stBayi').textContent =$('legBa').textContent=totCnt.bayi ||0;
+  $('cSatis').textContent=$('stSatis').textContent=$('legSa').textContent=totCnt.satis||0;
+
+  gBounds=L.featureGroup(all.map(o=>o.marker)).getBounds();
+  applyFilters();
+  setTimeout(()=>$('ls').classList.add('done'), 500);
 }
 
-/* ─── APPLY FILTERS ───────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────
+   APPLY FILTERS
+────────────────────────────────────────────────────── */
 function applyFilters() {
-  markerCluster.clearLayers();
-  const list     = document.getElementById('dealerList');
-  const empty    = document.getElementById('emptyState');
-  list.innerHTML = '';
+  clGroup.clearLayers();
+  const listEl=$('dealerList'); listEl.innerHTML='';
+  const q=state.search.toLowerCase().trim();
 
-  const q = filter.search.toLowerCase().trim();
-
-  const visible = allMarkers.filter(o => {
-    const cityOk   = !filter.city   || o.data.city === filter.city;
-    const typeOk   = filter.type === 'all' || o.data.type === filter.type;
-    const searchOk = !q ||
-      o.data.name.toLowerCase().includes(q) ||
-      o.data.city.toLowerCase().includes(q) ||
-      (o.data.address && o.data.address.toLowerCase().includes(q)) ||
-      (o.data.phone   && o.data.phone.includes(q));
-    return cityOk && typeOk && searchOk;
+  const vis=all.filter(({data:d})=>{
+    return (!state.city || d.city===state.city)
+        && (state.type==='all' || d.type===state.type)
+        && (!q || d.name.toLowerCase().includes(q) || d.city.toLowerCase().includes(q)
+               || (d.address&&d.address.toLowerCase().includes(q))
+               || (d.phone&&d.phone.includes(q)));
   });
 
-  // Count by type in current results
-  const vc = { uzman: 0, bayi: 0, satis: 0 };
-  visible.forEach(o => { vc[o.data.type] = (vc[o.data.type] || 0) + 1; });
+  const vc={uzman:0,bayi:0,satis:0};
+  vis.forEach(({data:d})=>{ vc[d.type]=(vc[d.type]||0)+1; });
+  vis.forEach(({marker:m})=>clGroup.addLayer(m));
 
-  visible.forEach(o => markerCluster.addLayer(o.marker));
-
-  // Dealer list items
-  visible.forEach(o => {
-    const el = document.createElement('div');
-    el.className = 'dealer-item';
-    el.setAttribute('role', 'listitem');
-    el.setAttribute('tabindex', '0');
-    const c  = TYPE_COLORS[o.data.type];
-    const bg = TYPE_BG[o.data.type];
-    el.innerHTML = `
-      <div class="dealer-name">${o.data.name}</div>
-      <div class="dealer-meta">
-        <span class="dealer-city">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          ${o.data.city}
-        </span>
-        <span class="dealer-type-chip" style="background:${bg};color:${c}">${TYPE_LABELS[o.data.type]}</span>
+  vis.forEach(({marker:m, data:d})=>{
+    const c=C[d.type], bg=B[d.type];
+    const el=document.createElement('div');
+    el.className='di'; el.setAttribute('role','listitem');
+    el.setAttribute('tabindex','0'); el.setAttribute('aria-label',`${d.name}, ${d.city}`);
+    el.innerHTML=`
+      <div class="di-name">${d.name}</div>
+      <div class="di-meta">
+        <span class="di-city"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${d.city}</span>
+        <span class="di-chip" style="background:${bg};color:${c}">${L_[d.type]}</span>
       </div>
-      ${o.data.address ? `<div class="dealer-addr">${o.data.address}</div>` : ''}
-      ${o.data.phone ? `<div class="dealer-phone-row">
-        <a class="dealer-phone-link" href="tel:${o.data.phone}" onclick="event.stopPropagation()">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
-          ${o.data.phone}
+      ${d.address?`<div class="di-addr">${d.address}</div>`:''}
+      ${d.phone?`<div class="di-row">
+        <a class="di-tel" href="tel:${d.phone}" onclick="event.stopPropagation()">
+          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 15.1 19.79 19.79 0 0 1 1.62 6.49 2 2 0 0 1 3.6 4.44h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 12a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.56 19.18z"/></svg>${d.phone}</a>
+        <a class="di-go" href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Git
         </a>
-        <a class="dealer-go-btn" href="https://www.google.com/maps/dir/?api=1&destination=${o.data.lat},${o.data.lng}" target="_blank" rel="noopener" onclick="event.stopPropagation()">
-          <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>
-          Git
-        </a>
-      </div>` : ''}
-    `;
-    el.onclick = () => {
-      map.setView(o.marker.getLatLng(), 15);
-      o.marker.openPopup();
-      if (window.innerWidth <= 640) togglePanel();
-    };
-    el.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') el.click(); };
-    list.appendChild(el);
+      </div>`:''}`;
+    el.onclick=()=>{ map.setView(m.getLatLng(),15); m.openPopup(); if(window.innerWidth<=600) togglePanel(); };
+    el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); } };
+    listEl.appendChild(el);
   });
 
-  // Empty state
-  empty.classList.toggle('visible', visible.length === 0);
+  $('emptyState').classList.toggle('on', vis.length===0);
 
-  // Update counts
-  const vlen = visible.length;
-  document.getElementById('visibleCount').textContent = vlen;
-  document.getElementById('panelCount').textContent   = vlen;
-  document.getElementById('leg-uzman').textContent    = vc.uzman || 0;
-  document.getElementById('leg-bayi').textContent     = vc.bayi  || 0;
-  document.getElementById('leg-satis').textContent    = vc.satis || 0;
+  const vl=vis.length;
+  $('stVis').textContent=$('pnlCnt').textContent=vl;
+  $('legUz').textContent=vc.uzman||0; $('legBa').textContent=vc.bayi||0; $('legSa').textContent=vc.satis||0;
+  $('stCity').textContent=state.city||'Türkiye';
 
-  // Location label
-  document.getElementById('selectedCity').textContent = filter.city || 'Türkiye';
+  const hf=!!(state.city||state.type!=='all'||state.search);
+  $('fbadge').classList.toggle('on',hf);
+  $('pnlRst').classList.toggle('on',hf);
+  if(hf){ const p=[]; if(state.city) p.push(state.city); if(state.type!=='all') p.push(L_[state.type]); if(state.search) p.push(`"${state.search}"`); $('fbadgeTxt').textContent=p.join(' · '); }
 
-  // Active filters badge
-  const hasFilter = filter.city || filter.type !== 'all' || filter.search;
-  document.getElementById('activeFiltersBadge').style.display = hasFilter ? 'flex' : 'none';
-  document.getElementById('panelResetBtn').classList.toggle('visible', !!hasFilter);
-  if (hasFilter) {
-    const parts = [];
-    if (filter.city)          parts.push(filter.city);
-    if (filter.type !== 'all') parts.push(TYPE_LABELS[filter.type]);
-    if (filter.search)        parts.push(`"${filter.search}"`);
-    document.getElementById('activeFiltersText').textContent = parts.join(', ');
-  }
-
-  // Fit bounds
-  if (filter.city && visible.length > 0) {
-    const grp = L.featureGroup(visible.map(o => o.marker));
-    map.fitBounds(grp.getBounds().pad(0.15));
-  }
+  if(state.city && vis.length>0) { const g=L.featureGroup(vis.map(o=>o.marker)); map.fitBounds(g.getBounds().pad(.15)); }
 }
 
-/* ─── FIT ALL ─────────────────────────────────────────────────────── */
-function fitAll() {
-  if (allBounds) map.fitBounds(allBounds.pad(0.05));
-}
-
-/* ─── RESET FILTERS ───────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────
+   RESET / CLEAR
+────────────────────────────────────────────────────── */
 function resetFilters() {
-  filter.city   = '';
-  filter.type   = 'all';
-  filter.search = '';
-  document.getElementById('citySelect').value   = '';
-  document.getElementById('searchInput').value  = '';
-  document.getElementById('searchClear').classList.remove('visible');
-  document.querySelectorAll('.type-btn').forEach(b => {
-    const active = b.dataset.type === 'all';
-    b.classList.toggle('active', active);
-    b.setAttribute('aria-pressed', active);
-  });
+  state.city=''; state.type='all'; state.search='';
+  $('citySelect').value=''; $('searchInput').value=''; $('sClr').classList.remove('on');
+  document.querySelectorAll('.tbtn').forEach(b=>{ const a=b.dataset.type==='all'; b.classList.toggle('on',a); b.setAttribute('aria-pressed',String(a)); });
   applyFilters();
-  fitAll();
+  if(gBounds) map.fitBounds(gBounds.pad(.05));
 }
-
 function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  document.getElementById('searchClear').classList.remove('visible');
-  filter.search = '';
-  applyFilters();
+  $('searchInput').value=''; $('sClr').classList.remove('on');
+  state.search=''; applyFilters();
 }
 
-/* ─── DEBOUNCE ────────────────────────────────────────────────────── */
-let searchTimer;
-function debounce(fn, ms) {
-  clearTimeout(searchTimer);
-  searchTimer = setTimeout(fn, ms);
-}
-
-/* ─── EVENT LISTENERS ─────────────────────────────────────────────── */
-document.getElementById('citySelect').onchange = e => {
-  filter.city = e.target.value;
-  applyFilters();
+/* ──────────────────────────────────────────────────────
+   EVENTS
+────────────────────────────────────────────────────── */
+$('citySelect').onchange=e=>{ state.city=e.target.value; applyFilters(); };
+$('searchInput').oninput=e=>{
+  const v=e.target.value; $('sClr').classList.toggle('on',v.length>0);
+  clearTimeout(stimer); stimer=setTimeout(()=>{ state.search=v; applyFilters(); },220);
 };
-
-document.getElementById('searchInput').oninput = e => {
-  const val = e.target.value;
-  document.getElementById('searchClear').classList.toggle('visible', val.length > 0);
-  debounce(() => { filter.search = val; applyFilters(); }, 220);
-};
-
-document.querySelectorAll('.type-btn').forEach(btn => {
-  btn.onclick = () => {
-    document.querySelectorAll('.type-btn').forEach(b => {
-      b.classList.remove('active');
-      b.setAttribute('aria-pressed', 'false');
-    });
-    btn.classList.add('active');
-    btn.setAttribute('aria-pressed', 'true');
-    filter.type = btn.dataset.type;
-    applyFilters();
+document.querySelectorAll('.tbtn').forEach(btn=>{
+  btn.onclick=()=>{
+    document.querySelectorAll('.tbtn').forEach(b=>{ b.classList.remove('on'); b.setAttribute('aria-pressed','false'); });
+    btn.classList.add('on'); btn.setAttribute('aria-pressed','true');
+    state.type=btn.dataset.type; applyFilters();
   };
 });
 
-/* ─── FETCH DATA ──────────────────────────────────────────────────── */
-fetch('dealers.json')
-  .then(r => {
-    if (!r.ok) throw new Error(`HTTP ${r.status}`);
-    return r.json();
-  })
+/* ──────────────────────────────────────────────────────
+   FETCH
+   ✅ './dealers.json' — GitHub Pages subdirectory uyumlu
+────────────────────────────────────────────────────── */
+fetch('./dealers.json')
+  .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
   .then(loadDealers)
-  .catch(err => {
-    document.getElementById('loading-screen').classList.add('hidden');
+  .catch(err=>{
+    $('ls').classList.add('done');
     console.error('dealers.json yüklenemedi:', err);
-    const body = document.querySelector('.map-wrap');
-    body.insertAdjacentHTML('afterbegin', `
-      <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:#fff;z-index:999;padding:40px;text-align:center">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#e17937" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <p style="font-size:16px;font-weight:700;color:#0f1117">Veriler yüklenemedi</p>
-        <p style="font-size:13px;color:#5c6070">dealers.json dosyasının doğru konumda olduğundan emin olun.</p>
-        <button onclick="location.reload()" style="margin-top:8px;padding:10px 20px;background:#547B58;color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">Yeniden Dene</button>
-      </div>
-    `);
+    document.querySelector('.map-wrap').insertAdjacentHTML('afterbegin',`
+      <div style="position:absolute;inset:0;z-index:800;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#fff;padding:40px;text-align:center">
+        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#d4692a" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        <p style="font-size:15px;font-weight:700;color:#090c10">Veriler yüklenemedi</p>
+        <p style="font-size:12px;color:#8891a4;max-width:260px;line-height:1.6"><code>dealers.json</code> dosyasının bu sayfayla aynı klasörde olduğundan emin olun.</p>
+        <button onclick="location.reload()" style="margin-top:4px;padding:9px 20px;background:#4e7453;color:#fff;border:none;border-radius:8px;font-family:Inter,sans-serif;font-size:12.5px;font-weight:700;cursor:pointer">Yeniden Dene</button>
+      </div>`);
   });
 </script>
 </body>
