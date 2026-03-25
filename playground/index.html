@@ -15,6 +15,18 @@
   • system-font fallback        — Google Fonts CSP bloklamasına karşı güvenli
 -->
 
+<!-- Google Analytics 4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LXWZPS3NCF"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'G-LXWZPS3NCF', {
+    page_title: 'Foraflora Satış Noktaları Haritası',
+    page_location: window.location.href
+  });
+</script>
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -23,6 +35,7 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css"/>
 <link rel="stylesheet" href="shared.css">
+
 </head>
 <body>
 
@@ -41,8 +54,8 @@
   <div class="hdr-logo"><img src="logo.svg" alt="Foraflora"></div>
   <div class="hdr-div" aria-hidden="true"></div>
   <div class="hdr-meta">
-    <div class="hdr-ttl">Satış Noktaları Haritası</div>
-    <div class="hdr-sub">Türkiye genelindeki onaylı satış noktaları</div>
+    <div class="hdr-ttl">Foraflora Haritası</div>
+    <div class="hdr-sub">Türkiye genelindeki onaylı satış noktalarımız</div>
   </div>
   <div class="hdr-acts">
     <button class="hbtn" id="locBtn" aria-label="Mevcut konumuma git" title="Konumuma git">
@@ -120,7 +133,7 @@
         <label class="flbl" for="searchInput">Arama</label>
         <div class="fwrp">
           <span class="fico"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></span>
-          <input type="text" id="searchInput" placeholder="Eczane, şehir, adres veya telefon…" autocomplete="off" spellcheck="false" aria-label="Satış noktası ara">
+          <input type="text" id="searchInput" placeholder="İsim, şehir, adres veya telefon…" autocomplete="off" spellcheck="false" aria-label="Satış noktası ara">
           <button class="fclr" id="sClr" onclick="clearSearch()" aria-label="Aramayı temizle"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
         </div>
       </div>
@@ -178,12 +191,34 @@ const $ = id => document.getElementById(id);
 ────────────────────────────────────────────────────── */
 const map = L.map('map', { zoomControl:false, attributionControl:true })
               .setView([39, 35], 6);
-
-L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-  attribution: '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OSM</a> &copy; <a href="https://carto.com/" target="_blank">CARTO</a>',
-  maxZoom: 19, subdomains: 'abcd'
+ 
+/* Dile göre tile URL'i */
+const TILE_URLS = {
+  tr: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  en: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+  ar: 'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+};
+ 
+/* Türkçe yer adları için OSM Türkçe tile */
+const TILE_URL_TR = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png';
+const TILE_URL_DEFAULT = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+ 
+let tileLayer = L.tileLayer(TILE_URL_TR, {
+  attribution: '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OSM</a>',
+  maxZoom: 19
 }).addTo(map);
+tileLayer.getContainer && (tileLayer._url ? null : null);
 map.attributionControl.setPrefix(false);
+ 
+function updateTile() {
+  map.removeLayer(tileLayer);
+  const url = curLang === 'tr' ? TILE_URL_TR : TILE_URL_DEFAULT;
+  const attr = curLang === 'tr'
+    ? '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OSM</a>'
+    : '&copy; <a href="https://openstreetmap.org/copyright" target="_blank">OSM</a> &copy; <a href="https://carto.com/" target="_blank">CARTO</a>';
+  tileLayer = L.tileLayer(url, { maxZoom:19, subdomains:'abcd', attribution: attr }).addTo(map);
+  map.attributionControl.setPrefix(false);
+}
 
 /* ──────────────────────────────────────────────────────
    FAB CONTROLS
@@ -205,6 +240,7 @@ $('locBtn').onclick = function () {
   navigator.geolocation.getCurrentPosition(
     ({ coords: { latitude: lat, longitude: lng } }) => {
       btn.classList.remove('locating'); btn.disabled = false;
+      track('konumum_kullanildi');
       if (locMark) map.removeLayer(locMark);
       locMark = L.circleMarker([lat, lng], { radius:9, color:'#fff', weight:3, fillColor:'#4e7453', fillOpacity:1 })
                  .addTo(map).bindPopup('<b style="font-family:Inter,sans-serif;font-size:13px">Konumunuz</b>').openPopup();
@@ -273,6 +309,16 @@ function togglePanel() {
 }
 
 /* ──────────────────────────────────────────────────────
+   GA4 EVENT HELPER
+   gtag her zaman hazır olmayabilir — güvenli wrapper
+────────────────────────────────────────────────────── */
+function track(eventName, params) {
+  if (typeof gtag === 'function') {
+    gtag('event', eventName, Object.assign({ event_category: 'harita' }, params || {}));
+  }
+}
+
+/* ──────────────────────────────────────────────────────
    TOAST
 ────────────────────────────────────────────────────── */
 let tTimer=null;
@@ -286,6 +332,7 @@ function showToast(msg) {
    ✅ execCommand fallback — eski tarayıcılar
 ────────────────────────────────────────────────────── */
 function copyAddr(addr) {
+  track('adres_kopyala', { event_label: addr });
   if (navigator.clipboard && navigator.clipboard.writeText) {
     navigator.clipboard.writeText(addr).then(()=>showToast('Adres kopyalandı ✓')).catch(()=>fbCopy(addr));
   } else { fbCopy(addr); }
@@ -333,7 +380,7 @@ function mkPopup(d) {
     ${d.address?`<div class="pb-row"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>${d.address}</span></div>`:''}
     ${d.phone?`<div class="pb-row"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 15.1 19.79 19.79 0 0 1 1.62 6.49 2 2 0 0 1 3.6 4.44h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 12a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.56 19.18z"/></svg><a href="tel:${d.phone}" onclick="event.stopPropagation()">${d.phone}</a></div>`:''}
     <div class="pb-acts">
-      <a href="${mUrl}" target="_blank" rel="noopener noreferrer" class="pb-btn pb-btn-p" onclick="event.stopPropagation()">
+      <a href="${mUrl}" target="_blank" rel="noopener noreferrer" class="pb-btn pb-btn-p" onclick="track('yol_tarifi_tiklandi',{event_label:'${d.name}',event_value:'${d.city}'});event.stopPropagation()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Yol Tarifi
       </a>
       ${d.address?`<button class="pb-btn pb-btn-s" onclick="copyAddr('${sa}');event.stopPropagation()">
@@ -354,7 +401,10 @@ function loadDealers(data) {
     totCnt[d.type]=(totCnt[d.type]||0)+1;
     const m=L.marker([d.lat,d.lng],{dealerType:d.type,dealerData:d,icon:mkPin(d)});
     m.bindPopup(mkPopup(d),{maxWidth:300,minWidth:250});
-    m.on('popupopen',  ()=>{ if(window.innerWidth<=600) $('legend').classList.add('hidden'); });
+    m.on('popupopen',  ()=>{
+      track('bayi_popup_acildi', { event_label: d.name, event_value: d.city, dimension1: L_[d.type] });
+      if(window.innerWidth<=600) $('legend').classList.add('hidden');
+    });
     m.on('popupclose', ()=>$('legend').classList.remove('hidden'));
     all.push({marker:m, data:d});
   });
@@ -410,11 +460,14 @@ function applyFilters() {
       ${d.phone?`<div class="di-row">
         <a class="di-tel" href="tel:${d.phone}" onclick="event.stopPropagation()">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 15.1 19.79 19.79 0 0 1 1.62 6.49 2 2 0 0 1 3.6 4.44h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 12a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.56 19.18z"/></svg>${d.phone}</a>
-        <a class="di-go" href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">
+        <a class="di-go" href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}" target="_blank" rel="noopener noreferrer" onclick="track('yol_tarifi_tiklandi',{event_label:'${d.name}',event_value:'${d.city}'});event.stopPropagation()">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Git
         </a>
       </div>`:''}`;
-    el.onclick=()=>{ map.setView(m.getLatLng(),15); m.openPopup(); if(window.innerWidth<=600) togglePanel(); };
+    el.onclick=()=>{
+      track('liste_bayi_tiklandi', { event_label: d.name, event_value: d.city, dimension1: L_[d.type] });
+      map.setView(m.getLatLng(),15); m.openPopup(); if(window.innerWidth<=600) togglePanel();
+    };
     el.onkeydown=e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); el.click(); } };
     listEl.appendChild(el);
   });
@@ -452,16 +505,26 @@ function clearSearch() {
 /* ──────────────────────────────────────────────────────
    EVENTS
 ────────────────────────────────────────────────────── */
-$('citySelect').onchange=e=>{ state.city=e.target.value; applyFilters(); };
+$('citySelect').onchange=e=>{
+  state.city=e.target.value;
+  if(state.city) track('sehir_secildi', { event_label: state.city });
+  applyFilters();
+};
 $('searchInput').oninput=e=>{
   const v=e.target.value; $('sClr').classList.toggle('on',v.length>0);
-  clearTimeout(stimer); stimer=setTimeout(()=>{ state.search=v; applyFilters(); },220);
+  clearTimeout(stimer); stimer=setTimeout(()=>{
+    state.search=v;
+    if(v.length>=2) track('arama_yapildi', { event_label: v, event_value: v.length });
+    applyFilters();
+  },220);
 };
 document.querySelectorAll('.tbtn').forEach(btn=>{
   btn.onclick=()=>{
     document.querySelectorAll('.tbtn').forEach(b=>{ b.classList.remove('on'); b.setAttribute('aria-pressed','false'); });
     btn.classList.add('on'); btn.setAttribute('aria-pressed','true');
-    state.type=btn.dataset.type; applyFilters();
+    state.type=btn.dataset.type;
+    track('tip_filtresi', { event_label: L_[state.type] || 'Tümü' });
+    applyFilters();
   };
 });
 

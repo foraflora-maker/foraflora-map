@@ -311,16 +311,18 @@ select { padding-left:34px; }
 .di-chip { padding:1px 7px; border-radius:99px; font-size:8.5px; font-weight:700; text-transform:uppercase; letter-spacing:.6px; }
 .di-addr { font-size:11px; color:var(--k400); margin-top:4px; line-height:1.5; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .di-row  { display:flex; align-items:center; justify-content:space-between; margin-top:7px; }
-.di-tel  { font-size:11.5px; font-weight:600; color:var(--k600); display:flex; align-items:center; gap:5px; transition:color .15s; }
-.di-tel:hover { color:var(--brand); }
+.di-tel  { font-size:11.5px; font-weight:600; color:var(--k600) !important; display:flex; align-items:center; gap:5px; transition:color .15s; text-decoration:none !important; }
+.di-tel:hover { color:var(--brand) !important; text-decoration:none !important; }
+.di-tel:visited { color:var(--k600) !important; text-decoration:none !important; }
 .di-tel svg { color:var(--k400); flex-shrink:0; }
 .di-go  {
   display:inline-flex; align-items:center; gap:3px;
-  padding:3px 9px; background:var(--brand-lt); color:var(--brand-dk);
+  padding:3px 9px; background:var(--brand-lt); color:var(--brand-dk) !important;
   border-radius:var(--r-xs); font-size:10.5px; font-weight:700;
-  transition:all .15s; text-decoration:none;
+  transition:all .15s; text-decoration:none !important;
 }
-.di-go:hover { background:var(--brand); color:var(--wht); }
+.di-go:hover { background:var(--brand); color:var(--wht) !important; text-decoration:none !important; }
+.di-go:visited { color:var(--brand-dk) !important; text-decoration:none !important; }
 
 .empty { display:none; flex-direction:column; align-items:center; padding:36px 16px; gap:10px; text-align:center; }
 .empty.on { display:flex; }
@@ -353,18 +355,21 @@ select { padding-left:34px; }
 .pb-name { font-size:15px; font-weight:700; color:var(--k950); letter-spacing:-.2px; line-height:1.3; margin-bottom:10px; padding-right:24px; }
 .pb-row { display:flex; align-items:flex-start; gap:7px; font-size:12px; color:var(--k600); margin-bottom:5px; line-height:1.5; }
 .pb-row svg { flex-shrink:0; margin-top:1px; color:var(--k400); }
-.pb-row a { color:var(--k800); font-weight:600; }
-.pb-row a:hover { color:var(--brand); }
+.pb-row a { color:var(--k800) !important; font-weight:600; text-decoration:none !important; }
+.pb-row a:hover { color:var(--brand) !important; text-decoration:none !important; }
+.pb-row a:visited { color:var(--k800) !important; text-decoration:none !important; }
 .pb-acts { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:14px; padding-top:14px; border-top:1px solid var(--k100); }
 .pb-btn {
   display:flex; align-items:center; justify-content:center; gap:6px;
   padding:9px; border-radius:var(--r-sm); font-size:11.5px; font-weight:700;
   text-decoration:none; transition:all .18s var(--ease); cursor:pointer; letter-spacing:-.05px;
 }
-.pb-btn-p { background:var(--brand); color:var(--wht); border:none; box-shadow:0 2px 8px rgba(78,116,83,.28); }
-.pb-btn-p:hover { background:var(--brand-dk); transform:translateY(-1px); box-shadow:0 4px 14px rgba(78,116,83,.34); color:var(--wht); }
-.pb-btn-s { background:var(--k50); color:var(--k600); border:1.5px solid var(--k100); }
-.pb-btn-s:hover { background:var(--k100); color:var(--k950); }
+.pb-btn-p { background:var(--brand); color:var(--wht) !important; border:none; box-shadow:0 2px 8px rgba(78,116,83,.28); text-decoration:none !important; }
+.pb-btn-p:hover { background:var(--brand-dk); transform:translateY(-1px); box-shadow:0 4px 14px rgba(78,116,83,.34); color:var(--wht) !important; text-decoration:none !important; }
+.pb-btn-p:visited { color:var(--wht) !important; text-decoration:none !important; }
+.pb-btn-s { background:var(--k50); color:var(--k600) !important; border:1.5px solid var(--k100); text-decoration:none !important; }
+.pb-btn-s:hover { background:var(--k100); color:var(--k950) !important; text-decoration:none !important; }
+.pb-btn-s:visited { color:var(--k600) !important; text-decoration:none !important; }
 
 /* ═══════════════════════════════════════════════════════
    TOAST
