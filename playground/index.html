@@ -9,7 +9,25 @@
   iframe + GitHub Pages uyumluluk notları:
   • body { height:100% }       — 100dvh yerine, iframe içinde doğru çalışır
   • position: absolute          — fixed yerine (overlay, panel, toast, loading)
-  • fetch('./dealers.json')     — GitHub Pages subdirectory için göreli path
+  • /* ──────────────────────────────────────────────────────
+   OPEN MAPS
+   ✅ iframe sandbox uyumlu — window.open başarısız olursa
+   _top ile üst pencerede açar, o da engellirse direkt href
+────────────────────────────────────────────────────── */
+function openMaps(url) {
+  try {
+    const w = window.open(url, '_blank');
+    if (!w || w.closed || typeof w.closed === 'undefined') {
+      // Pop-up blocker devreye girdi — _top ile dene
+      window.open(url, '_top');
+    }
+  } catch(e) {
+    // iframe sandbox izin vermedi — _top ile dene
+    try { window.open(url, '_top'); } catch(e2) { location.href = url; }
+  }
+}
+
+fetch('./dealers.json')     — GitHub Pages subdirectory için göreli path
   • Geolocation hatası          — izin yoksa Türkçe zarif toast mesajı
   • clipboard fallback          — execCommand ile eski tarayıcı desteği
   • system-font fallback        — Google Fonts CSP bloklamasına karşı güvenli
@@ -380,9 +398,9 @@ function mkPopup(d) {
     ${d.address?`<div class="pb-row"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>${d.address}</span></div>`:''}
     ${d.phone?`<div class="pb-row"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 15.1 19.79 19.79 0 0 1 1.62 6.49 2 2 0 0 1 3.6 4.44h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 12a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.56 19.18z"/></svg><a href="tel:${d.phone}" onclick="event.stopPropagation()">${d.phone}</a></div>`:''}
     <div class="pb-acts">
-      <a href="${mUrl}" target="_blank" rel="noopener noreferrer" class="pb-btn pb-btn-p" onclick="track('yol_tarifi_tiklandi',{event_label:'${d.name}',event_value:'${d.city}'});event.stopPropagation()">
+      <button type="button" class="pb-btn pb-btn-p" onclick="openMaps('${mUrl}');track('yol_tarifi_tiklandi',{event_label:'${d.name}',event_value:'${d.city}'});event.stopPropagation()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Yol Tarifi
-      </a>
+      </button>
       ${d.address?`<button class="pb-btn pb-btn-s" onclick="copyAddr('${sa}');event.stopPropagation()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>Adresi Kopyala
       </button>`:''}
@@ -460,9 +478,9 @@ function applyFilters() {
       ${d.phone?`<div class="di-row">
         <a class="di-tel" href="tel:${d.phone}" onclick="event.stopPropagation()">
           <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 15.1 19.79 19.79 0 0 1 1.62 6.49 2 2 0 0 1 3.6 4.44h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 12a16 16 0 0 0 6 6l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21.56 19.18z"/></svg>${d.phone}</a>
-        <a class="di-go" href="https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}" target="_blank" rel="noopener noreferrer" onclick="track('yol_tarifi_tiklandi',{event_label:'${d.name}',event_value:'${d.city}'});event.stopPropagation()">
+        <button type="button" class="di-go" onclick="openMaps('https://www.google.com/maps/dir/?api=1&destination=${d.lat},${d.lng}');track('yol_tarifi_tiklandi',{event_label:'${d.name}',event_value:'${d.city}'});event.stopPropagation()">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Git
-        </a>
+        </button>
       </div>`:''}`;
     el.onclick=()=>{
       track('liste_bayi_tiklandi', { event_label: d.name, event_value: d.city, dimension1: L_[d.type] });
@@ -532,6 +550,24 @@ document.querySelectorAll('.tbtn').forEach(btn=>{
    FETCH
    ✅ './dealers.json' — GitHub Pages subdirectory uyumlu
 ────────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────
+   OPEN MAPS
+   ✅ iframe sandbox uyumlu — window.open başarısız olursa
+   _top ile üst pencerede açar, o da engellirse direkt href
+────────────────────────────────────────────────────── */
+function openMaps(url) {
+  try {
+    const w = window.open(url, '_blank');
+    if (!w || w.closed || typeof w.closed === 'undefined') {
+      // Pop-up blocker devreye girdi — _top ile dene
+      window.open(url, '_top');
+    }
+  } catch(e) {
+    // iframe sandbox izin vermedi — _top ile dene
+    try { window.open(url, '_top'); } catch(e2) { location.href = url; }
+  }
+}
+
 fetch('./dealers.json')
   .then(r=>{ if(!r.ok) throw new Error('HTTP '+r.status); return r.json(); })
   .then(loadDealers)
