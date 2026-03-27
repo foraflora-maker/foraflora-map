@@ -15,15 +15,14 @@
    _top ile üst pencerede açar, o da engellirse direkt href
 ────────────────────────────────────────────────────── */
 function openMaps(url) {
-  try {
-    const w = window.open(url, '_blank');
-    if (!w || w.closed || typeof w.closed === 'undefined') {
-      // Pop-up blocker devreye girdi — _top ile dene
-      window.open(url, '_top');
-    }
-  } catch(e) {
-    // iframe sandbox izin vermedi — _top ile dene
-    try { window.open(url, '_top'); } catch(e2) { location.href = url; }
+  /* İç iframe'de allow-popups + allow-popups-to-escape-sandbox var.
+     window.open(_blank) ile yeni sekmede Google Maps açılır. */
+  const w = window.open(url, '_blank', 'noopener,noreferrer');
+  if (!w || w.closed || typeof w.closed === 'undefined') {
+    // Pop-up blocker devreye girdiyse link oluşturup tıkla
+    const a = document.createElement('a');
+    a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
 }
 
@@ -556,15 +555,14 @@ document.querySelectorAll('.tbtn').forEach(btn=>{
    _top ile üst pencerede açar, o da engellirse direkt href
 ────────────────────────────────────────────────────── */
 function openMaps(url) {
-  try {
-    const w = window.open(url, '_blank');
-    if (!w || w.closed || typeof w.closed === 'undefined') {
-      // Pop-up blocker devreye girdi — _top ile dene
-      window.open(url, '_top');
-    }
-  } catch(e) {
-    // iframe sandbox izin vermedi — _top ile dene
-    try { window.open(url, '_top'); } catch(e2) { location.href = url; }
+  /* İç iframe'de allow-popups + allow-popups-to-escape-sandbox var.
+     window.open(_blank) ile yeni sekmede Google Maps açılır. */
+  const w = window.open(url, '_blank', 'noopener,noreferrer');
+  if (!w || w.closed || typeof w.closed === 'undefined') {
+    // Pop-up blocker devreye girdiyse link oluşturup tıkla
+    const a = document.createElement('a');
+    a.href = url; a.target = '_blank'; a.rel = 'noopener noreferrer';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
   }
 }
 
